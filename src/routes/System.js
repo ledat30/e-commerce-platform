@@ -7,7 +7,7 @@ import NotFound from "../pages/System/NotFound";
 function AdminDashboard() {
   return (
     <Routes>
-      <Route path="/admin/dashboard" element={<Dashboard />} exact />
+      <Route path="/" element={<Dashboard />} exact />
       <Route path="/admin/users" element={<User />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

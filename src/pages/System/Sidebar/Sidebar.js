@@ -24,7 +24,7 @@ function Sidebar(props) {
   }, [isSidebarOpen]);
   return (
     <>
-      <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+      <div className={`sidebar ${isSidebarOpen ? "" : "open"}`}>
         <div className="logo-details">
           <div className="logo_name">CodingStella</div>
           <i className="fa fa-bars" aria-hidden="true" id="btn"></i>
@@ -36,7 +36,7 @@ function Sidebar(props) {
             <span className="tooltip">Search</span>
           </li>
           <li>
-            <NavLink to="/admin/dashboard">
+            <NavLink to="/">
               <i className="fa fa-home" aria-hidden="true"></i>
               <span className="links_name">Dashboard</span>
             </NavLink>
