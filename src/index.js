@@ -6,16 +6,20 @@ import GlobalStyles from "./components/GlobalStyles/indexGlobalStyles";
 import { BrowserRouter } from "react-router-dom";
 import "font-awesome/css/font-awesome.min.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Provider } from "react-redux";
+import store from "./store/redux/store";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <GlobalStyles>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </GlobalStyles>
-  </React.StrictMode>
+  <Provider store={store}>
+    <React.StrictMode>
+      <GlobalStyles>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </GlobalStyles>
+    </React.StrictMode>
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function
