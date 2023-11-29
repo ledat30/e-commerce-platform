@@ -43,6 +43,68 @@ const createNewUser = async (data) => {
   }
 };
 
+const getAllUsers = async () => {
+  try {
+    let users = await db.User.findAll({
+      attributes: ["id", "username", "email", "phonenumber"],
+      include: { model: db.Role, attributes: ["roleName"] },
+    });
+    if (users) {
+      return {
+        EM: "Get all user success!",
+        EC: 0,
+        DT: users,
+      };
+    } else {
+      return {
+        EM: "Get all user error!",
+        EC: 0,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
+const getUserWithPagination = async (page, limit) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.User.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      attributes: ["id", "username", "email", "phonenumber", "address"],
+      include: { model: db.Role, attributes: ["id", "roleName"] },
+      order: [["id", "DESC"]],
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      users: rows,
+    };
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createNewUser,
+  getAllUsers,
+  getUserWithPagination,
 };

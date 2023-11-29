@@ -11,6 +11,7 @@ const router = express.Router();
 const initApiRouter = (app) => {
   //user routes
   router.post("/user/create", userController.createFunc);
+  router.get("/user/read", userController.readFunc);
 
   //role routes
   router.get("/role/read", roleController.readFunc);
