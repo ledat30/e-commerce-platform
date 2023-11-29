@@ -16,4 +16,10 @@ const getAllUsers = (page, limit) => {
   );
 };
 
-export { fetchRoles, createNewUser, getAllUsers };
+const deleteUser = (user) => {
+  return axios.delete(`/api/user/delete`, {
+    data: { id: user.id },
+  });
+};
+
+export { fetchRoles, createNewUser, getAllUsers, deleteUser };

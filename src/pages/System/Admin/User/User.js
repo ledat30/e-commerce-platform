@@ -3,7 +3,9 @@ import "./User.scss";
 import ReactPaginate from "react-paginate";
 import ModalUser from "./ModalUser";
 import { useEffect, useState } from "react";
-import { getAllUsers } from "../../../../services/userService";
+import { getAllUsers, deleteUser } from "../../../../services/userService";
+import { toast } from "react-toastify";
+import ModelDelete from "./ModalDelete";
 
 function User(ropps) {
   const [isShowModalUser, setIsShowModalUser] = useState(false);
@@ -11,6 +13,9 @@ function User(ropps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
+
+  const [isShowModelDelete, setIsShowModelDelete] = useState(false);
+  const [dataModel, setDataModel] = useState({});
 
   useEffect(() => {
     fetchUsers();
@@ -33,6 +38,31 @@ function User(ropps) {
     setIsShowModalUser(false);
     fetchUsers();
   };
+
+  const handleDeleteUser = async (user) => {
+    setDataModel(user);
+    setIsShowModelDelete(true);
+  };
+  const handleClose = () => {
+    setIsShowModelDelete(false);
+    setDataModel({});
+  };
+
+  const confirmDeleteUser = async () => {
+    let response = await deleteUser(dataModel);
+    if (response && response.EC === 0) {
+      toast.success(response.EM);
+      await fetchUsers();
+      setIsShowModelDelete(false);
+    } else {
+      toast.error(response.EM);
+    }
+  };
+
+  const handleRefresh = async () => {
+    await fetchUsers();
+  };
+
   return (
     <>
       <div className="container">
@@ -42,7 +72,10 @@ function User(ropps) {
               <h3>Manage Users</h3>
             </div>
             <div className="actions my-3">
-              <button className="btn btn-success refresh">
+              <button
+                className="btn btn-success refresh"
+                onClick={() => handleRefresh()}
+              >
                 <i className="fa fa-refresh"></i> Refesh
               </button>
               <button
@@ -100,7 +133,11 @@ function User(ropps) {
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button title="Delete" className="btn btn-danger">
+                            <button
+                              title="Delete"
+                              className="btn btn-danger"
+                              onClick={() => handleDeleteUser(item)}
+                            >
                               <i className="fa fa-trash-o"></i>
                             </button>
                           </td>
@@ -144,6 +181,13 @@ function User(ropps) {
           )}
         </div>
       </div>
+      <ModelDelete
+        show={isShowModelDelete}
+        handleClose={handleClose}
+        confirmDeleteUser={confirmDeleteUser}
+        dataModel={dataModel}
+      />
+
       <ModalUser
         title={"Create new user"}
         onHide={onHideModalUser}
