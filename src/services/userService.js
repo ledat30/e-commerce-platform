@@ -10,4 +10,10 @@ const createNewUser = (userData) => {
   });
 };
 
-export { fetchRoles, createNewUser };
+const getAllUsers = (page, limit) => {
+  return axios.get(
+    `/api/user/read?page=${page}&limit=${limit}` //template string
+  );
+};
+
+export { fetchRoles, createNewUser, getAllUsers };

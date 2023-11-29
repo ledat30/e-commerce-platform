@@ -101,8 +101,12 @@ const ModalUser = (props) => {
         setUserData({ ...defaultUserData, role: userRole[0].id });
         setPreviewImgURL("");
         toast.success(response.EM);
-      } else {
+      }
+      if (response && response.EC !== 0) {
         toast.error(response.EM);
+        let _validInputs = _.cloneDeep(validInputsDefault);
+        _validInputs[response.DT] = false;
+        setValidInputs(_validInputs);
       }
     }
   };
