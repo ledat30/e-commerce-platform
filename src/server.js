@@ -3,9 +3,13 @@ import initApiRouter from "./routes/api";
 require("dotenv").config();
 import bodyParser from "body-parser";
 import connectDB from "./config/connectDB";
+import configCors from "./config/cors";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+//config cors
+configCors(app);
 
 //config body-parser
 app.use(bodyParser.json({ limit: "50mb" }));
