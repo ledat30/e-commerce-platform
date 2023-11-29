@@ -5,6 +5,37 @@ body {
     font-weight: 100;
 }
 
+.preview-img-container {
+
+    .upload {
+        display: flex;
+
+        .lable-upload {
+            padding      : 7px 5px 5px;
+            border-radius: 3px;
+            height       : 38px;
+            width        : 120px;
+            margin-right : 20px;
+            text-align   : center;
+            background   : #ddd;
+            cursor       : pointer;
+
+            &:hover {
+                opacity: 0.7;
+            }
+        }
+
+        .preview-image {
+            height         : 50px;
+            width          : 100%;
+            border         : 1px solid #ddd;
+            background     : center center no-repeat;
+            background-size: contain;
+        }
+    }
+
+}
+
 .container {
     .user-header {
         .actions {
