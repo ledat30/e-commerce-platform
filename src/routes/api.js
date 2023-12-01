@@ -12,6 +12,7 @@ const initApiRouter = (app) => {
   //user routes
   router.post("/user/create", userController.createFunc);
   router.get("/user/read", userController.readFunc);
+  router.put("/user/update", userController.updateFunc);
   router.delete("/user/delete", userController.deleteFunc);
 
   //role routes

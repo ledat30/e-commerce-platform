@@ -78,7 +78,14 @@ const getUserWithPagination = async (page, limit) => {
     const { count, rows } = await db.User.findAndCountAll({
       offset: offset,
       limit: limit,
-      attributes: ["id", "username", "email", "phonenumber", "address"],
+      attributes: [
+        "id",
+        "username",
+        "email",
+        "phonenumber",
+        "address",
+        "image",
+      ],
       include: { model: db.Role, attributes: ["id", "roleName"] },
       order: [["id", "DESC"]],
     });
@@ -93,6 +100,48 @@ const getUserWithPagination = async (page, limit) => {
       EC: 0,
       DT: data,
     };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
+const updateUser = async (data) => {
+  try {
+    if (!data.roleId) {
+      return {
+        EM: "Error with empty roleId ",
+        EC: 1,
+        DT: "roleId",
+      };
+    }
+    let user = await db.User.findOne({
+      where: { id: data.id },
+    });
+    if (user) {
+      //update
+      await user.update({
+        username: data.username,
+        address: data.address,
+        roleId: data.roleId,
+        ...(data.image && { image: data.image }),
+      });
+      return {
+        EM: "Update user success",
+        EC: 0,
+        DT: "",
+      };
+    } else {
+      return {
+        EM: "User not found",
+        EC: 2,
+        DT: "",
+      };
+    }
   } catch (error) {
     console.log(error);
     return {
@@ -136,5 +185,6 @@ module.exports = {
   createNewUser,
   getAllUsers,
   getUserWithPagination,
+  updateUser,
   deleteUser,
 };
