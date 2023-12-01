@@ -3,12 +3,18 @@ import Modal from "react-bootstrap/Modal";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import _ from "lodash";
-import { fetchRoles, createNewUser } from "../../../../services/userService";
+import {
+  fetchRoles,
+  createNewUser,
+  updateUser,
+} from "../../../../services/userService";
 import { CommonUtils } from "../../../../utils";
+const { Buffer } = require("buffer");
 
 const ModalUser = (props) => {
   const [userRole, setUserRole] = useState([]);
   const [previewImgURL, setPreviewImgURL] = useState("");
+  const { action, dataModalUser } = props;
 
   const defaultUserData = {
     username: "",
@@ -35,6 +41,31 @@ const ModalUser = (props) => {
   useEffect(() => {
     getRoles();
   }, []);
+
+  useEffect(() => {
+    if (action === "UPDATE") {
+      setUserData({
+        ...dataModalUser,
+        role: dataModalUser.Role ? dataModalUser.Role.id : "",
+      });
+      // Convert Buffer to base64 for image preview
+      let imageBase64 = "";
+      if (dataModalUser.image) {
+        imageBase64 = new Buffer.from(dataModalUser.image, "base64").toString(
+          "binary"
+        );
+      }
+      setPreviewImgURL(imageBase64);
+    }
+  }, [action, dataModalUser]);
+
+  useEffect(() => {
+    if (action === "CREATE") {
+      if (userRole && userRole.length > 0) {
+        setUserData({ ...userData, role: userRole[0].id });
+      }
+    }
+  }, [action, userRole]);
 
   const getRoles = async () => {
     try {
@@ -71,8 +102,8 @@ const ModalUser = (props) => {
 
   const checkValidInput = () => {
     //check create user
+    if (action === "UPDATE") return true;
     setValidInputs(validInputsDefault);
-    console.log(">>check user data", userData);
     let arr = ["email", "phonenumber", "password", "role"];
     let check = true;
     for (let i = 0; i < arr.length; i++) {
@@ -92,13 +123,19 @@ const ModalUser = (props) => {
   const handleConfirmUser = async () => {
     let check = checkValidInput();
     if (check === true) {
-      let response = await createNewUser({
-        ...userData,
-        roleId: userData["role"],
-      });
+      let response =
+        action === "CREATE"
+          ? await createNewUser({
+              ...userData,
+              roleId: userData["role"],
+            })
+          : await updateUser({ ...userData, roleId: userData["role"] });
       if (response && response.EC === 0) {
         props.onHide();
-        setUserData({ ...defaultUserData, role: userRole[0].id });
+        setUserData({
+          ...defaultUserData,
+          role: userRole && userRole.length > 0 ? userRole[0].id : "",
+        });
         setPreviewImgURL("");
         toast.success(response.EM);
       }
@@ -111,17 +148,25 @@ const ModalUser = (props) => {
     }
   };
 
+  const handleCloseModalUser = () => {
+    props.onHide();
+    setUserData(defaultUserData);
+    setValidInputs(validInputsDefault);
+  };
+
   return (
     <>
       <Modal
         size="lg"
         show={props.show}
         className="modal-user"
-        onHide={props.onHide}
+        onHide={() => handleCloseModalUser()}
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            <span>{props.title}</span>
+            <span>
+              {props.action === "CREATE" ? "Create new user" : "Edit a user"}
+            </span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -131,6 +176,7 @@ const ModalUser = (props) => {
                 Email address (<span style={{ color: "red" }}>*</span>)
               </label>
               <input
+                disabled={action === "CREATE" ? false : true}
                 className={
                   validInputs.email
                     ? "form-control mt-1"
@@ -146,6 +192,7 @@ const ModalUser = (props) => {
                 Phone number (<span style={{ color: "red" }}>*</span>)
               </label>
               <input
+                disabled={action === "CREATE" ? false : true}
                 className={
                   validInputs.phonenumber
                     ? "form-control mt-1"
@@ -174,13 +221,14 @@ const ModalUser = (props) => {
                 Password (<span style={{ color: "red" }}>*</span>)
               </label>
               <input
+                disabled={action !== "CREATE"}
                 className={
                   validInputs.password
                     ? "form-control mt-1"
                     : "form-control mt-1 is-invalid"
                 }
                 type="password"
-                value={userData.password}
+                value={action !== "CREATE" ? "**********" : userData.password}
                 onChange={(e) =>
                   handleOnChangeInput(e.target.value, "password")
                 }
@@ -241,11 +289,11 @@ const ModalUser = (props) => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={props.onHide}>
+          <Button variant="secondary" onClick={() => handleCloseModalUser()}>
             Đóng
           </Button>
           <Button variant="primary" onClick={() => handleConfirmUser()}>
-            Thêm mới
+            {action === "CREATE" ? "Thêm mới" : "Sửa"}
           </Button>
         </Modal.Footer>
       </Modal>

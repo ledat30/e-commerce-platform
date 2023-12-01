@@ -8,12 +8,19 @@ import { toast } from "react-toastify";
 import ModelDelete from "./ModalDelete";
 
 function User(ropps) {
+  //modal create user
   const [isShowModalUser, setIsShowModalUser] = useState(false);
+  const [actionModalUser, setActionModalUser] = useState("CREATE");
+
+  //modal edit user
+  const [dataModalUser, setDataModalUser] = useState({});
+
   const [listUsers, setListUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
 
+  //modal delete user
   const [isShowModelDelete, setIsShowModelDelete] = useState(false);
   const [dataModel, setDataModel] = useState({});
 
@@ -34,9 +41,10 @@ function User(ropps) {
     setCurrentPage(+event.selected + 1);
   };
 
-  const onHideModalUser = () => {
+  const onHideModalUser = async () => {
     setIsShowModalUser(false);
-    fetchUsers();
+    await fetchUsers();
+    setDataModalUser({});
   };
 
   const handleDeleteUser = async (user) => {
@@ -63,6 +71,12 @@ function User(ropps) {
     await fetchUsers();
   };
 
+  const handleEditUser = async (user) => {
+    setDataModalUser(user);
+    setIsShowModalUser(true);
+    setActionModalUser("UPDATE");
+  };
+
   return (
     <>
       <div className="container">
@@ -80,9 +94,13 @@ function User(ropps) {
               </button>
               <button
                 className="btn btn-primary"
-                onClick={() => setIsShowModalUser(true)}
+                onClick={() => {
+                  setIsShowModalUser(true);
+                  setActionModalUser("CREATE");
+                }}
               >
-                Add new user
+                <i className="fa fa-plus-circle" aria-hidden="true"></i> Add new
+                user
               </button>
 
               <div className="box">
@@ -130,6 +148,7 @@ function User(ropps) {
                             <button
                               title="Edit"
                               className="btn btn-warning mx-2"
+                              onClick={() => handleEditUser(item)}
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
@@ -189,9 +208,10 @@ function User(ropps) {
       />
 
       <ModalUser
-        title={"Create new user"}
         onHide={onHideModalUser}
         show={isShowModalUser}
+        action={actionModalUser}
+        dataModalUser={dataModalUser}
       />
     </>
   );

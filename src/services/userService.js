@@ -16,10 +16,14 @@ const getAllUsers = (page, limit) => {
   );
 };
 
+const updateUser = (userData) => {
+  return axios.put(`/api/user/update`, { ...userData });
+};
+
 const deleteUser = (user) => {
   return axios.delete(`/api/user/delete`, {
     data: { id: user.id },
   });
 };
 
-export { fetchRoles, createNewUser, getAllUsers, deleteUser };
+export { fetchRoles, createNewUser, getAllUsers, updateUser, deleteUser };
