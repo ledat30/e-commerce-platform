@@ -26,4 +26,15 @@ const deleteUser = (user) => {
   });
 };
 
-export { fetchRoles, createNewUser, getAllUsers, updateUser, deleteUser };
+const searchUsers = (key) => {
+  return axios.get(`/api/search-user?q=${key}`);
+};
+
+export {
+  fetchRoles,
+  createNewUser,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+  searchUsers,
+};

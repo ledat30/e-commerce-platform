@@ -3,9 +3,14 @@ import "./User.scss";
 import ReactPaginate from "react-paginate";
 import ModalUser from "./ModalUser";
 import { useEffect, useState } from "react";
-import { getAllUsers, deleteUser } from "../../../../services/userService";
+import {
+  getAllUsers,
+  deleteUser,
+  searchUsers,
+} from "../../../../services/userService";
 import { toast } from "react-toastify";
 import ModelDelete from "./ModalDelete";
+import { debounce } from "lodash";
 
 function User(ropps) {
   //modal create user
@@ -77,6 +82,26 @@ function User(ropps) {
     setActionModalUser("UPDATE");
   };
 
+  const searchHandle = debounce(async (e) => {
+    let key = e.target.value;
+    if (key) {
+      try {
+        let response = await searchUsers(key);
+        if (response.EC === 0) {
+          setListUsers(response.DT);
+          setCurrentPage(1);
+        } else {
+          setListUsers([]);
+          setCurrentPage(1);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      await fetchUsers();
+    }
+  }, 300);
+
   return (
     <>
       <div className="container">
@@ -104,12 +129,12 @@ function User(ropps) {
               </button>
 
               <div className="box">
-                <form className="sbox" action="/search" method="get">
+                <form className="sbox">
                   <input
                     className="stext"
-                    type="text"
-                    name="q"
+                    type=""
                     placeholder="Tìm kiếm người dùng..."
+                    onChange={(e) => searchHandle(e)}
                   />
                   <NavLink className="sbutton" type="submit" to="">
                     <i className="fa fa-search"></i>
@@ -143,7 +168,10 @@ function User(ropps) {
                           <td>{item.id}</td>
                           <td>{item.username}</td>
                           <td>{item.email}</td>
-                          <td>{item.Role ? item.Role.roleName : ""}</td>
+                          <td>
+                            {item.Role?.roleName ||
+                              (item.roleId ? item.roleId : "")}
+                          </td>
                           <td>
                             <button
                               title="Edit"
