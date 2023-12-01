@@ -181,10 +181,62 @@ const deleteUser = async (id) => {
   }
 };
 
+const searchUser = async (keyword) => {
+  try {
+    const results = await db.User.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [
+          {
+            username: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+          {
+            email: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+          {
+            phonenumber: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      attributes: ["username", "email", "roleId", "id"],
+      include: [
+        {
+          model: db.Role,
+          attributes: ["roleName"],
+        },
+      ],
+    });
+    const transformedResults = results.map((result) => ({
+      username: result.username,
+      email: result.email,
+      roleId: result?.Role?.roleName || "",
+      id: result.id,
+    }));
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: transformedResults,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createNewUser,
   getAllUsers,
   getUserWithPagination,
   updateUser,
   deleteUser,
+  searchUser,
 };

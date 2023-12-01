@@ -14,6 +14,7 @@ const initApiRouter = (app) => {
   router.get("/user/read", userController.readFunc);
   router.put("/user/update", userController.updateFunc);
   router.delete("/user/delete", userController.deleteFunc);
+  router.get("/search-user", userController.searchUser);
 
   //role routes
   router.get("/role/read", roleController.readFunc);
