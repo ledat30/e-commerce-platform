@@ -76,39 +76,3 @@ function Sidebar(props) {
 }
 
 export default Sidebar;
-
-<>
-  {/* hướng dẫn động routes theo login
- <ul className="nav-list">
-  {isAdmin && (
-    <li>
-      <NavLink to="/admin">
-        <i className="fa fa-cogs"></i>
-        <span className="links_name">Admin</span>
-      </NavLink>
-      <span className="tooltip">Admin</span>
-    </li>
-  )}
-  {isStoreOwner && (
-    <li>
-      <NavLink to="/store">
-        <i className="fa fa-store"></i>
-        <span className="links_name">Store</span>
-      </NavLink>
-      <span className="tooltip">Store</span>
-    </li>
-  )}
-   Các mục menu khác dựa trên quyền truy cập 
- <li>
-   <NavLink to="/" exact>
-      <i className="fa fa-home" aria-hidden="true"></i>
-    <span className="links_name">Dashboard</span>
-     </NavLink>
-    <span className="tooltip">Dashboard</span>
-  </li>
-  
- <li className="profile">
-    
-   </li>
-</ul>  */}
-</>;

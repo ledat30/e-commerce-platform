@@ -22,7 +22,7 @@ function User(ropps) {
 
   const [listUsers, setListUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentLimit] = useState(5);
+  const [currentLimit] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
 
   //modal delete user
