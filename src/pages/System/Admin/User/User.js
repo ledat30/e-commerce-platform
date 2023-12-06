@@ -152,7 +152,7 @@ function User(ropps) {
                   <th>Id</th>
                   <th>Username</th>
                   <th>Email</th>
-                  <th>Role</th>
+                  <th>Group</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -169,8 +169,8 @@ function User(ropps) {
                           <td>{item.username}</td>
                           <td>{item.email}</td>
                           <td>
-                            {item.Role?.roleName ||
-                              (item.roleId ? item.roleId : "")}
+                            {item.Group?.name ||
+                              (item.groupId ? item.groupId : "")}
                           </td>
                           <td>
                             <button

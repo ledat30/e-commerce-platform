@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import _ from "lodash";
 import {
-  fetchRoles,
+  fetchGroups,
   createNewUser,
   updateUser,
 } from "../../../../services/userService";
@@ -12,7 +12,7 @@ import { CommonUtils } from "../../../../utils";
 const { Buffer } = require("buffer");
 
 const ModalUser = (props) => {
-  const [userRole, setUserRole] = useState([]);
+  const [userGroup, setUserGroup] = useState([]);
   const [previewImgURL, setPreviewImgURL] = useState("");
   const { action, dataModalUser } = props;
 
@@ -21,7 +21,7 @@ const ModalUser = (props) => {
     address: "",
     email: "",
     image: "",
-    role: "",
+    group: "",
     phonenumber: "",
     password: "",
   };
@@ -31,7 +31,7 @@ const ModalUser = (props) => {
     address: true,
     email: true,
     image: true,
-    role: true,
+    group: true,
     phonenumber: true,
     password: true,
   };
@@ -39,14 +39,14 @@ const ModalUser = (props) => {
   const [validInputs, setValidInputs] = useState(validInputsDefault);
 
   useEffect(() => {
-    getRoles();
+    getGroups();
   }, []);
 
   useEffect(() => {
     if (action === "UPDATE") {
       setUserData({
         ...dataModalUser,
-        role: dataModalUser.Role ? dataModalUser.Role.id : "",
+        group: dataModalUser.Group ? dataModalUser.Group.id : "",
       });
       // Convert Buffer to base64 for image preview
       let imageBase64 = "";
@@ -61,25 +61,25 @@ const ModalUser = (props) => {
 
   useEffect(() => {
     if (action === "CREATE") {
-      if (userRole && userRole.length > 0) {
-        setUserData({ ...userData, role: userRole[0].id });
+      if (userGroup && userGroup.length > 0) {
+        setUserData({ ...userData, group: userGroup[0].id });
       }
     }
-  }, [action, userRole]);
+  }, [action, userGroup]);
 
-  const getRoles = async () => {
+  const getGroups = async () => {
     try {
-      let response = await fetchRoles();
+      let response = await fetchGroups();
 
       if (response && response.EC === 0) {
-        setUserRole(response.DT);
+        setUserGroup(response.DT);
         if (response.DT && response.DT.length > 0) {
-          let roles = response.DT;
-          setUserData({ ...userData, role: roles[0].id });
+          let groups = response.DT;
+          setUserData({ ...userData, group: groups[0].id });
         }
       }
     } catch (error) {
-      console.error("Error fetching roles:", error);
+      console.error("Error fetching groups:", error);
     }
   };
 
@@ -104,7 +104,7 @@ const ModalUser = (props) => {
     //check create user
     if (action === "UPDATE") return true;
     setValidInputs(validInputsDefault);
-    let arr = ["email", "phonenumber", "password", "role"];
+    let arr = ["email", "phonenumber", "password", "group"];
     let check = true;
     for (let i = 0; i < arr.length; i++) {
       if (!userData[arr[i]]) {
@@ -127,14 +127,14 @@ const ModalUser = (props) => {
         action === "CREATE"
           ? await createNewUser({
               ...userData,
-              roleId: userData["role"],
+              groupId: userData["group"],
             })
-          : await updateUser({ ...userData, roleId: userData["role"] });
+          : await updateUser({ ...userData, groupId: userData["group"] });
       if (response && response.EC === 0) {
         props.onHide();
         setUserData({
           ...defaultUserData,
-          role: userRole && userRole.length > 0 ? userRole[0].id : "",
+          group: userGroup && userGroup.length > 0 ? userGroup[0].id : "",
         });
         setPreviewImgURL("");
         toast.success(response.EM);
@@ -245,22 +245,22 @@ const ModalUser = (props) => {
             </div>
             <div className="col-12 col-sm-6 from-group mt-1">
               <label>
-                Role (<span style={{ color: "red" }}>*</span>)
+                Group (<span style={{ color: "red" }}>*</span>)
               </label>
               <select
                 className={
-                  validInputs.role
+                  validInputs.group
                     ? "form-select mt-1"
                     : "form-select mt-1 is-invalid"
                 }
-                onChange={(e) => handleOnChangeInput(e.target.value, "role")}
-                value={userData.role}
+                onChange={(e) => handleOnChangeInput(e.target.value, "group")}
+                value={userData.group}
               >
-                {userRole.length > 0 &&
-                  userRole.map((item, index) => {
+                {userGroup.length > 0 &&
+                  userGroup.map((item, index) => {
                     return (
-                      <option key={`role-${index}`} value={item.id}>
-                        {item.roleName}
+                      <option key={`group-${index}`} value={item.id}>
+                        {item.name}
                       </option>
                     );
                   })}

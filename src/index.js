@@ -8,15 +8,18 @@ import "font-awesome/css/font-awesome.min.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Provider } from "react-redux";
 import store from "./store/redux/store";
+import { UserProvider } from "./context/userContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <React.StrictMode>
       <GlobalStyles>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <UserProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </UserProvider>
       </GlobalStyles>
     </React.StrictMode>
   </Provider>

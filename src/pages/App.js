@@ -3,18 +3,29 @@ import SlideBar from "./System/Sidebar/Sidebar";
 import AppRoutes from "../routes/AppRoutes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Rings } from "react-loader-spinner";
+import { UserContext } from "../context/userContext";
+import { useContext } from "react";
 
 function App() {
+  const { user } = useContext(UserContext);
   return (
     <>
-      <div className="app">
-        {/* <div className="app-slidebar">
-          <SlideBar />
-        </div> */}
-        <div className="content">
-          <AppRoutes />
+      {user && user.isLoading ? (
+        <div className="loading-container">
+          <Rings heigth="100" width="100" color="#1877f2" ariaLabel="loading" />
+          <div>Loading data...</div>
         </div>
-      </div>
+      ) : (
+        <div className="app">
+          <div className="app-slidebar">
+            <SlideBar />
+          </div>
+          <div className="content">
+            <AppRoutes />
+          </div>
+        </div>
+      )}
       <ToastContainer
         position="top-right"
         autoClose={4000}
