@@ -47,7 +47,7 @@ const getAllUsers = async () => {
   try {
     let users = await db.User.findAll({
       attributes: ["id", "username", "email", "phonenumber"],
-      include: { model: db.Role, attributes: ["roleName"] },
+      include: { model: db.Group, attributes: ["name"] },
     });
     if (users) {
       return {
@@ -86,7 +86,7 @@ const getUserWithPagination = async (page, limit) => {
         "address",
         "image",
       ],
-      include: { model: db.Role, attributes: ["id", "roleName"] },
+      include: { model: db.Group, attributes: ["id", "name"] },
       order: [["id", "DESC"]],
     });
     let totalPages = Math.ceil(count / limit);
@@ -112,11 +112,11 @@ const getUserWithPagination = async (page, limit) => {
 
 const updateUser = async (data) => {
   try {
-    if (!data.roleId) {
+    if (!data.groupId) {
       return {
-        EM: "Error with empty roleId ",
+        EM: "Error with empty groupId ",
         EC: 1,
-        DT: "roleId",
+        DT: "groupId",
       };
     }
     let user = await db.User.findOne({
@@ -127,7 +127,7 @@ const updateUser = async (data) => {
       await user.update({
         username: data.username,
         address: data.address,
-        roleId: data.roleId,
+        groupId: data.groupId,
         ...(data.image && { image: data.image }),
       });
       return {
@@ -203,18 +203,18 @@ const searchUser = async (keyword) => {
           },
         ],
       },
-      attributes: ["username", "email", "roleId", "id"],
+      attributes: ["username", "email", "groupId", "id"],
       include: [
         {
-          model: db.Role,
-          attributes: ["roleName"],
+          model: db.Group,
+          attributes: ["name"],
         },
       ],
     });
     const transformedResults = results.map((result) => ({
       username: result.username,
       email: result.email,
-      roleId: result?.Role?.roleName || "",
+      groupId: result?.Group?.name || "",
       id: result.id,
     }));
     return {

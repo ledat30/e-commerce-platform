@@ -105,10 +105,24 @@ const searchUser = async (req, res) => {
   }
 };
 
+const getUserAccount = async (req, res) => {
+  return res.status(200).json({
+    EM: "Ok",
+    EC: 0,
+    DT: {
+      ccess_token: req.token,
+      groupWithRoles: req.user.groupWithRoles,
+      email: req.user.email,
+      username: req.user.username,
+    },
+  });
+};
+
 module.exports = {
   createFunc,
   readFunc,
   updateFunc,
   deleteFunc,
   searchUser,
+  getUserAccount,
 };

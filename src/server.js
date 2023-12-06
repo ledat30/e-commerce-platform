@@ -4,6 +4,7 @@ require("dotenv").config();
 import bodyParser from "body-parser";
 import connectDB from "./config/connectDB";
 import configCors from "./config/cors";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -17,6 +18,9 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 //db
 connectDB();
+
+//config cookie-parser
+app.use(cookieParser());
 
 //init web router
 initApiRouter(app);
