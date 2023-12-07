@@ -79,14 +79,14 @@ function Sidebar(props) {
               </NavLink>
               <span className="tooltip">User</span>
             </li>
-            {/* <li>
-            <NavLink to="#">
-              <i className="bx bx-user"></i>
-              <span className="links_name">User</span>
-            </NavLink>
-            <span className="tooltip">User</span>
-          </li>
-  */}
+            <li>
+              <NavLink to="/admin/role">
+                <i class="fa fa-shield" aria-hidden="true"></i>
+                <span className="links_name">Role</span>
+              </NavLink>
+              <span className="tooltip">Role</span>
+            </li>
+
             {user && user.isAuthenticated === true && (
               <li className="profile">
                 <div className="profile-details">

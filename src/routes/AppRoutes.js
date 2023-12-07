@@ -5,6 +5,7 @@ import User from "../pages/System/Admin/User/User";
 import NotFound from "../pages/System/NotFound";
 import Login from "../pages/System/Login/Login";
 import PrivateRoutes from "./PrivateRoutes";
+import Role from "../pages/System/Admin/Role/Role";
 
 function AppRoutes() {
   return (
@@ -13,6 +14,10 @@ function AppRoutes() {
       <Route
         path="/admin/users"
         element={<PrivateRoutes element={<User />} />}
+      />
+      <Route
+        path="/admin/role"
+        element={<PrivateRoutes element={<Role />} />}
       />
 
       <Route path="/login" element={<Login />} />
