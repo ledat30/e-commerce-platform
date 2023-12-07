@@ -1,9 +1,11 @@
 import "./Role.scss";
 import _ from "lodash";
 import { v4 as uuidv4 } from "uuid";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { createRole } from "../../../../services/roleService";
+import TableRole from "./TableRole";
+import { NavLink } from "react-router-dom";
 
 function Role(props) {
   const dataChildDefault = {
@@ -11,6 +13,9 @@ function Role(props) {
     description: "",
     isValidRoleName: true,
   };
+
+  const chidlRef = useRef();
+
   const [listChilds, setListChilds] = useState({
     child1: dataChildDefault,
   });
@@ -59,6 +64,7 @@ function Role(props) {
       let res = await createRole(data);
       if (res && res.EC === 0) {
         toast.success(res.EM);
+        chidlRef.current.fetchListRolesAgain();
 
         setListChilds({ child1: dataChildDefault });
       }
@@ -73,7 +79,7 @@ function Role(props) {
   return (
     <div className="role-container">
       <div className="container">
-        <div className="mt-3">
+        <div className="adding-roles mt-2">
           <div className="title-role">
             <h4>Add a new role</h4>
           </div>
@@ -132,6 +138,27 @@ function Role(props) {
               </button>
             </div>
           </div>
+        </div>
+        <hr />
+        <div className="mt-1">
+          <div className="header-table-role">
+            <h4>List current roles</h4>
+            <div className="box">
+              <form className="sbox">
+                <input
+                  className="stext"
+                  type=""
+                  placeholder="Tìm kiếm người dùng..."
+                  // onChange={(e) => searchHandle(e)}
+                />
+                <NavLink className="sbutton" type="submit" to="">
+                  <i className="fa fa-search"></i>
+                </NavLink>
+              </form>
+            </div>
+          </div>
+
+          <TableRole ref={chidlRef} />
         </div>
       </div>
     </div>
