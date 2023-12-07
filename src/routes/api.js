@@ -15,6 +15,7 @@ const initApiRouter = (app) => {
   router.all("*", checkUserJWT, checkUserPermission);
   //login
   router.post("/login", authController.handleLogin);
+  router.post("/logout", authController.handleLogout);
 
   //user routes
   router.post("/user/create", userController.createFunc);
