@@ -1,13 +1,27 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./Sidebar.scss";
 import "./boxicons.min.scss";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { UserContext } from "../../../context/userContext";
+import { logoutUser } from "../../../services/userService";
+import { toast } from "react-toastify";
 
 function Sidebar(props) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useContext(UserContext);
-  const location = useLocation();
+  const { user, logoutContext } = useContext(UserContext);
+  let navigate = useNavigate();
+
+  const handleLogout = async () => {
+    let data = await logoutUser(); //clear cookies
+    localStorage.removeItem("jwt"); //clear localStorage
+    logoutContext(); //clear user in context
+    if (data && +data.EC === 0) {
+      toast.success("Logout successful");
+      navigate("/login");
+    } else {
+      toast.error(data.EM);
+    }
+  };
 
   useEffect(() => {
     const toggleSidebar = () => {
@@ -42,7 +56,7 @@ function Sidebar(props) {
       <>
         <div className={`sidebar ${isSidebarOpen ? "" : "open"}`}>
           <div className="logo-details">
-            <div className="logo_name">CodingStella</div>
+            <div className="logo_name">E-commerce</div>
             <i className="fa fa-bars" aria-hidden="true" id="btn"></i>
           </div>
           <ul className="nav-list">
@@ -73,18 +87,25 @@ function Sidebar(props) {
             <span className="tooltip">User</span>
           </li>
   */}
-            <li className="profile">
-              <div className="profile-details">
-                <img
-                  src="https://drive.google.com/uc?export=view&id=1ETZYgPpWbbBtpJnhi42_IR3vOwSOpR4z"
-                  alt="profileImg"
-                />
-                <div className="name_job">
-                  <div className="name">Stella Army</div>
+            {user && user.isAuthenticated === true && (
+              <li className="profile">
+                <div className="profile-details">
+                  <img
+                    src="https://w7.pngwing.com/pngs/831/88/png-transparent-user-profile-computer-icons-user-interface-mystique-miscellaneous-user-interface-design-smile-thumbnail.png"
+                    alt="profileImg"
+                  />
+                  <div className="name_job">
+                    <div className="name">{user.account.username}</div>
+                  </div>
                 </div>
-              </div>
-              <i className="fa fa-sign-out" aria-hidden="true" id="log_out"></i>
-            </li>
+                <i
+                  className="fa fa-sign-out"
+                  aria-hidden="true"
+                  id="log_out"
+                  onClick={() => handleLogout()}
+                ></i>
+              </li>
+            )}
           </ul>
         </div>
       </>

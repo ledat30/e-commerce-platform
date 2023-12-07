@@ -45,6 +45,10 @@ const getUserAccount = () => {
   return axios.get(`/api/account`);
 };
 
+const logoutUser = () => {
+  return axios.post(`/api/logout`);
+};
+
 export {
   fetchRoles,
   fetchGroups,
@@ -55,4 +59,5 @@ export {
   searchUsers,
   loginUser,
   getUserAccount,
+  logoutUser,
 };
