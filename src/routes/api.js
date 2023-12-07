@@ -27,6 +27,7 @@ const initApiRouter = (app) => {
 
   //role routes
   router.get("/role/read", roleController.readFunc);
+  router.post("/role/create", roleController.createFunc);
 
   //group routes
   router.get("/group/read", groupController.readFunc);
