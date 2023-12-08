@@ -76,7 +76,10 @@ const checkUserPermission = (req, res, next) => {
         EM: `You don't have the permission to access this resource`,
       });
     }
-    let canAccess = roles.some((item) => item.roleName === currentUrl);
+    let canAccess = roles.some(
+      (item) =>
+        item.roleName === currentUrl || currentUrl.includes(item.roleName)
+    );
     if (canAccess === true) {
       next();
     } else {
