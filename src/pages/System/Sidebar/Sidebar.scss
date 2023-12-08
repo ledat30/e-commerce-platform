@@ -173,6 +173,18 @@
     background: #fff;
 }
 
+.sidebar li a.active {
+    background: #fff;
+}
+
+.sidebar li a.active .links_name {
+    color: #11101d;
+}
+
+.sidebar li a.active i {
+    color: #11101d;
+}
+
 .sidebar li a .links_name {
     color         : #fff;
     font-size     : 15px;
@@ -181,6 +193,11 @@
     opacity       : 0;
     pointer-events: none;
     transition    : 0.4s;
+}
+
+.sidebar.open li a.active .links_name {
+    opacity       : 1;
+    pointer-events: auto;
 }
 
 .sidebar.open li a .links_name {

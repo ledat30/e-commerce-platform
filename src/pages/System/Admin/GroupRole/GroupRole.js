@@ -114,7 +114,7 @@ function GroupRole() {
           <div className="container mt-3">
             <h4>Group role</h4>
             <div className="assign-group-role">
-              <div className="col-12 col-sm-6 from-group">
+              <div className="col-12 col-sm-3 from-group">
                 <label>Select Group</label>
                 <select
                   className="form-select"
@@ -133,45 +133,49 @@ function GroupRole() {
               </div>
               <hr />
               {selectGroup && (
-                <div className="roles">
-                  <h5>Assign Roles:</h5>
-                  <div className="roles-container">
-                    {assignRoleByGroup &&
-                      assignRoleByGroup.length > 0 &&
-                      assignRoleByGroup.map((item, index) => {
-                        return (
-                          <div
-                            className="form-check role-item"
-                            key={`list-role-${index}`}
-                          >
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              value={item.id}
-                              id={`list-role-${index}`}
-                              checked={item.isAssigned}
-                              onChange={(e) => handleSelectRole(e.target.value)}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor={`list-role-${index}`}
+                <>
+                  <div className="roles">
+                    <h5>Assign Roles:</h5>
+                    <div className="roles-container">
+                      {assignRoleByGroup &&
+                        assignRoleByGroup.length > 0 &&
+                        assignRoleByGroup.map((item, index) => {
+                          return (
+                            <div
+                              className="form-check role-item"
+                              key={`list-role-${index}`}
                             >
-                              {item.description}
-                            </label>
-                          </div>
-                        );
-                      })}
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                value={item.id}
+                                id={`list-role-${index}`}
+                                checked={item.isAssigned}
+                                onChange={(e) =>
+                                  handleSelectRole(e.target.value)
+                                }
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor={`list-role-${index}`}
+                              >
+                                {item.description}
+                              </label>
+                            </div>
+                          );
+                        })}
+                    </div>
                   </div>
-                </div>
+                  <div className="mt-3">
+                    <button
+                      className="btn btn-warning"
+                      onClick={() => handleSave()}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </>
               )}
-              <div className="mt-3">
-                <button
-                  className="btn btn-warning"
-                  onClick={() => handleSave()}
-                >
-                  Save
-                </button>
-              </div>
             </div>
           </div>
         </div>

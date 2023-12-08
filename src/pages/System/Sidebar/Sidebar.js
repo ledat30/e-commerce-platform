@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 
 function Sidebar(props) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
   const { user, logoutContext } = useContext(UserContext);
   let navigate = useNavigate();
 
@@ -22,6 +23,21 @@ function Sidebar(props) {
       toast.error(data.EM);
     }
   };
+
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
+  const menuItems = [
+    { to: "/", label: "Dashboard", icon: "fa-home" },
+    { to: "/admin/users", label: "User", icon: "fa-user" },
+    { to: "/admin/role", label: "Role", icon: "fa-shield" },
+    { to: "/admin/group-role", label: "Group-role", icon: "fa-users" },
+  ];
+
+  const filteredItems = menuItems.filter((item) =>
+    item.label.toLowerCase().includes(searchInput.toLowerCase())
+  );
 
   useEffect(() => {
     const toggleSidebar = () => {
@@ -62,37 +78,23 @@ function Sidebar(props) {
           <ul className="nav-list">
             <li>
               <i className="fa fa-search"></i>
-              <input className="text" placeholder="Search..." />
+              <input
+                className="text"
+                placeholder="Search..."
+                value={searchInput}
+                onChange={handleSearchInputChange}
+              />
               <span className="tooltip">Search</span>
             </li>
-            <li>
-              <NavLink to="/">
-                <i className="fa fa-home" aria-hidden="true"></i>
-                <span className="links_name">Dashboard</span>
-              </NavLink>
-              <span className="tooltip">Dashboard</span>
-            </li>
-            <li>
-              <NavLink to="/admin/users">
-                <i className="fa fa-user" aria-hidden="true"></i>
-                <span className="links_name">User</span>
-              </NavLink>
-              <span className="tooltip">User</span>
-            </li>
-            <li>
-              <NavLink to="/admin/role">
-                <i className="fa fa-shield" aria-hidden="true"></i>
-                <span className="links_name">Role</span>
-              </NavLink>
-              <span className="tooltip">Role</span>
-            </li>
-            <li>
-              <NavLink to="/admin/group-role">
-                <i className="fa fa-users" aria-hidden="true"></i>
-                <span className="links_name">Group-role</span>
-              </NavLink>
-              <span className="tooltip">Group-role</span>
-            </li>
+            {filteredItems.map((item, index) => (
+              <li key={index}>
+                <NavLink to={item.to} activeClassName="active">
+                  <i className={`fa ${item.icon}`} aria-hidden="true"></i>
+                  <span className="links_name">{item.label}</span>
+                </NavLink>
+                <span className="tooltip">{item.label}</span>
+              </li>
+            ))}
 
             {user && user.isAuthenticated === true && (
               <li className="profile">
