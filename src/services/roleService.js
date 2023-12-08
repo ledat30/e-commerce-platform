@@ -14,4 +14,8 @@ const deleteRole = (role) => {
   });
 };
 
-export { createRole, getAllRoles, deleteRole };
+const searchRole = (key) => {
+  return axios.get(`/api/search-role?q=${key}`);
+};
+
+export { createRole, getAllRoles, deleteRole, searchRole };

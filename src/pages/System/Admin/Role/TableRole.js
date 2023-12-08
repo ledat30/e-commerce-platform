@@ -1,8 +1,13 @@
 import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
-import { getAllRoles, deleteRole } from "../../../../services/roleService";
+import {
+  getAllRoles,
+  deleteRole,
+  searchRole,
+} from "../../../../services/roleService";
 import { toast } from "react-toastify";
 import "./Role.scss";
 import ReactPaginate from "react-paginate";
+import { debounce } from "lodash";
 
 const TableRole = forwardRef((props, ref) => {
   const [listRoles, setListRole] = useState("");
@@ -39,6 +44,28 @@ const TableRole = forwardRef((props, ref) => {
       await fetchAllRoles();
     }
   };
+
+  const searchHandle = debounce(async (e) => {
+    let key = e.target.value;
+    if (key) {
+      try {
+        let response = await searchRole(key);
+        if (response.EC === 0) {
+          setListRole(response.DT);
+          setCurrentPage(1);
+        } else {
+          setListRole([]);
+          setCurrentPage(1);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      await fetchAllRoles();
+    }
+  }, 300);
+  props.searchHandleRef(searchHandle);
+
   return (
     <>
       <div className="list-role-table">

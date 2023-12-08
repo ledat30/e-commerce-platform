@@ -15,6 +15,7 @@ function Role(props) {
   };
 
   const chidlRef = useRef();
+  const searchHandleRef = useRef(null);
 
   const [listChilds, setListChilds] = useState({
     child1: dataChildDefault,
@@ -148,8 +149,8 @@ function Role(props) {
                 <input
                   className="stext"
                   type=""
-                  placeholder="Tìm kiếm người dùng..."
-                  // onChange={(e) => searchHandle(e)}
+                  placeholder="Tìm kiếm role..."
+                  onChange={(e) => searchHandleRef.current(e)}
                 />
                 <NavLink className="sbutton" type="submit" to="">
                   <i className="fa fa-search"></i>
@@ -158,7 +159,10 @@ function Role(props) {
             </div>
           </div>
 
-          <TableRole ref={chidlRef} />
+          <TableRole
+            ref={chidlRef}
+            searchHandleRef={(ref) => (searchHandleRef.current = ref)}
+          />
         </div>
       </div>
     </div>

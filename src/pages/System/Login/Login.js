@@ -55,6 +55,7 @@ function Login(props) {
       localStorage.setItem("jwt", token);
       loginContext(data);
       navigate("/");
+      toast.success("Login successful");
     }
     if (response && +response.EC !== 0) {
       toast.error(response.EM);
