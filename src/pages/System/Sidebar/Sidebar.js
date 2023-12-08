@@ -81,10 +81,17 @@ function Sidebar(props) {
             </li>
             <li>
               <NavLink to="/admin/role">
-                <i class="fa fa-shield" aria-hidden="true"></i>
+                <i className="fa fa-shield" aria-hidden="true"></i>
                 <span className="links_name">Role</span>
               </NavLink>
               <span className="tooltip">Role</span>
+            </li>
+            <li>
+              <NavLink to="/admin/group-role">
+                <i className="fa fa-users" aria-hidden="true"></i>
+                <span className="links_name">Group-role</span>
+              </NavLink>
+              <span className="tooltip">Group-role</span>
             </li>
 
             {user && user.isAuthenticated === true && (

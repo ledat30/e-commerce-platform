@@ -18,4 +18,19 @@ const searchRole = (key) => {
   return axios.get(`/api/search-role?q=${key}`);
 };
 
-export { createRole, getAllRoles, deleteRole, searchRole };
+const getRoleByGroup = (groupId) => {
+  return axios.get(`/api/role/by-group/${groupId}`);
+};
+
+const assignRoleToGroup = (data) => {
+  return axios.post(`/api/role/assign-to-group`, { data });
+};
+
+export {
+  createRole,
+  getAllRoles,
+  deleteRole,
+  searchRole,
+  getRoleByGroup,
+  assignRoleToGroup,
+};

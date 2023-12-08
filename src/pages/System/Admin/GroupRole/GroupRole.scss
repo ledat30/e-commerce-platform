@@ -1,0 +1,14 @@
+.group-role-container {
+    min-width: 1095px;
+
+    .roles-container {
+        display  : flex;
+        flex-wrap: wrap;
+    }
+
+    .role-item {
+        flex-basis   : calc(10% - 10px);
+        margin-right : 54px;
+        margin-bottom: 10px;
+    }
+}
