@@ -106,9 +106,44 @@ const deleteRole = async (idRole) => {
   }
 };
 
+const searchRole = async (keyword) => {
+  try {
+    const results = await db.Role.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [
+          {
+            roleName: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+          {
+            description: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      attributes: ["roleName", "description", "id"],
+    });
+    return {
+      EM: "OK",
+      EC: 0,
+      DT: results,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createNewRole,
   getAllRoles,
   deleteRole,
   getRoleWithPagination,
+  searchRole,
 };
