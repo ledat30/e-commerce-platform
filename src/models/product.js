@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       Product.belongsTo(models.Category, { foreignKey: "categoryId" });
       Product.hasMany(models.Inventory, { foreignKey: "productId" });
       Product.hasMany(models.OrderItem, { foreignKey: "productId" });
+      Product.belongsTo(models.Store, { foreignKey: "storeId" });
     }
   }
   Product.init(
@@ -21,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       product_name: DataTypes.STRING,
       description: DataTypes.STRING,
       image: DataTypes.BLOB("long"),
+      storeId: DataTypes.INTEGER,
       categoryId: DataTypes.INTEGER,
     },
     {

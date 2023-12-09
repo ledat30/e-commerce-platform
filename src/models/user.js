@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsTo(models.Group, { foreignKey: "groupId" });
       User.hasMany(models.Order, { foreignKey: "userId" });
       User.hasMany(models.Comment, { foreignKey: "userId" });
+      User.hasOne(models.Store, { foreignKey: "userId", as: "store" });
     }
   }
   User.init(
