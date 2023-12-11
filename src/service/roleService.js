@@ -27,6 +27,7 @@ const getRoleWithPagination = async (page, limit) => {
       offset: offset,
       limit: limit,
       attributes: ["id", "roleName", "description"],
+      order: [["id", "DESC"]],
     });
     let totalPages = Math.ceil(count / limit);
     let data = {

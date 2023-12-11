@@ -41,6 +41,64 @@ const createCategory = async (data) => {
   }
 };
 
+const getAllCategories = async () => {
+  try {
+    let categories = await db.Category.findAll();
+    if (categories) {
+      return {
+        EM: "Get all categories success!",
+        EC: 0,
+        DT: categories,
+      };
+    } else {
+      return {
+        EM: "Get all categories error!",
+        EC: 0,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
+const getCategoryWithPagination = async (page, limit) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Category.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      attributes: ["id", "category_name"],
+      order: [["id", "DESC"]],
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      categories: rows,
+    };
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createCategory,
+  getAllCategories,
+  getCategoryWithPagination,
 };

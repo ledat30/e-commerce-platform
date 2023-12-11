@@ -40,6 +40,7 @@ const initApiRouter = (app) => {
 
   //category
   router.post("/category/create", category.createFunc);
+  router.get("/category/read", category.readFunc);
 
   return app.use("/api", router);
 };
