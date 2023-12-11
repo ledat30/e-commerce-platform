@@ -165,10 +165,40 @@ const deleteCategory = async (id) => {
   }
 };
 
+const searchCategory = async (keyword) => {
+  try {
+    const results = await db.Category.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [
+          {
+            category_name: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      attributes: ["category_name", "id"],
+    });
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: results,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createCategory,
   getAllCategories,
   getCategoryWithPagination,
   updateCategory,
   deleteCategory,
+  searchCategory,
 };
