@@ -18,4 +18,14 @@ const deleteCategory = (category) => {
   });
 };
 
-export { createCategory, getAllCategories, updateCategory, deleteCategory };
+const searchCategory = (key) => {
+  return axios.get(`/api/search-category?q=${key}`);
+};
+
+export {
+  createCategory,
+  getAllCategories,
+  updateCategory,
+  deleteCategory,
+  searchCategory,
+};

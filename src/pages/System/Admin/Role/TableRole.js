@@ -112,7 +112,7 @@ const TableRole = forwardRef((props, ref) => {
             ) : (
               <>
                 <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                  <td colSpan={6}>Not found users...</td>
+                  <td colSpan={6}>Not found role...</td>
                 </tr>
               </>
             )}

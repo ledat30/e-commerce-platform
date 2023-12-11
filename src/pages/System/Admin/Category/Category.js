@@ -6,9 +6,11 @@ import {
   getAllCategories,
   updateCategory,
   deleteCategory,
+  searchCategory,
 } from "../../../../services/categoryService";
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
+import { debounce } from "lodash";
 
 function Category(props) {
   const [category_name, setCategory_name] = useState("");
@@ -112,6 +114,26 @@ function Category(props) {
     }
   };
 
+  const searchHandle = debounce(async (e) => {
+    let key = e.target.value;
+    if (key) {
+      try {
+        let response = await searchCategory(key);
+        if (response.EC === 0) {
+          setListCategories(response.DT);
+          setCurrentPage(1);
+        } else {
+          setListCategories([]);
+          setCurrentPage(1);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      await fetchCategories();
+    }
+  }, 300);
+
   return (
     <>
       <div className="category-container">
@@ -154,7 +176,8 @@ function Category(props) {
                   <input
                     className="stext"
                     type=""
-                    placeholder="Tìm kiếm role..."
+                    placeholder="Tìm kiếm category..."
+                    onChange={(e) => searchHandle(e)}
                   />
                   <NavLink className="sbutton" type="submit" to="">
                     <i className="fa fa-search"></i>
@@ -207,7 +230,7 @@ function Category(props) {
                 ) : (
                   <>
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={6}>Not found users...</td>
+                      <td colSpan={6}>Not found category...</td>
                     </tr>
                   </>
                 )}
