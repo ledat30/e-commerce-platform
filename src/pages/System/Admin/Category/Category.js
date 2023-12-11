@@ -5,6 +5,7 @@ import {
   createCategory,
   getAllCategories,
   updateCategory,
+  deleteCategory,
 } from "../../../../services/categoryService";
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
@@ -101,6 +102,16 @@ function Category(props) {
     setCurrentPage(+event.selected + 1);
   };
 
+  const handleDeleteCategory = async (category) => {
+    let data = await deleteCategory(category);
+    if (data && data.EC === 0) {
+      toast.success(data.EM);
+      await fetchCategories();
+    } else {
+      toast.error(data.EM);
+    }
+  };
+
   return (
     <>
       <div className="category-container">
@@ -181,7 +192,11 @@ function Category(props) {
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button title="Delete" className="btn btn-danger">
+                            <button
+                              title="Delete"
+                              className="btn btn-danger"
+                              onClick={() => handleDeleteCategory(item)}
+                            >
                               <i className="fa fa-trash-o"></i>
                             </button>
                           </td>

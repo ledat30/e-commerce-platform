@@ -12,4 +12,10 @@ const updateCategory = (data) => {
   return axios.put(`/api/category/update`, data);
 };
 
-export { createCategory, getAllCategories, updateCategory };
+const deleteCategory = (category) => {
+  return axios.delete(`/api/category/delete`, {
+    data: { id: category.id },
+  });
+};
+
+export { createCategory, getAllCategories, updateCategory, deleteCategory };
