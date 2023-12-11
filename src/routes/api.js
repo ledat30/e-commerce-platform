@@ -41,6 +41,7 @@ const initApiRouter = (app) => {
   //category
   router.post("/category/create", category.createFunc);
   router.get("/category/read", category.readFunc);
+  router.put("/category/update", category.updateFunc);
 
   return app.use("/api", router);
 };
