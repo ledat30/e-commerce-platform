@@ -7,6 +7,7 @@ import Login from "../pages/System/Login/Login";
 import PrivateRoutes from "./PrivateRoutes";
 import Role from "../pages/System/Admin/Role/Role";
 import GroupRole from "../pages/System/Admin/GroupRole/GroupRole";
+import Category from "../pages/System/Admin/Category/Category";
 
 function AppRoutes() {
   return (
@@ -23,6 +24,10 @@ function AppRoutes() {
       <Route
         path="/admin/group-role"
         element={<PrivateRoutes element={<GroupRole />} />}
+      />
+      <Route
+        path="/admin/category"
+        element={<PrivateRoutes element={<Category />} />}
       />
 
       <Route path="/login" element={<Login />} />

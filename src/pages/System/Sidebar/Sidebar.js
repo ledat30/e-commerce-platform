@@ -33,6 +33,7 @@ function Sidebar(props) {
     { to: "/admin/users", label: "User", icon: "fa-user" },
     { to: "/admin/role", label: "Role", icon: "fa-shield" },
     { to: "/admin/group-role", label: "Group-role", icon: "fa-users" },
+    { to: "/admin/category", label: "Category", icon: "fa-list-alt" },
   ];
 
   const filteredItems = menuItems.filter((item) =>
