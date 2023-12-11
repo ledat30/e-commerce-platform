@@ -4,6 +4,7 @@ import roleController from "../controller/roleController";
 import authController from "../controller/authController";
 import groupController from "../controller/groupController";
 import { checkUserJWT, checkUserPermission } from "../middleware/JWTAction";
+import category from "../controller/category";
 
 const router = express.Router();
 
@@ -36,6 +37,9 @@ const initApiRouter = (app) => {
 
   //group routes
   router.get("/group/read", groupController.readFunc);
+
+  //category
+  router.post("/category/create", category.createFunc);
 
   return app.use("/api", router);
 };

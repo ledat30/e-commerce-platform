@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Store.init(
     {
       name: DataTypes.STRING,
+      image: DataTypes.BLOB("long"),
     },
     {
       sequelize,
