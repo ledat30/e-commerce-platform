@@ -136,9 +136,39 @@ const updateCategory = async (data) => {
   }
 };
 
+const deleteCategory = async (id) => {
+  try {
+    let category = await db.Category.findOne({
+      where: { id: id },
+    });
+    if (category) {
+      await category.destroy();
+      return {
+        EM: "Delete category successfully",
+        EC: 0,
+        DT: [],
+      };
+    } else {
+      return {
+        EM: "Category not exist",
+        EC: 2,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createCategory,
   getAllCategories,
   getCategoryWithPagination,
   updateCategory,
+  deleteCategory,
 };
