@@ -4,4 +4,8 @@ const createCategory = (data) => {
   return axios.post(`/api/category/create`, data);
 };
 
-export { createCategory };
+const getAllCategories = (page, limit) => {
+  return axios.get(`/api/category/read?page=${page}&limit=${limit}`);
+};
+
+export { createCategory, getAllCategories };
