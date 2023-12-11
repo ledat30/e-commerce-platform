@@ -8,4 +8,8 @@ const getAllCategories = (page, limit) => {
   return axios.get(`/api/category/read?page=${page}&limit=${limit}`);
 };
 
-export { createCategory, getAllCategories };
+const updateCategory = (data) => {
+  return axios.put(`/api/category/update`, data);
+};
+
+export { createCategory, getAllCategories, updateCategory };

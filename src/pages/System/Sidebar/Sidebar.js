@@ -89,7 +89,7 @@ function Sidebar(props) {
             </li>
             {filteredItems.map((item, index) => (
               <li key={index}>
-                <NavLink to={item.to} activeClassName="active">
+                <NavLink to={item.to} activeclassname="active">
                   <i className={`fa ${item.icon}`} aria-hidden="true"></i>
                   <span className="links_name">{item.label}</span>
                 </NavLink>

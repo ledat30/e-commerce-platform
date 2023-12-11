@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import {
   createCategory,
   getAllCategories,
+  updateCategory,
 } from "../../../../services/categoryService";
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
@@ -12,6 +13,9 @@ function Category(props) {
   const [category_name, setCategory_name] = useState("");
   const [validInputCategory, setValidInputCategory] = useState(true);
   const [attemptedSave, setAttemptedSave] = useState(false);
+
+  const [editMode, setEditMode] = useState(false);
+  const [editCategoryId, setEditCategoryId] = useState(null);
 
   const [listCategories, setListCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,20 +33,55 @@ function Category(props) {
 
   const handleConfirmCategory = async () => {
     setAttemptedSave(true);
-    if (checkValidInput()) {
-      let response = await createCategory({ category_name });
 
-      if (response && response.EC === 0) {
-        setCategory_name("");
-        toast.success(response.EM);
-        await fetchCategories();
-        setAttemptedSave(false);
-        setValidInputCategory(true);
-      } else if (response && response.EC !== 0) {
-        toast.error(response.EM);
-        setValidInputCategory({ ...validInputCategory, [response.DT]: false });
+    if (checkValidInput()) {
+      if (editMode) {
+        // Update the category if in edit mode
+        let response = await updateCategory({
+          id: editCategoryId,
+          category_name,
+        });
+
+        if (response && response.EC === 0) {
+          setCategory_name("");
+          toast.success(response.EM);
+          await fetchCategories();
+          setAttemptedSave(false);
+          setValidInputCategory(true);
+          setEditMode(false);
+          setEditCategoryId(null);
+        } else if (response && response.EC !== 0) {
+          toast.error(response.EM);
+          setValidInputCategory({
+            ...validInputCategory,
+            [response.DT]: false,
+          });
+        }
+      } else {
+        // Create a new category if not in edit mode
+        let response = await createCategory({ category_name });
+
+        if (response && response.EC === 0) {
+          setCategory_name("");
+          toast.success(response.EM);
+          await fetchCategories();
+          setAttemptedSave(false);
+          setValidInputCategory(true);
+        } else if (response && response.EC !== 0) {
+          toast.error(response.EM);
+          setValidInputCategory({
+            ...validInputCategory,
+            [response.DT]: false,
+          });
+        }
       }
     }
+  };
+
+  const handleEditClick = (id, name) => {
+    setEditMode(true);
+    setEditCategoryId(id);
+    setCategory_name(name);
   };
 
   useEffect(() => {
@@ -67,7 +106,7 @@ function Category(props) {
       <div className="category-container">
         <div className="container">
           <div className="title-category">
-            <h4>Add category</h4>
+            <h4>Category management</h4>
           </div>
           <div className="category-input row">
             <div className="col-11 from-group">
@@ -136,6 +175,9 @@ function Category(props) {
                             <button
                               title="Edit"
                               className="btn btn-warning mx-2"
+                              onClick={() =>
+                                handleEditClick(item.id, item.category_name)
+                              }
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
@@ -177,7 +219,7 @@ function Category(props) {
               breakClassName="page-item"
               breakLinkClassName="page-link"
               containerClassName="pagination justify-content-center"
-              activeClassName="active"
+              activeclassname="active"
               renderOnZeroPageCount={null}
             />
           </div>

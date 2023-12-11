@@ -138,7 +138,7 @@ const TableRole = forwardRef((props, ref) => {
             breakClassName="page-item"
             breakLinkClassName="page-link"
             containerClassName="pagination justify-content-center"
-            activeClassName="active"
+            activeclassname="active"
             renderOnZeroPageCount={null}
           />
         </div>
