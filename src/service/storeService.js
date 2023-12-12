@@ -60,7 +60,72 @@ const getStoreWithPagination = async (page, limit) => {
   }
 };
 
+const checkNameStore = async (nameStore) => {
+  try {
+    let store = await db.Store.findOne({
+      where: { name: nameStore },
+    });
+    if (store) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const checkNameUser = async (nameUser) => {
+  try {
+    let user = await db.Store.findOne({
+      where: { userId: nameUser },
+    });
+    if (user) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const createStore = async (data) => {
+  try {
+    let check = await checkNameStore(data.name);
+    if (check === true) {
+      return {
+        EM: "The store name is already exists",
+        EC: 1,
+        DT: "name",
+      };
+    }
+    let checkName = await checkNameUser(data.userId);
+    if (checkName === true) {
+      return {
+        EM: "The name user is already exists",
+        EC: 1,
+        DT: "userId",
+      };
+    }
+    await db.Store.create({ ...data });
+    return {
+      EM: "Create store successful",
+      EC: 0,
+      DT: [],
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Something wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllStores,
   getStoreWithPagination,
+  createStore,
 };

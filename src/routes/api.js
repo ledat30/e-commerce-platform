@@ -26,6 +26,7 @@ const initApiRouter = (app) => {
   router.delete("/user/delete", userController.deleteFunc);
   router.get("/search-user", userController.searchUser);
   router.get("/account", userController.getUserAccount);
+  router.get("/user-group-store", userController.groupStoreFunc);
 
   //role routes
   router.get("/role/read", roleController.readFunc);
@@ -47,7 +48,8 @@ const initApiRouter = (app) => {
   router.get("/search-category", category.searchCategory);
 
   //store
-  router.get("/store/read", storeController.readFunc);  
+  router.get("/store/read", storeController.readFunc);
+  router.post("/store/create", storeController.createFunc);
 
   return app.use("/api", router);
 };

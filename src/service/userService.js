@@ -232,6 +232,36 @@ const searchUser = async (keyword) => {
   }
 };
 
+const getGroupStore = async () => {
+  try {
+    let users = await db.User.findAll({
+      where: { groupId: 2 },
+      attributes: ["id", "username"],
+      order: [["id", "DESC"]],
+    });
+    if (users && users.length > 0) {
+      return {
+        EM: "Get group store success!",
+        EC: 0,
+        DT: users,
+      };
+    } else {
+      return {
+        EM: "Get group store error!",
+        EC: 0,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createNewUser,
   getAllUsers,
@@ -239,4 +269,5 @@ module.exports = {
   updateUser,
   deleteUser,
   searchUser,
+  getGroupStore,
 };

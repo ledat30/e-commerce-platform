@@ -32,6 +32,25 @@ const readFunc = async (req, res) => {
   }
 };
 
+const createFunc = async (req, res) => {
+  try {
+    let data = await storeService.createStore(req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Create store error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+};
+
 module.exports = {
   readFunc,
+  createFunc,
 };

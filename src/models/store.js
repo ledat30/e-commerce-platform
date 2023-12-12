@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: DataTypes.STRING,
       image: DataTypes.BLOB("long"),
+      userId: DataTypes.INTEGER,
     },
     {
       sequelize,
