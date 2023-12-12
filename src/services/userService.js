@@ -49,6 +49,10 @@ const logoutUser = () => {
   return axios.post(`/api/logout`);
 };
 
+const getGroupStore = () => {
+  return axios.get(`/api/user-group-store`);
+};
+
 export {
   fetchRoles,
   fetchGroups,
@@ -60,4 +64,5 @@ export {
   loginUser,
   getUserAccount,
   logoutUser,
+  getGroupStore,
 };

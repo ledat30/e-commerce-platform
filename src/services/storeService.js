@@ -4,4 +4,9 @@ const getAllStores = (page, limit) => {
   return axios.get(`/api/store/read?page=${page}&limit=${limit}`);
 };
 
-export { getAllStores };
+const createStore = (storeData) => {
+  return axios.post(`/api/store/create`, {
+    ...storeData,
+  });
+};
+export { getAllStores, createStore };

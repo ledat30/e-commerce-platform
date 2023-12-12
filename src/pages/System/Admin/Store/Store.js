@@ -4,6 +4,7 @@ import ReactPaginate from "react-paginate";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllStores } from "../../../../store/action/actions";
+import ModalStore from "./ModalStore";
 
 function Store(ropps) {
   const dispatch = useDispatch();
@@ -11,6 +12,8 @@ function Store(ropps) {
   const listStores = useSelector((state) => state.user.listStores);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages] = useState(1);
+
+  const [isShowModalStore, setIsShowModalStore] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAllStores(currentPage, 5));
@@ -21,6 +24,14 @@ function Store(ropps) {
   };
 
   const handleRefresh = () => {
+    dispatch(fetchAllStores(currentPage, 5));
+  };
+
+  const onHideModalUser = () => {
+    setIsShowModalStore(false);
+  };
+
+  const handleAddStore = () => {
     dispatch(fetchAllStores(currentPage, 5));
   };
   return (
@@ -38,7 +49,10 @@ function Store(ropps) {
               >
                 <i className="fa fa-refresh"></i> Refesh
               </button>
-              <button className="btn btn-primary">
+              <button
+                className="btn btn-primary"
+                onClick={() => setIsShowModalStore(true)}
+              >
                 <i className="fa fa-plus-circle"></i> Add new store
               </button>
 
@@ -130,6 +144,13 @@ function Store(ropps) {
           </div>
         </div>
       </div>
+
+      <ModalStore
+        title={"Create new user"}
+        onHide={onHideModalUser}
+        show={isShowModalStore}
+        onAddStore={handleAddStore}
+      />
     </>
   );
 }
