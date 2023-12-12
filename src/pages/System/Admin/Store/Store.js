@@ -14,6 +14,8 @@ function Store(ropps) {
   const [totalPages] = useState(1);
 
   const [isShowModalStore, setIsShowModalStore] = useState(false);
+  const [actionModalStore, setActionModalStore] = useState("CREATE");
+  const [dataModalStore, setDataModalStore] = useState({});
 
   useEffect(() => {
     dispatch(fetchAllStores(currentPage, 5));
@@ -27,12 +29,20 @@ function Store(ropps) {
     dispatch(fetchAllStores(currentPage, 5));
   };
 
-  const onHideModalUser = () => {
+  const onHideModalUser = async () => {
     setIsShowModalStore(false);
+    setDataModalStore({});
+    dispatch(fetchAllStores(currentPage, 5));
   };
 
   const handleAddStore = () => {
     dispatch(fetchAllStores(currentPage, 5));
+  };
+
+  const handleEditStore = async (store) => {
+    setActionModalStore("UPDATE");
+    setDataModalStore(store);
+    setIsShowModalStore(true);
   };
   return (
     <>
@@ -51,7 +61,10 @@ function Store(ropps) {
               </button>
               <button
                 className="btn btn-primary"
-                onClick={() => setIsShowModalStore(true)}
+                onClick={() => {
+                  setIsShowModalStore(true);
+                  setActionModalStore("CREATE");
+                }}
               >
                 <i className="fa fa-plus-circle"></i> Add new store
               </button>
@@ -99,6 +112,7 @@ function Store(ropps) {
                             <button
                               title="Edit"
                               className="btn btn-warning mx-2"
+                              onClick={() => handleEditStore(item)}
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
@@ -150,6 +164,8 @@ function Store(ropps) {
         onHide={onHideModalUser}
         show={isShowModalStore}
         onAddStore={handleAddStore}
+        action={actionModalStore}
+        dataModalStore={dataModalStore}
       />
     </>
   );

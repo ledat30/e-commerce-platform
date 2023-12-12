@@ -9,4 +9,8 @@ const createStore = (storeData) => {
     ...storeData,
   });
 };
-export { getAllStores, createStore };
+
+const updateStore = (storeData) => {
+  return axios.put(`/api/store/update`, { ...storeData });
+};
+export { getAllStores, createStore, updateStore };

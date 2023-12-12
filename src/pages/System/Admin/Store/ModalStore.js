@@ -2,14 +2,16 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useState, useEffect } from "react";
 import { getGroupStore } from "../../../../services/userService";
-import { createStore } from "../../../../services/storeService";
+import { createStore, updateStore } from "../../../../services/storeService";
 import { CommonUtils } from "../../../../utils";
 import _ from "lodash";
 import { toast } from "react-toastify";
+const { Buffer } = require("buffer");
 
 const ModalStore = (props) => {
   const [userGroupStore, setUserGroupStore] = useState([]);
   const [previewImgURL, setPreviewImgURL] = useState("");
+  const { action, dataModalStore } = props;
 
   const defaultStoreData = {
     name: "",
@@ -28,6 +30,31 @@ const ModalStore = (props) => {
   useEffect(() => {
     getGroupsStore();
   }, []);
+
+  useEffect(() => {
+    if (action === "UPDATE") {
+      setStoreData({
+        ...dataModalStore,
+        user: dataModalStore.user ? dataModalStore.user.id : "",
+      });
+      // Convert Buffer to base64 for image preview
+      let imageBase64 = "";
+      if (dataModalStore.image) {
+        imageBase64 = new Buffer.from(dataModalStore.image, "base64").toString(
+          "binary"
+        );
+      }
+      setPreviewImgURL(imageBase64);
+    }
+  }, [action, dataModalStore]);
+
+  useEffect(() => {
+    if (action === "CREATE") {
+      if (userGroupStore && userGroupStore.length > 0) {
+        setStoreData({ ...storeData, role: userGroupStore[0].id });
+      }
+    }
+  }, [action, userGroupStore]);
 
   const getGroupsStore = async () => {
     let response = await getGroupStore();
@@ -48,6 +75,7 @@ const ModalStore = (props) => {
   };
 
   const checkValidInput = () => {
+    if (action === "UPDATE") return true;
     setValidInputs(validInputsDefault);
     let arr = ["name", "user", "image"];
     let check = true;
@@ -79,10 +107,13 @@ const ModalStore = (props) => {
   const handleConfirmUser = async () => {
     let check = checkValidInput();
     if (check === true) {
-      let response = await createStore({
-        ...storeData,
-        userId: storeData["user"],
-      });
+      let response =
+        action === "CREATE"
+          ? await createStore({
+              ...storeData,
+              userId: storeData["user"],
+            })
+          : await updateStore({ ...storeData, userId: storeData["user"] });
       if (response && response.EC === 0) {
         props.onHide();
         props.onAddStore();
@@ -101,17 +132,25 @@ const ModalStore = (props) => {
     }
   };
 
+  const handleCloseModalStore = () => {
+    props.onHide();
+    setStoreData(defaultStoreData);
+    setValidInputs(validInputsDefault);
+  };
+
   return (
     <>
       <Modal
         size="lg"
         show={props.show}
         className="modal-user"
-        onHide={props.onHide}
+        onHide={() => handleCloseModalStore()}
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            <span>{props.title}</span>
+            <span>
+              {props.action === "CREATE" ? "Create new user" : "Edit a user"}
+            </span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -142,6 +181,7 @@ const ModalStore = (props) => {
                     : "form-select mt-1 is-invalid"
                 }
                 onChange={(e) => handleOnChangeInput(e.target.value, "user")}
+                value={storeData.user}
               >
                 {userGroupStore.length > 0 &&
                   userGroupStore.map((item, index) => {
@@ -176,11 +216,11 @@ const ModalStore = (props) => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={props.onHide}>
+          <Button variant="secondary" onClick={() => handleCloseModalStore()}>
             Đóng
           </Button>
           <Button variant="primary" onClick={() => handleConfirmUser()}>
-            Lưu
+            {action === "CREATE" ? "Lưu" : "Sửa"}
           </Button>
         </Modal.Footer>
       </Modal>
