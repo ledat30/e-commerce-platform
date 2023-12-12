@@ -34,6 +34,7 @@ function Sidebar(props) {
     { to: "/admin/role", label: "Role", icon: "fa-shield" },
     { to: "/admin/group-role", label: "Group-role", icon: "fa-users" },
     { to: "/admin/category", label: "Category", icon: "fa-list-alt" },
+    { to: "/admin/store", label: "Store", icon: "fa-building" },
   ];
 
   const filteredItems = menuItems.filter((item) =>
