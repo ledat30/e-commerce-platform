@@ -50,6 +50,7 @@ const initApiRouter = (app) => {
   //store
   router.get("/store/read", storeController.readFunc);
   router.post("/store/create", storeController.createFunc);
+  router.put("/store/update", storeController.updateFunc);
 
   return app.use("/api", router);
 };

@@ -124,8 +124,50 @@ const createStore = async (data) => {
   }
 };
 
+const updateStore = async (data) => {
+  try {
+    let check = await checkNameStore(data.name);
+    if (check === true) {
+      return {
+        EM: "The store name is already exists",
+        EC: 1,
+        DT: "name",
+      };
+    }
+    let store = await db.Store.findOne({
+      where: { id: data.id },
+    });
+    if (store) {
+      await store.update({
+        name: data.name,
+        userId: data.userId,
+        ...(data.image && { image: data.image }),
+      });
+      return {
+        EM: "Update store success",
+        EC: 0,
+        DT: "",
+      };
+    } else {
+      return {
+        EM: "Store not found",
+        EC: 2,
+        DT: "",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllStores,
   getStoreWithPagination,
   createStore,
+  updateStore,
 };
