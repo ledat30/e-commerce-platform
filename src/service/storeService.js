@@ -194,10 +194,52 @@ const deleteStore = async (id) => {
   }
 };
 
+const searchStore = async (keyword) => {
+  try {
+    const results = await db.Store.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [
+          {
+            name: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      attributes: ["name", "userId", "id"],
+      include: [
+        {
+          model: db.User,
+          attributes: ["username"],
+          as: "user",
+        },
+      ],
+    });
+    const transformedResults = results.map((result) => ({
+      name: result.name,
+      userId: result?.user?.username || "",
+      id: result.id,
+    }));
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: transformedResults,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: `Error from server: ${error.message}`,
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllStores,
   getStoreWithPagination,
   createStore,
   updateStore,
   deleteStore,
+  searchStore,
 };
