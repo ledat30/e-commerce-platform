@@ -165,9 +165,39 @@ const updateStore = async (data) => {
   }
 };
 
+const deleteStore = async (id) => {
+  try {
+    let store = await db.Store.findOne({
+      where: { id: id },
+    });
+    if (store) {
+      await store.destroy();
+      return {
+        EM: "Delete store successfully",
+        EC: 0,
+        DT: [],
+      };
+    } else {
+      return {
+        EM: "Store not exist",
+        EC: 2,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllStores,
   getStoreWithPagination,
   createStore,
   updateStore,
+  deleteStore,
 };
