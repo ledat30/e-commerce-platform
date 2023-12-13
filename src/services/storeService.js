@@ -13,4 +13,11 @@ const createStore = (storeData) => {
 const updateStore = (storeData) => {
   return axios.put(`/api/store/update`, { ...storeData });
 };
-export { getAllStores, createStore, updateStore };
+
+const deleteStore = (store) => {
+  return axios.delete(`/api/store/delete`, {
+    data: { id: store.id },
+  });
+};
+
+export { getAllStores, createStore, updateStore, deleteStore };

@@ -4,7 +4,10 @@ import ReactPaginate from "react-paginate";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllStores } from "../../../../store/action/actions";
+import { deleteStore } from "../../../../services/storeService";
 import ModalStore from "./ModalStore";
+import { toast } from "react-toastify";
+import ModelDelete from "./ModalDelete";
 
 function Store(ropps) {
   const dispatch = useDispatch();
@@ -16,6 +19,9 @@ function Store(ropps) {
   const [isShowModalStore, setIsShowModalStore] = useState(false);
   const [actionModalStore, setActionModalStore] = useState("CREATE");
   const [dataModalStore, setDataModalStore] = useState({});
+
+  const [isShowModelDelete, setIsShowModelDelete] = useState(false);
+  const [dataModel, setDataModel] = useState({});
 
   useEffect(() => {
     dispatch(fetchAllStores(currentPage, 5));
@@ -29,7 +35,7 @@ function Store(ropps) {
     dispatch(fetchAllStores(currentPage, 5));
   };
 
-  const onHideModalUser = async () => {
+  const onHideModalStore = async () => {
     setIsShowModalStore(false);
     setDataModalStore({});
     dispatch(fetchAllStores(currentPage, 5));
@@ -43,6 +49,26 @@ function Store(ropps) {
     setActionModalStore("UPDATE");
     setDataModalStore(store);
     setIsShowModalStore(true);
+  };
+
+  const handleDeleteStore = async (store) => {
+    setDataModel(store);
+    setIsShowModelDelete(true);
+  };
+  const handleClose = () => {
+    setIsShowModelDelete(false);
+    setDataModel({});
+  };
+
+  const confirmDeleteStore = async () => {
+    let response = await deleteStore(dataModel);
+    if (response && response.EC === 0) {
+      toast.success(response.EM);
+      dispatch(fetchAllStores(currentPage, 5));
+      setIsShowModelDelete(false);
+    } else {
+      toast.error(response.EM);
+    }
   };
   return (
     <>
@@ -116,7 +142,11 @@ function Store(ropps) {
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button title="Delete" className="btn btn-danger">
+                            <button
+                              title="Delete"
+                              className="btn btn-danger"
+                              onClick={() => handleDeleteStore(item)}
+                            >
                               <i className="fa fa-trash-o"></i>
                             </button>
                           </td>
@@ -159,9 +189,16 @@ function Store(ropps) {
         </div>
       </div>
 
+      <ModelDelete
+        show={isShowModelDelete}
+        handleClose={handleClose}
+        confirmDeleteStore={confirmDeleteStore}
+        dataModel={dataModel}
+      />
+
       <ModalStore
         title={"Create new user"}
-        onHide={onHideModalUser}
+        onHide={onHideModalStore}
         show={isShowModalStore}
         onAddStore={handleAddStore}
         action={actionModalStore}
