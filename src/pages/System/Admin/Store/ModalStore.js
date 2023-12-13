@@ -128,6 +128,9 @@ const ModalStore = (props) => {
         toast.success("Create new store successfully");
       } else {
         toast.error(response.EM);
+        let _validInputs = _.cloneDeep(validInputsDefault);
+        _validInputs[response.DT] = false;
+        setValidInputs(_validInputs);
       }
     }
   };
