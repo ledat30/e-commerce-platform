@@ -1,6 +1,7 @@
+import React, { useState, useEffect } from "react";
+import Select from "react-select";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { useState, useEffect } from "react";
 import { getGroupStore } from "../../../../services/userService";
 import { createStore, updateStore } from "../../../../services/storeService";
 import { CommonUtils } from "../../../../utils";
@@ -9,6 +10,7 @@ import { toast } from "react-toastify";
 const { Buffer } = require("buffer");
 
 const ModalStore = (props) => {
+  const [selectedOption, setSelectedOption] = useState(null);
   const [userGroupStore, setUserGroupStore] = useState([]);
   const [previewImgURL, setPreviewImgURL] = useState("");
   const { action, dataModalStore } = props;
@@ -141,6 +143,11 @@ const ModalStore = (props) => {
     setValidInputs(validInputsDefault);
   };
 
+  const options = userGroupStore.map((item) => ({
+    label: item.username,
+    value: item.id,
+  }));
+
   return (
     <>
       <Modal
@@ -175,26 +182,20 @@ const ModalStore = (props) => {
             </div>
             <div className="col-12 col-sm-6 from-group mt-2">
               <label>
-                Store owner (<span style={{ color: "red" }}>*</span>)
+                Choose store owner(<span style={{ color: "red" }}>*</span>)
               </label>
-              <select
-                className={
-                  validInputs.user
-                    ? "form-select mt-1"
-                    : "form-select mt-1 is-invalid"
+              <Select
+                className="mt-1"
+                value={
+                  options.find((option) => option.value === storeData.user) ||
+                  null
                 }
-                onChange={(e) => handleOnChangeInput(e.target.value, "user")}
-                value={storeData.user}
-              >
-                {userGroupStore.length > 0 &&
-                  userGroupStore.map((item, index) => {
-                    return (
-                      <option key={`group-${index}`} value={item.id}>
-                        {item.username}
-                      </option>
-                    );
-                  })}
-              </select>
+                onChange={(selected) => {
+                  setSelectedOption(selected);
+                  handleOnChangeInput(selected.value, "user");
+                }}
+                options={options}
+              />
             </div>
             <div className="col-12 col-sm-6 from-group mt-2">
               <label>Image</label>
