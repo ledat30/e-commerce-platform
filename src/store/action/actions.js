@@ -2,6 +2,7 @@ import {
   FETCH_STORE_REQUEST,
   FETCH_STORE_SUCCESS,
   FETCH_STORE_ERROR,
+  UPDATE_STORE_LIST,
 } from "./types";
 import { getAllStores } from "../../services/storeService";
 
@@ -37,3 +38,8 @@ export const fetchStoreError = () => {
     type: FETCH_STORE_ERROR,
   };
 };
+
+export const updateStoreList = (newList) => ({
+  type: UPDATE_STORE_LIST,
+  payload: newList,
+});

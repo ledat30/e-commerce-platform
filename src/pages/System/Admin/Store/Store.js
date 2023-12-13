@@ -3,18 +3,21 @@ import { NavLink } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllStores } from "../../../../store/action/actions";
-import { deleteStore } from "../../../../services/storeService";
+import {
+  fetchAllStores,
+  updateStoreList,
+} from "../../../../store/action/actions";
+import { deleteStore, searchStore } from "../../../../services/storeService";
 import ModalStore from "./ModalStore";
 import { toast } from "react-toastify";
 import ModelDelete from "./ModalDelete";
+import { debounce } from "lodash";
 
 function Store(ropps) {
   const dispatch = useDispatch();
-
   const listStores = useSelector((state) => state.user.listStores);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [isShowModalStore, setIsShowModalStore] = useState(false);
   const [actionModalStore, setActionModalStore] = useState("CREATE");
@@ -26,6 +29,10 @@ function Store(ropps) {
   useEffect(() => {
     dispatch(fetchAllStores(currentPage, 5));
   }, [dispatch, currentPage]);
+
+  useEffect(() => {
+    setTotalPages(Math.ceil(listStores.length / 5));
+  }, [listStores]);
 
   const handlePageChange = (event) => {
     setCurrentPage(+event.selected + 1);
@@ -70,6 +77,28 @@ function Store(ropps) {
       toast.error(response.EM);
     }
   };
+
+  const searchHandle = debounce(async (e) => {
+    let key = e.target.value;
+    if (key) {
+      try {
+        let response = await searchStore(key);
+        console.log("response", response);
+        if (response.EC === 0) {
+          dispatch(updateStoreList(response.DT));
+          setCurrentPage(1);
+        } else {
+          dispatch(updateStoreList([]));
+          setCurrentPage(1);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      dispatch(fetchAllStores(1, 5));
+    }
+  }, 300);
+
   return (
     <>
       <div className="container">
@@ -102,6 +131,7 @@ function Store(ropps) {
                     type="text"
                     name="q"
                     placeholder="Tìm kiếm store..."
+                    onChange={(e) => searchHandle(e)}
                   />
                   <NavLink className="sbutton" type="submit" to="">
                     <i className="fa fa-search"></i>
@@ -132,7 +162,8 @@ function Store(ropps) {
                           <td>{item.id}</td>
                           <td>{item.name}</td>
                           <td>
-                            {item.user.username || (item.user ? item.user : "")}
+                            {item.user?.username ||
+                              (item.userId ? item.userId : "")}
                           </td>
                           <td>
                             <button

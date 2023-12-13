@@ -20,4 +20,8 @@ const deleteStore = (store) => {
   });
 };
 
-export { getAllStores, createStore, updateStore, deleteStore };
+const searchStore = (key) => {
+  return axios.get(`/api/search-store?q=${key}`);
+};
+
+export { getAllStores, createStore, updateStore, deleteStore, searchStore };

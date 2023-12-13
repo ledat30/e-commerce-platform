@@ -2,6 +2,7 @@ import {
   FETCH_STORE_REQUEST,
   FETCH_STORE_SUCCESS,
   FETCH_STORE_ERROR,
+  UPDATE_STORE_LIST,
 } from "../action/types";
 
 const INITIAL_STATE = {
@@ -24,6 +25,12 @@ const userReducer = (state = INITIAL_STATE, action) => {
     case FETCH_STORE_ERROR:
       return {
         ...state,
+      };
+
+    case UPDATE_STORE_LIST:
+      return {
+        ...state,
+        listStores: action.payload,
       };
 
     default:
