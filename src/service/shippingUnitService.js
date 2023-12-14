@@ -155,10 +155,50 @@ const searchShippingUnit = async (keyword) => {
   }
 };
 
+const updateShippingUnit = async (data) => {
+  try {
+    let check = await checkNameShippingUnit(data.shipping_unit_name);
+    if (check === true) {
+      return {
+        EM: "The shipping unit name is already exists",
+        EC: 1,
+        DT: "shipping_unit_name",
+      };
+    }
+    let shippingUnit = await db.ShippingUnit.findOne({
+      where: { id: data.id },
+    });
+    if (shippingUnit) {
+      await shippingUnit.update({
+        shipping_unit_name: data.shipping_unit_name,
+      });
+      return {
+        EM: "Update shipping unit success",
+        EC: 0,
+        DT: "",
+      };
+    } else {
+      return {
+        EM: "Shipping unit not found",
+        EC: 2,
+        DT: "",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createShippingUnit,
   getAllShippingUnit,
   getShippingUnitWithPagination,
   deleteShippingUnit,
   searchShippingUnit,
+  updateShippingUnit,
 };

@@ -63,6 +63,7 @@ const initApiRouter = (app) => {
     "/search/shipping-unit",
     shippingUnitController.searchShippingUnit
   );
+  router.put("/shipping-unit/update", shippingUnitController.updateFunc);
 
   return app.use("/api", router);
 };
