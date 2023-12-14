@@ -58,6 +58,11 @@ const initApiRouter = (app) => {
   //shipping unit
   router.post("/shipping-unit/create", shippingUnitController.createFunc);
   router.get("/shipping-unit/read", shippingUnitController.readFunc);
+  router.delete("/shipping-unit/delete", shippingUnitController.deleteFunc);
+  router.get(
+    "/search/shipping-unit",
+    shippingUnitController.searchShippingUnit
+  );
 
   return app.use("/api", router);
 };

@@ -97,8 +97,68 @@ const getShippingUnitWithPagination = async (page, limit) => {
   }
 };
 
+const deleteShippingUnit = async (id) => {
+  try {
+    let shippingUnit = await db.ShippingUnit.findOne({
+      where: { id: id },
+    });
+    if (shippingUnit) {
+      await shippingUnit.destroy();
+      return {
+        EM: "Delete shipping Unit successfully",
+        EC: 0,
+        DT: [],
+      };
+    } else {
+      return {
+        EM: "Shipping unit not exist",
+        EC: 2,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
+const searchShippingUnit = async (keyword) => {
+  try {
+    const results = await db.ShippingUnit.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [
+          {
+            shipping_unit_name: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      attributes: ["shipping_unit_name", "id"],
+    });
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: results,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createShippingUnit,
   getAllShippingUnit,
   getShippingUnitWithPagination,
+  deleteShippingUnit,
+  searchShippingUnit,
 };

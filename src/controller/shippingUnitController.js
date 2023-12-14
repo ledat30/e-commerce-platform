@@ -53,7 +53,46 @@ const readFunc = async (req, res) => {
   }
 };
 
+const deleteFunc = async (req, res) => {
+  try {
+    let data = await shippingUnitService.deleteShippingUnit(req.body.id);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+};
+
+const searchShippingUnit = async (req, res) => {
+  try {
+    const keyword = req.query.q;
+    const data = await shippingUnitService.searchShippingUnit(keyword);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+};
+
 module.exports = {
   createFunc,
   readFunc,
+  deleteFunc,
+  searchShippingUnit,
 };
