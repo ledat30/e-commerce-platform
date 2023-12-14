@@ -196,6 +196,38 @@ const assignRoleToGroup = async (data) => {
   }
 };
 
+const updateRole = async (data) => {
+  try {
+    let role = await db.Role.findOne({
+      where: { id: data.id },
+    });
+    if (role) {
+      await role.update({
+        roleName: data.roleName,
+        description: data.description,
+      });
+      return {
+        EM: "Update roleName success",
+        EC: 0,
+        DT: "",
+      };
+    } else {
+      return {
+        EM: "Role name not found",
+        EC: 2,
+        DT: "",
+      };
+    }
+  } catch (error) {
+    console.log(`${error.message}`);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createNewRole,
   getAllRoles,
@@ -204,4 +236,5 @@ module.exports = {
   searchRole,
   getRoleByGroup,
   assignRoleToGroup,
+  updateRole,
 };
