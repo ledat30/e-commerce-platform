@@ -4,9 +4,12 @@ import { toast } from "react-toastify";
 import {
   createShippingUnit,
   getAllShippingUnit,
+  deleteShippingUnit,
+  searchShippingUnit,
 } from "../../../../services/shippingUnitService";
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
+import { debounce } from "lodash";
 
 function Shipping_Unit(props) {
   const [shipping_unit_name, setShipping_unit_name] = useState("");
@@ -64,6 +67,37 @@ function Shipping_Unit(props) {
       }
     }
   };
+
+  const handleDeleteShippingUnit = async (shippingUnit) => {
+    let data = await deleteShippingUnit(shippingUnit);
+    if (data && data.EC === 0) {
+      toast.success(data.EM);
+      await fetchShippingUnit();
+    } else {
+      toast.error(data.EM);
+    }
+  };
+
+  const searchHandle = debounce(async (e) => {
+    let key = e.target.value;
+    if (key) {
+      try {
+        let response = await searchShippingUnit(key);
+        if (response.EC === 0) {
+          setListShippingUnit(response.DT);
+          setCurrentPage(1);
+        } else {
+          setListShippingUnit([]);
+          setCurrentPage(1);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      await fetchShippingUnit();
+    }
+  }, 300);
+
   return (
     <>
       <div className="shipping_unit-container">
@@ -107,6 +141,7 @@ function Shipping_Unit(props) {
                     className="stext"
                     type=""
                     placeholder="Tìm kiếm shipping unit..."
+                    onChange={(e) => searchHandle(e)}
                   />
                   <NavLink className="sbutton" type="submit" to="">
                     <i className="fa fa-search"></i>
@@ -119,7 +154,7 @@ function Shipping_Unit(props) {
                 <tr>
                   <th>No</th>
                   <th>Id</th>
-                  <th>Category name</th>
+                  <th>Shipping unit</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -141,7 +176,11 @@ function Shipping_Unit(props) {
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button title="Delete" className="btn btn-danger">
+                            <button
+                              title="Delete"
+                              className="btn btn-danger"
+                              onClick={() => handleDeleteShippingUnit(item)}
+                            >
                               <i className="fa fa-trash-o"></i>
                             </button>
                           </td>
@@ -152,7 +191,7 @@ function Shipping_Unit(props) {
                 ) : (
                   <>
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={6}>Not found category...</td>
+                      <td colSpan={6}>Not found shipping unit...</td>
                     </tr>
                   </>
                 )}
