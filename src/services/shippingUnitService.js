@@ -18,9 +18,14 @@ const searchShippingUnit = (key) => {
   return axios.get(`/api/search/shipping-unit?q=${key}`);
 };
 
+const updateShippingUnit = (data) => {
+  return axios.put(`/api/shipping-unit/update`, data);
+};
+
 export {
   createShippingUnit,
   getAllShippingUnit,
   deleteShippingUnit,
   searchShippingUnit,
+  updateShippingUnit,
 };

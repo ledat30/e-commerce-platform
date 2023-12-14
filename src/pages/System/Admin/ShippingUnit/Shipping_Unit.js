@@ -6,6 +6,7 @@ import {
   getAllShippingUnit,
   deleteShippingUnit,
   searchShippingUnit,
+  updateShippingUnit,
 } from "../../../../services/shippingUnitService";
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
@@ -15,6 +16,9 @@ function Shipping_Unit(props) {
   const [shipping_unit_name, setShipping_unit_name] = useState("");
   const [validInputShippingUnit, setValidInputShippingUnit] = useState(true);
   const [attemptedSave, setAttemptedSave] = useState(false);
+
+  const [editMode, setEditMode] = useState(false);
+  const [editShippingUnitId, setEditShippingUnitId] = useState(null);
 
   const [listShippingUnit, setListShippingUnit] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,22 +54,51 @@ function Shipping_Unit(props) {
   const handleConfirmShippingUnit = async () => {
     setAttemptedSave(true);
     if (checkValidInput()) {
-      let response = await createShippingUnit({ shipping_unit_name });
-
-      if (response && response.EC === 0) {
-        setShipping_unit_name("");
-        toast.success(response.EM);
-        await fetchShippingUnit();
-        setAttemptedSave(false);
-        setValidInputShippingUnit(true);
-      } else if (response && response.EC !== 0) {
-        toast.error(response.EM);
-        setValidInputShippingUnit({
-          ...validInputShippingUnit,
-          [response.DT]: false,
+      if (editMode) {
+        let response = await updateShippingUnit({
+          id: editShippingUnitId,
+          shipping_unit_name,
         });
+
+        if (response && response.EC === 0) {
+          setShipping_unit_name("");
+          toast.success(response.EM);
+          await fetchShippingUnit();
+          setAttemptedSave(false);
+          setValidInputShippingUnit(true);
+          setEditMode(false);
+          setEditShippingUnitId(null);
+        } else if (response && response.EC !== 0) {
+          toast.error(response.EM);
+          setValidInputShippingUnit({
+            ...validInputShippingUnit,
+            [response.DT]: false,
+          });
+        }
+      } else {
+        let response = await createShippingUnit({ shipping_unit_name });
+
+        if (response && response.EC === 0) {
+          setShipping_unit_name("");
+          toast.success(response.EM);
+          await fetchShippingUnit();
+          setAttemptedSave(false);
+          setValidInputShippingUnit(true);
+        } else if (response && response.EC !== 0) {
+          toast.error(response.EM);
+          setValidInputShippingUnit({
+            ...validInputShippingUnit,
+            [response.DT]: false,
+          });
+        }
       }
     }
+  };
+
+  const handleEditClick = (id, name) => {
+    setEditMode(true);
+    setEditShippingUnitId(id);
+    setShipping_unit_name(name);
   };
 
   const handleDeleteShippingUnit = async (shippingUnit) => {
@@ -173,6 +206,12 @@ function Shipping_Unit(props) {
                             <button
                               title="Edit"
                               className="btn btn-warning mx-2"
+                              onClick={() =>
+                                handleEditClick(
+                                  item.id,
+                                  item.shipping_unit_name
+                                )
+                              }
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
