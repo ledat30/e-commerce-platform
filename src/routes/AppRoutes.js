@@ -9,6 +9,7 @@ import Role from "../pages/System/Admin/Role/Role";
 import GroupRole from "../pages/System/Admin/GroupRole/GroupRole";
 import Category from "../pages/System/Admin/Category/Category";
 import Store from "../pages/System/Admin/Store/Store";
+import ShippingUnit from "../pages/System/Admin/ShippingUnit/Shipping_Unit";
 
 function AppRoutes() {
   return (
@@ -33,6 +34,10 @@ function AppRoutes() {
       <Route
         path="/admin/store"
         element={<PrivateRoutes element={<Store />} />}
+      />
+      <Route
+        path="/admin/shipping-unit"
+        element={<PrivateRoutes element={<ShippingUnit />} />}
       />
 
       <Route path="/login" element={<Login />} />
