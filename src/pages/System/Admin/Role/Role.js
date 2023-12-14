@@ -3,7 +3,7 @@ import _ from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { createRole } from "../../../../services/roleService";
+import { createRole, updateRoleName } from "../../../../services/roleService";
 import TableRole from "./TableRole";
 import { NavLink } from "react-router-dom";
 
@@ -17,18 +17,22 @@ function Role(props) {
   const chidlRef = useRef();
   const searchHandleRef = useRef(null);
 
+  const [editingRoleName, setEditingRoleName] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+
   const [listChilds, setListChilds] = useState({
     child1: dataChildDefault,
   });
 
   const handleOnchangeInput = (name, value, key) => {
-    let _listChilds = _.cloneDeep(listChilds);
-
-    _listChilds[key][name] = value;
-    if (value && name === "roleName") {
-      _listChilds[key]["isValidRoleName"] = true;
-    }
-    setListChilds(_listChilds);
+    setListChilds((prevListChilds) => {
+      const newListChilds = _.cloneDeep(prevListChilds);
+      newListChilds[key][name] = value;
+      if (value && name === "roleName") {
+        newListChilds[key]["isValidRoleName"] = true;
+      }
+      return newListChilds;
+    });
   };
 
   const handleAddNewInput = () => {
@@ -57,26 +61,65 @@ function Role(props) {
   };
 
   const handleSave = async () => {
-    let invalidObj = Object.entries(listChilds).find(([key, child], index) => {
-      return child && !child.roleName;
-    });
-    if (!invalidObj) {
-      let data = buildDataToPersist();
-      let res = await createRole(data);
-      if (res && res.EC === 0) {
-        toast.success(res.EM);
-        chidlRef.current.fetchListRolesAgain();
-
-        setListChilds({ child1: dataChildDefault });
+    if (isEditing) {
+      try {
+        let response = await updateRoleName({
+          id: editingRoleName.id,
+          roleName: listChilds.child1.roleName,
+          description: listChilds.child1.description,
+        });
+        if (response && response.EC === 0) {
+          toast.success(response.EM);
+          setIsEditing(false);
+          setEditingRoleName(null);
+          setListChilds({ child1: dataChildDefault });
+          chidlRef.current.fetchListRolesAgain();
+        }
+      } catch (error) {
+        console.error(error);
       }
     } else {
-      toast.error("Input roleName must not be empty");
-      let _listChilds = _.cloneDeep(listChilds);
-      const key = invalidObj[0];
-      _listChilds[key]["isValidRoleName"] = false;
-      setListChilds(_listChilds);
+      let invalidObj = Object.entries(listChilds).find(
+        ([key, child], index) => {
+          return child && !child.roleName;
+        }
+      );
+      if (!invalidObj) {
+        let data = buildDataToPersist();
+        let res = await createRole(data);
+        if (res && res.EC === 0) {
+          toast.success(res.EM);
+          chidlRef.current.fetchListRolesAgain();
+
+          setListChilds({ child1: dataChildDefault });
+        }
+      } else {
+        toast.error("Input roleName must not be empty");
+        let _listChilds = _.cloneDeep(listChilds);
+        const key = invalidObj[0];
+        _listChilds[key]["isValidRoleName"] = false;
+        setListChilds(_listChilds);
+      }
     }
   };
+
+  const handleEditRoleName = (role) => {
+    if (role && role.id) {
+      setEditingRoleName(role);
+      setIsEditing(true);
+
+      setListChilds({
+        child1: {
+          roleName: role.roleName,
+          description: role.description,
+          isValidRoleName: true,
+        },
+      });
+    } else {
+      console.error("Invalid role data");
+    }
+  };
+
   return (
     <div className="role-container">
       <div className="container">
@@ -162,6 +205,7 @@ function Role(props) {
           <TableRole
             ref={chidlRef}
             searchHandleRef={(ref) => (searchHandleRef.current = ref)}
+            onEditRoleName={handleEditRoleName}
           />
         </div>
       </div>

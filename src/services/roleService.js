@@ -26,6 +26,10 @@ const assignRoleToGroup = (data) => {
   return axios.post(`/api/role/assign-to-group`, { data });
 };
 
+const updateRoleName = (data) => {
+  return axios.put(`/api/role/update`, data);
+};
+
 export {
   createRole,
   getAllRoles,
@@ -33,4 +37,5 @@ export {
   searchRole,
   getRoleByGroup,
   assignRoleToGroup,
+  updateRoleName,
 };

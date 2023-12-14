@@ -66,6 +66,10 @@ const TableRole = forwardRef((props, ref) => {
   }, 300);
   props.searchHandleRef(searchHandle);
 
+  const handleEditRoleName = (nameRole) => {
+    props.onEditRoleName(nameRole);
+  };
+
   return (
     <>
       <div className="list-role-table">
@@ -93,7 +97,7 @@ const TableRole = forwardRef((props, ref) => {
                         <button
                           title="Edit"
                           className="btn btn-warning mx-2"
-                          // onClick={() => handleEditUser(item)}
+                          onClick={() => handleEditRoleName(item)}
                         >
                           <i className="fa fa-pencil"></i>
                         </button>
