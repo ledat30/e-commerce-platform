@@ -110,7 +110,7 @@ const getUserAccount = async (req, res) => {
     EM: "Ok",
     EC: 0,
     DT: {
-      ccess_token: req.token,
+      access_token: req.token,
       groupWithRoles: req.user.groupWithRoles,
       email: req.user.email,
       username: req.user.username,
