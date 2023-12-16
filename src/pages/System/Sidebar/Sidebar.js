@@ -28,15 +28,34 @@ function Sidebar(props) {
     setSearchInput(e.target.value);
   };
 
-  const menuItems = [
-    { to: "/", label: "Dashboard", icon: "fa-home" },
-    { to: "/admin/users", label: "User", icon: "fa-user" },
-    { to: "/admin/role", label: "Role", icon: "fa-shield" },
-    { to: "/admin/group-role", label: "Group role", icon: "fa-users" },
-    { to: "/admin/category", label: "Category", icon: "fa-list-alt" },
-    { to: "/admin/store", label: "Store", icon: "fa-building" },
-    { to: "/admin/shipping-unit", label: "Shipping Unit", icon: "fa-truck" },
-  ];
+  const menuItems = [];
+
+  if (
+    user &&
+    user.isAuthenticated === true &&
+    user.account.groupWithRoles.id === 1
+  ) {
+    menuItems.push(
+      { to: "/", label: "Dashboard", icon: "fa-home" },
+      { to: "/admin/users", label: "User", icon: "fa-user" },
+      { to: "/admin/role", label: "Role", icon: "fa-shield" },
+      { to: "/admin/group-role", label: "Group role", icon: "fa-users" },
+      { to: "/admin/category", label: "Category", icon: "fa-list-alt" },
+      { to: "/admin/store", label: "Store", icon: "fa-building" },
+      { to: "/admin/shipping-unit", label: "Shipping Unit", icon: "fa-truck" }
+    );
+  }
+
+  if (
+    user &&
+    user.isAuthenticated === true &&
+    user.account.groupWithRoles.id === 2
+  ) {
+    menuItems.push(
+      { to: "/", label: "Dashboard", icon: "fa-home" },
+      { to: "/store-owner/product", label: "Products", icon: "fa-product-hunt" }
+    );
+  }
 
   const filteredItems = menuItems.filter((item) =>
     item.label.toLowerCase().includes(searchInput.toLowerCase())
