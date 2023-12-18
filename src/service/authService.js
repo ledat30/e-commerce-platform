@@ -48,12 +48,13 @@ const handleUserLogin = async (rawData) => {
           where: { userId: user.id },
           attributes: ["id"],
         });
+        let storeId = userStore ? userStore.id : null;
         let payload = {
           email: user.email,
           groupWithRoles,
           id: user.id,
           username: user.username,
-          storeId: userStore.id,
+          storeId: storeId,
         };
         let token = createJWT(payload);
         return {
@@ -65,7 +66,7 @@ const handleUserLogin = async (rawData) => {
             email: user.email,
             id: user.id,
             username: user.username,
-            storeId: userStore.id,
+            storeId: storeId,
           },
         };
       }
