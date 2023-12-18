@@ -17,7 +17,6 @@ import Product from "../pages/System/Store_Owner/Product/Product";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
-  console.log(user);
 
   if (user && user.isAuthenticated === true) {
     if (user.account.groupWithRoles.id === 1) {
