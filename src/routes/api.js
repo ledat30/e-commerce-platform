@@ -7,6 +7,7 @@ import { checkUserJWT, checkUserPermission } from "../middleware/JWTAction";
 import category from "../controller/category";
 import storeController from "../controller/storeController";
 import shippingUnitController from "../controller/shippingUnitController";
+import productController from "../controller/productController";
 
 const router = express.Router();
 
@@ -64,6 +65,9 @@ const initApiRouter = (app) => {
     shippingUnitController.searchShippingUnit
   );
   router.put("/shipping-unit/update", shippingUnitController.updateFunc);
+
+  //product
+  router.get("/product/read", productController.readFunc);
 
   return app.use("/api", router);
 };

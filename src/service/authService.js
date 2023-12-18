@@ -44,10 +44,16 @@ const handleUserLogin = async (rawData) => {
       let isCorrectPassword = checkPassword(rawData.password, user.password);
       if (isCorrectPassword === true) {
         let groupWithRoles = await getGroupWithRole(user);
+        let userStore = await db.Store.findOne({
+          where: { userId: user.id },
+          attributes: ["id"],
+        });
         let payload = {
           email: user.email,
           groupWithRoles,
+          id: user.id,
           username: user.username,
+          storeId: userStore.id,
         };
         let token = createJWT(payload);
         return {
@@ -57,7 +63,9 @@ const handleUserLogin = async (rawData) => {
             access_token: token,
             groupWithRoles,
             email: user.email,
+            id: user.id,
             username: user.username,
+            storeId: userStore.id,
           },
         };
       }

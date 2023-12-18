@@ -114,6 +114,8 @@ const getUserAccount = async (req, res) => {
       groupWithRoles: req.user.groupWithRoles,
       email: req.user.email,
       username: req.user.username,
+      id: req.user.id,
+      storeId: req.user.storeId,
     },
   });
 };
