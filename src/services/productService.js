@@ -22,4 +22,14 @@ const deleteProduct = (product) => {
   });
 };
 
-export { getAllProductsByStore, createProduct, updateProduct, deleteProduct };
+const searchProduct = (key) => {
+  return axios.get(`/api/search-product?q=${key}`);
+};
+
+export {
+  getAllProductsByStore,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  searchProduct,
+};

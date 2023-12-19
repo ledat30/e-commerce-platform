@@ -5,12 +5,14 @@ import { useEffect, useState } from "react";
 import {
   getAllProductsByStore,
   deleteProduct,
+  searchProduct,
 } from "../../../../services/productService";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
 import ModalProduct from "./ModalProduct";
 import { toast } from "react-toastify";
 import ModelDelete from "./ModelDelete";
+import { debounce } from "lodash";
 
 function Product(ropps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,6 +97,26 @@ function Product(ropps) {
     }
   };
 
+  const searchHandle = debounce(async (e) => {
+    let key = e.target.value;
+    if (key) {
+      try {
+        let response = await searchProduct(key);
+        if (response.EC === 0) {
+          setDataProductByStore(response.DT);
+          setCurrentPage(1);
+        } else {
+          setDataProductByStore([]);
+          setCurrentPage(1);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      await getDataProductByStore();
+    }
+  }, 300);
+
   return (
     <>
       <div className="container">
@@ -127,6 +149,7 @@ function Product(ropps) {
                     type="text"
                     name="q"
                     placeholder="Tìm kiếm product..."
+                    onChange={(e) => searchHandle(e)}
                   />
                   <NavLink className="sbutton" type="submit" to="">
                     <i className="fa fa-search"></i>
@@ -162,8 +185,8 @@ function Product(ropps) {
                           <td>{item.product_name}</td>
                           <td>{item.price}</td>
                           <td>
-                            {item.Category.category_name ||
-                              (item.Category ? item.Category : "")}
+                            {item.Category?.category_name ||
+                              (item.categoryId ? item.categoryId : "")}
                           </td>
                           <td>
                             <button
