@@ -68,6 +68,7 @@ const initApiRouter = (app) => {
 
   //product
   router.get("/product/read", productController.readFunc);
+  router.post("/product/create", productController.createFunc);
 
   return app.use("/api", router);
 };
