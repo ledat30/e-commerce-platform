@@ -71,6 +71,7 @@ const initApiRouter = (app) => {
   router.post("/product/create", productController.createFunc);
   router.put("/product/update", productController.updateFunc);
   router.delete("/product/delete", productController.deleteFunc);
+  router.get("/search-product", productController.searchProduct);
 
   return app.use("/api", router);
 };

@@ -179,10 +179,57 @@ const deleteProduct = async (id) => {
   }
 };
 
+const searchProduct = async (keyword) => {
+  try {
+    const results = await db.Product.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [
+          {
+            product_name: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+          {
+            price: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      attributes: ["product_name", "price", "categoryId", "id"],
+      include: [
+        {
+          model: db.Category,
+          attributes: ["category_name"],
+        },
+      ],
+    });
+    const transformedResults = results.map((result) => ({
+      product_name: result.product_name,
+      price: result.price,
+      categoryId: result?.Category?.category_name || "",
+      id: result.id,
+    }));
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: transformedResults,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: `Error from server: ${error.message}`,
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
   createProduct,
   updateProduct,
   deleteProduct,
+  searchProduct,
 };
