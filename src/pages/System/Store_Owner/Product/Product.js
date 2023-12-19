@@ -5,12 +5,16 @@ import { useEffect, useState } from "react";
 import { getAllProductsByStore } from "../../../../services/productService";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
+import ModalProduct from "./ModalProduct";
 
-function Store(ropps) {
+function Product(ropps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages] = useState(1);
   const [dataProductByStore, setDataProductByStore] = useState([]);
   const { user } = useContext(UserContext);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentLimit] = useState(5);
+
+  const [isShowModalProduct, setIsShowModalProduct] = useState(false);
 
   useEffect(() => {
     getDataProductByStore();
@@ -20,11 +24,12 @@ function Store(ropps) {
     let response = await getAllProductsByStore({
       storeId: user.account.storeId,
       page: currentPage,
-      limit: 5,
+      limit: currentLimit,
     });
 
     if (response && response.EC === 0) {
       setDataProductByStore(response.DT.product);
+      setTotalPages(response.DT.totalPages);
     } else {
       console.error(
         "Error fetching products. Check the response for more details."
@@ -35,6 +40,15 @@ function Store(ropps) {
   const handlePageChange = (selectedPage) => {
     setCurrentPage(selectedPage.selected + 1);
   };
+
+  const onHideModalProduct = () => {
+    setIsShowModalProduct(false);
+  };
+
+  const handleAddProduct = (updatedProductList) => {
+    setDataProductByStore(updatedProductList);
+  };
+
   return (
     <>
       <div className="container">
@@ -47,7 +61,10 @@ function Store(ropps) {
               <button className="btn btn-success refresh">
                 <i className="fa fa-refresh"></i> Refesh
               </button>
-              <button className="btn btn-primary">
+              <button
+                className="btn btn-primary"
+                onClick={() => setIsShowModalProduct(true)}
+              >
                 <i className="fa fa-plus-circle"></i> Add new product
               </button>
 
@@ -85,7 +102,10 @@ function Store(ropps) {
                     {dataProductByStore.map((item, index) => {
                       return (
                         <tr key={`row-${index}`}>
-                          <td>{index + 1}</td>
+                          <td>
+                            {" "}
+                            {(currentPage - 1) * currentLimit + index + 1}
+                          </td>
                           <td>{item.id}</td>
                           <td>{item.product_name}</td>
                           <td>{item.price}</td>
@@ -142,8 +162,14 @@ function Store(ropps) {
           </div>
         </div>
       </div>
+      <ModalProduct
+        title={"Create new user"}
+        onHide={onHideModalProduct}
+        show={isShowModalProduct}
+        onAddStore={handleAddProduct}
+      />
     </>
   );
 }
 
-export default Store;
+export default Product;

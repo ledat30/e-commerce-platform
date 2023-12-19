@@ -7,6 +7,9 @@ const createCategory = (data) => {
 const getAllCategories = (page, limit) => {
   return axios.get(`/api/category/read?page=${page}&limit=${limit}`);
 };
+const getAllCategory = () => {
+  return axios.get(`/api/category/read`);
+};
 
 const updateCategory = (data) => {
   return axios.put(`/api/category/update`, data);
@@ -28,4 +31,5 @@ export {
   updateCategory,
   deleteCategory,
   searchCategory,
+  getAllCategory,
 };

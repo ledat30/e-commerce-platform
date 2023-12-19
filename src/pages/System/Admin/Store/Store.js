@@ -158,7 +158,7 @@ function Store(ropps) {
                     {listStores.map((item, index) => {
                       return (
                         <tr key={`row-${index}`}>
-                          <td>{index + 1}</td>
+                          <td> {(currentPage - 1) * 5 + index + 1}</td>
                           <td>{item.id}</td>
                           <td>{item.name}</td>
                           <td>

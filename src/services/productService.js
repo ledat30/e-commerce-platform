@@ -5,4 +5,10 @@ const getAllProductsByStore = (data) => {
     `/api/product/read?page=${data.page}&limit=${data.limit}&storeId=${data.storeId}`
   );
 };
-export { getAllProductsByStore };
+
+const createProduct = (productData) => {
+  return axios.post(`/api/product/create`, {
+    ...productData,
+  });
+};
+export { getAllProductsByStore, createProduct };
