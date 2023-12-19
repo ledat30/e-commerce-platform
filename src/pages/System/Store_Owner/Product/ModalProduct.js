@@ -1,7 +1,10 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useState, useEffect } from "react";
-import { createProduct } from "../../../../services/productService";
+import {
+  createProduct,
+  updateProduct,
+} from "../../../../services/productService";
 import { getAllCategory } from "../../../../services/categoryService";
 import { getAllStore } from "../../../../services/storeService";
 import { CommonUtils } from "../../../../utils";
@@ -9,6 +12,7 @@ import _ from "lodash";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import { getAllProductsByStore } from "../../../../services/productService";
+const { Buffer } = require("buffer");
 
 const ModalProduct = (props) => {
   const [category, setCategory] = useState([]);
@@ -16,6 +20,7 @@ const ModalProduct = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOption, setSelectedOption] = useState(null);
   const [previewImgURL, setPreviewImgURL] = useState("");
+  const { action, dataModalProduct } = props;
 
   const defaultProductData = {
     price: "",
@@ -41,6 +46,36 @@ const ModalProduct = (props) => {
     getCategory();
     getStore();
   }, []);
+
+  useEffect(() => {
+    if (action === "UPDATE") {
+      setProductData({
+        ...dataModalProduct,
+        category: dataModalProduct.Category ? dataModalProduct.Category.id : "",
+        store: dataModalProduct.Store ? dataModalProduct.Store.id : "",
+      });
+      // Convert Buffer to base64 for image preview
+      let imageBase64 = "";
+      if (dataModalProduct.image) {
+        imageBase64 = new Buffer.from(
+          dataModalProduct.image,
+          "base64"
+        ).toString("binary");
+      }
+      setPreviewImgURL(imageBase64);
+    }
+  }, [action, dataModalProduct]);
+
+  useEffect(() => {
+    if (action === "CREATE") {
+      if (category && category.length > 0) {
+        setProductData({ ...productData, category: category[0].id });
+      }
+      if (store && store.length > 0) {
+        setProductData({ ...productData, store: store[0].id });
+      }
+    }
+  }, [action, category, store]);
 
   const getCategory = async () => {
     let response = await getAllCategory();
@@ -73,6 +108,7 @@ const ModalProduct = (props) => {
   };
 
   const checkValidInput = () => {
+    if (action === "UPDATE") return true;
     setValidInputs(validInputsDefault);
     let arr = [
       "product_name",
@@ -111,11 +147,18 @@ const ModalProduct = (props) => {
   const handleConfirmProduct = async () => {
     let check = checkValidInput();
     if (check === true) {
-      let response = await createProduct({
-        ...productData,
-        categoryId: productData["category"],
-        storeId: productData["store"],
-      });
+      let response =
+        action === "CREATE"
+          ? await createProduct({
+              ...productData,
+              categoryId: productData["category"],
+              storeId: productData["store"],
+            })
+          : await updateProduct({
+              ...productData,
+              categoryId: productData["category"],
+              storeId: productData["store"],
+            });
 
       if (response && response.EC === 0) {
         // Fetch the updated list of products
@@ -158,17 +201,29 @@ const ModalProduct = (props) => {
     value: item.id,
   }));
 
+  const handleCloseModalProduct = () => {
+    props.onHide();
+    setProductData(defaultProductData);
+    setValidInputs(validInputsDefault);
+  };
+
   return (
     <>
       <Modal
         size="lg"
         show={props.show}
         className="modal-user"
-        onHide={props.onHide}
+        onHide={() => handleCloseModalProduct()}
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            <span>{props.title}</span>
+            <span>
+              <span>
+                {props.action === "CREATE"
+                  ? "Create new product"
+                  : "Edit a product"}
+              </span>
+            </span>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -238,6 +293,7 @@ const ModalProduct = (props) => {
                   handleOnChangeInput(selected.value, "category");
                 }}
                 options={options}
+                isDisabled={action === "CREATE" ? false : true}
               />
             </div>
             <div className="col-12 col-sm-6 from-group mt-2">
@@ -256,6 +312,7 @@ const ModalProduct = (props) => {
                   handleOnChangeInput(selected.value, "store");
                 }}
                 options={Selectoptions}
+                isDisabled={action === "CREATE" ? false : true}
               />
             </div>
             <div className="col-12 col-sm-6 from-group mt-2">
@@ -281,11 +338,11 @@ const ModalProduct = (props) => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={props.onHide}>
+          <Button variant="secondary" onClick={() => handleCloseModalProduct()}>
             Đóng
           </Button>
           <Button variant="primary" onClick={() => handleConfirmProduct()}>
-            Lưu
+            {action === "CREATE" ? "Lưu" : "Sửa"}
           </Button>
         </Modal.Footer>
       </Modal>

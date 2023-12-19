@@ -15,6 +15,8 @@ function Product(ropps) {
   const [currentLimit] = useState(5);
 
   const [isShowModalProduct, setIsShowModalProduct] = useState(false);
+  const [actionModalProduct, setActionModalProduct] = useState("CREATE");
+  const [dataModalProduct, setDataModalProduct] = useState({});
 
   useEffect(() => {
     getDataProductByStore();
@@ -41,12 +43,28 @@ function Product(ropps) {
     setCurrentPage(selectedPage.selected + 1);
   };
 
-  const onHideModalProduct = () => {
+  const onHideModalProduct = async () => {
     setIsShowModalProduct(false);
+    setDataModalProduct({});
+    await getAllProductsByStore({
+      storeId: user.account.storeId,
+      page: currentPage,
+      limit: currentLimit,
+    });
   };
 
   const handleAddProduct = (updatedProductList) => {
     setDataProductByStore(updatedProductList);
+  };
+
+  const handleEditProduct = async (product) => {
+    setActionModalProduct("UPDATE");
+    setDataModalProduct(product);
+    setIsShowModalProduct(true);
+  };
+
+  const handleRefresh = async () => {
+    await getDataProductByStore();
   };
 
   return (
@@ -58,12 +76,18 @@ function Product(ropps) {
               <h3>Manage Product</h3>
             </div>
             <div className="actions my-3">
-              <button className="btn btn-success refresh">
+              <button
+                className="btn btn-success refresh"
+                onClick={() => handleRefresh()}
+              >
                 <i className="fa fa-refresh"></i> Refesh
               </button>
               <button
                 className="btn btn-primary"
-                onClick={() => setIsShowModalProduct(true)}
+                onClick={() => {
+                  setIsShowModalProduct(true);
+                  setActionModalProduct("CREATE");
+                }}
               >
                 <i className="fa fa-plus-circle"></i> Add new product
               </button>
@@ -117,6 +141,7 @@ function Product(ropps) {
                             <button
                               title="Edit"
                               className="btn btn-warning mx-2"
+                              onClick={() => handleEditProduct(item)}
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
@@ -163,10 +188,12 @@ function Product(ropps) {
         </div>
       </div>
       <ModalProduct
-        title={"Create new user"}
+        title={"Create new product"}
         onHide={onHideModalProduct}
         show={isShowModalProduct}
         onAddStore={handleAddProduct}
+        action={actionModalProduct}
+        dataModalProduct={dataModalProduct}
       />
     </>
   );

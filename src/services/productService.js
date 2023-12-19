@@ -11,4 +11,9 @@ const createProduct = (productData) => {
     ...productData,
   });
 };
-export { getAllProductsByStore, createProduct };
+
+const updateProduct = (productData) => {
+  return axios.put(`/api/product/update`, { ...productData });
+};
+
+export { getAllProductsByStore, createProduct, updateProduct };
