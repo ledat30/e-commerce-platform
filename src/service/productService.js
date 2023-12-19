@@ -150,9 +150,39 @@ const updateProduct = async (data) => {
   }
 };
 
+const deleteProduct = async (id) => {
+  try {
+    let product = await db.Product.findOne({
+      where: { id: id },
+    });
+    if (product) {
+      await product.destroy();
+      return {
+        EM: "Delete product successfully",
+        EC: 0,
+        DT: [],
+      };
+    } else {
+      return {
+        EM: "Product not exist",
+        EC: 2,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
   createProduct,
   updateProduct,
+  deleteProduct,
 };
