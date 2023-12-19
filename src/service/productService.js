@@ -37,8 +37,11 @@ const getProductWithPagination = async (page, limit, storeId) => {
       offset: offset,
       limit: limit,
       where: { storeId: storeId },
-      attributes: ["id", "product_name", "price"],
-      include: [{ model: db.Category, attributes: ["category_name", "id"] }],
+      attributes: ["id", "product_name", "price", "description", "image"],
+      include: [
+        { model: db.Category, attributes: ["category_name", "id"] },
+        { model: db.Store, attributes: ["name", "id"] },
+      ],
       order: [["id", "DESC"]],
     });
     let totalPages = Math.ceil(count / limit);
@@ -103,8 +106,53 @@ const createProduct = async (data) => {
   }
 };
 
+const updateProduct = async (data) => {
+  try {
+    let check = await checkNameProduct(data.product_name);
+    if (check === true) {
+      return {
+        EM: "The product name is already exists",
+        EC: 1,
+        DT: "product_name",
+      };
+    }
+    let product = await db.Product.findOne({
+      where: { id: data.id },
+    });
+    if (product) {
+      await product.update({
+        product_name: data.product_name,
+        storeId: data.storeId,
+        categoryId: data.categoryId,
+        price: data.price,
+        description: data.description,
+        ...(data.image && { image: data.image }),
+      });
+      return {
+        EM: "Update product success",
+        EC: 0,
+        DT: "",
+      };
+    } else {
+      return {
+        EM: "Product not found",
+        EC: 2,
+        DT: "",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
   createProduct,
+  updateProduct,
 };
