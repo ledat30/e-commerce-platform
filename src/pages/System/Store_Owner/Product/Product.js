@@ -2,10 +2,15 @@ import "./Product.scss";
 import { NavLink } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import { useEffect, useState } from "react";
-import { getAllProductsByStore } from "../../../../services/productService";
+import {
+  getAllProductsByStore,
+  deleteProduct,
+} from "../../../../services/productService";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
 import ModalProduct from "./ModalProduct";
+import { toast } from "react-toastify";
+import ModelDelete from "./ModelDelete";
 
 function Product(ropps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,6 +22,9 @@ function Product(ropps) {
   const [isShowModalProduct, setIsShowModalProduct] = useState(false);
   const [actionModalProduct, setActionModalProduct] = useState("CREATE");
   const [dataModalProduct, setDataModalProduct] = useState({});
+
+  const [isShowModelDelete, setIsShowModelDelete] = useState(false);
+  const [dataModel, setDataModel] = useState({});
 
   useEffect(() => {
     getDataProductByStore();
@@ -65,6 +73,26 @@ function Product(ropps) {
 
   const handleRefresh = async () => {
     await getDataProductByStore();
+  };
+
+  const handleDeleteProduct = async (product) => {
+    setDataModel(product);
+    setIsShowModelDelete(true);
+  };
+  const handleClose = () => {
+    setIsShowModelDelete(false);
+    setDataModel({});
+  };
+
+  const confirmDeleteProduct = async () => {
+    let response = await deleteProduct(dataModel);
+    if (response && response.EC === 0) {
+      toast.success(response.EM);
+      await getDataProductByStore();
+      setIsShowModelDelete(false);
+    } else {
+      toast.error(response.EM);
+    }
   };
 
   return (
@@ -145,7 +173,11 @@ function Product(ropps) {
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button title="Delete" className="btn btn-danger">
+                            <button
+                              title="Delete"
+                              className="btn btn-danger"
+                              onClick={() => handleDeleteProduct(item)}
+                            >
                               <i className="fa fa-trash-o"></i>
                             </button>
                           </td>
@@ -194,6 +226,13 @@ function Product(ropps) {
         onAddStore={handleAddProduct}
         action={actionModalProduct}
         dataModalProduct={dataModalProduct}
+      />
+
+      <ModelDelete
+        show={isShowModelDelete}
+        handleClose={handleClose}
+        confirmDeleteProduct={confirmDeleteProduct}
+        dataModel={dataModel}
       />
     </>
   );

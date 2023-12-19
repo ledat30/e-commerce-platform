@@ -16,4 +16,10 @@ const updateProduct = (productData) => {
   return axios.put(`/api/product/update`, { ...productData });
 };
 
-export { getAllProductsByStore, createProduct, updateProduct };
+const deleteProduct = (product) => {
+  return axios.delete(`/api/product/delete`, {
+    data: { id: product.id },
+  });
+};
+
+export { getAllProductsByStore, createProduct, updateProduct, deleteProduct };
