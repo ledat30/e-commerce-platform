@@ -42,7 +42,8 @@ function Sidebar(props) {
       { to: "/admin/group-role", label: "Group role", icon: "fa-users" },
       { to: "/admin/category", label: "Category", icon: "fa-list-alt" },
       { to: "/admin/store", label: "Store", icon: "fa-building" },
-      { to: "/admin/shipping-unit", label: "Shipping Unit", icon: "fa-truck" }
+      { to: "/admin/shipping-unit", label: "Shipping Unit", icon: "fa-truck" },
+      { to: "/admin/payment-method", label: "Payment method", icon: "fa-credit-card " },
     );
   }
 
