@@ -12,6 +12,7 @@ const nonSecurePaths = [
   "/search-user",
   "/search/shipping-unit",
   "/search-product",
+  "/search-payment",
 ];
 
 const createJWT = (payload) => {
