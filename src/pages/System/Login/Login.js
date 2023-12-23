@@ -56,7 +56,15 @@ function Login(props) {
       };
       localStorage.setItem("jwt", token);
       loginContext(data);
-      navigate("/");
+      if (
+        groupWithRoles.id === 1 ||
+        groupWithRoles.id === 2 ||
+        groupWithRoles.id === 3
+      ) {
+        navigate("/");
+      } else if (groupWithRoles.id === 4) {
+        navigate("/home");
+      }
       toast.success("Login successful");
     }
     if (response && +response.EC !== 0) {
@@ -71,7 +79,7 @@ function Login(props) {
   };
 
   return (
-    <div className="container">
+    <div className="login-container">
       <div className="screen-1">
         <div className="title-login">Login</div>
         <div className="email">
@@ -121,7 +129,7 @@ function Login(props) {
         <button className="login" onClick={() => handleLogin()}>
           Login
         </button>
-        <div className="footer">
+        <div className="footer-login">
           <span className="forgot-password">Forgot Password?</span>
         </div>
       </div>

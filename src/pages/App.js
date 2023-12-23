@@ -6,9 +6,33 @@ import "react-toastify/dist/ReactToastify.css";
 import { Rings } from "react-loader-spinner";
 import { UserContext } from "../context/userContext";
 import { useContext } from "react";
+import ClinetRoutes from "../routes/ClinetRoutes";
 
 function App() {
   const { user } = useContext(UserContext);
+
+  let contentClass = "app-routes";
+  let appClass = "null";
+
+  if (
+    user &&
+    user.account &&
+    user.account.groupWithRoles &&
+    user.account.groupWithRoles.id &&
+    user.account.groupWithRoles.id === 4
+  ) {
+    contentClass = "client-routes";
+  }
+
+  if (
+    user &&
+    user.account &&
+    user.account.groupWithRoles &&
+    user.account.groupWithRoles.id &&
+    [1, 2, 3].includes(user.account.groupWithRoles.id)
+  ) {
+    appClass = "app";
+  }
   return (
     <>
       {user && user.isLoading ? (
@@ -17,12 +41,26 @@ function App() {
           <div>Loading data...</div>
         </div>
       ) : (
-        <div className="app">
+        <div className={appClass}>
           <div className="app-slidebar">
-            <SlideBar />
+            {user &&
+              user.account &&
+              user.account.groupWithRoles &&
+              user.account.groupWithRoles.id &&
+              [1, 2, 3].includes(user.account.groupWithRoles.id) && (
+                <SlideBar />
+              )}
           </div>
-          <div className="content">
-            <AppRoutes />
+          <div className={contentClass}>
+            {user &&
+            user.account &&
+            user.account.groupWithRoles &&
+            user.account.groupWithRoles.id &&
+            user.account.groupWithRoles.id === 4 ? (
+              <ClinetRoutes />
+            ) : (
+              <AppRoutes />
+            )}
           </div>
         </div>
       )}
@@ -43,39 +81,3 @@ function App() {
 }
 
 export default App;
-<>
-  {/* <Switch>
-            <Route path="/" exact component={UserDashboard} />
-            <Route
-              path="/admin"
-              render={() =>
-                isAuthenticated() && isAdmin() ? (
-                  <AdminDashboard />
-                ) : (
-                  <Redirect to="/" />
-                )
-              }
-            />
-            <Route
-              path="/store-owner"
-              render={() =>
-                isAuthenticated() && isStoreOwner() ? (
-                  <StoreOwnerDashboard />
-                ) : (
-                  <Redirect to="/" />
-                )
-              }
-            />
-            <Route
-              path="/shipper"
-              render={() =>
-                isAuthenticated() && isShipper() ? (
-                  <ShipperDashboard />
-                ) : (
-                  <Redirect to="/" />
-                )
-              }
-            />
-            <Route path="*" component={NotFound} />
-          </Switch> */}
-</>;
