@@ -225,6 +225,44 @@ const searchProduct = async (keyword) => {
   }
 };
 
+const getAllProductWithPagination = async (page, limit) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Product.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      attributes: ["id", "product_name", "price", "description", "image"],
+      order: [["id", "DESC"]],
+      include: [{ model: db.Store, attributes: ["name", "id"] }],
+    });
+
+    if (rows && rows.length > 0) {
+      rows.map((item) => {
+        item.image = new Buffer.from(item.image, "base64").toString("binary");
+      });
+    }
+
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      product: rows,
+    };
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -232,4 +270,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   searchProduct,
+  getAllProductWithPagination,
 };

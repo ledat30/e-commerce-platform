@@ -73,6 +73,7 @@ const initApiRouter = (app) => {
   router.put("/product/update", productController.updateFunc);
   router.delete("/product/delete", productController.deleteFunc);
   router.get("/search-product", productController.searchProduct);
+  router.get("/all-product/read", productController.readAllFunc);
 
   //payment method
   router.post("/payment/create", paymentMethodController.createFunc);

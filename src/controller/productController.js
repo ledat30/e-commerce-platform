@@ -110,10 +110,27 @@ const searchProduct = async (req, res) => {
   }
 };
 
+const readAllFunc = async (req, res) => {
+  let page = req.query.page;
+  let limit = req.query.limit;
+
+  let data = await productService.getAllProductWithPagination(
+    +page,
+    +limit
+  );
+
+  return res.status(200).json({
+    EM: data.EM,
+    EC: data.EC,
+    DT: data.DT,
+  });
+};
+
 module.exports = {
   readFunc,
   createFunc,
   updateFunc,
   deleteFunc,
   searchProduct,
+  readAllFunc,
 };
