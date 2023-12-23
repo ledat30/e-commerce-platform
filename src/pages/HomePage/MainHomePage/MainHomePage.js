@@ -1,16 +1,28 @@
 import { useEffect, useState } from "react";
 import "./MainHomePage.scss";
 import { getAllCategory } from "../../../services/categoryService";
+import { getAllProducts } from "../../../services/productService";
+import ReactPaginate from "react-paginate";
 
 function MainHomePage() {
   const [allCategories, setAllCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [previewImgURL, setPreviewImgURL] = useState("");
+
+  const [allProducts, setAllProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentLimit] = useState(6);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [currentPage]);
 
   useEffect(() => {
     const filtered = allCategories.filter((item) =>
@@ -27,8 +39,29 @@ function MainHomePage() {
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      let response = await getAllProducts({
+        page: currentPage,
+        limit: currentLimit,
+      });
+      console.log(response);
+
+      if (response && response.EC === 0) {
+        setAllProducts(response.DT.product);
+        setTotalPages(response.DT.totalPages);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
   const handleCategoryClick = (index) => {
     setSelectedCategory(index);
+  };
+
+  const handlePageChange = (selectedPage) => {
+    setCurrentPage(selectedPage.selected + 1);
   };
 
   const handleSearchChange = (e) => {
@@ -46,10 +79,10 @@ function MainHomePage() {
                 mục
               </h3>
 
-              <div className="box">
-                <div className="sbox">
+              <div className="search-category-home">
+                <div className="search-sbox">
                   <input
-                    className="stext"
+                    className="search-stext"
                     type="text"
                     name="q"
                     placeholder="Tìm kiếm danh mục..."
@@ -172,495 +205,74 @@ function MainHomePage() {
 
             <div className="home-product">
               <div className="row sm-gutter">
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
-                <div className="col l-2-4 m-4 c-6 product-mr">
-                  <a href="/" className="home-product-item">
-                    <div
-                      className="home-product-item__img"
-                      style={{
-                        backgroundImage:
-                          "url(https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzw5de97h0fd0_tn)",
-                      }}
-                    ></div>
-                    <h4 className="home-product-item__name">
-                      SỮA TẮM LIFEBUOY 800GR DETOX VÀ SẠCH SÂU KHỎI BỤI MỊN
-                      PM2.5 DETOX 100% TỪ THIÊN NHIÊN DIỆT KHUẨN
-                    </h4>
-                    <div className="home-product-item__price">
-                      <span className="home-product-item__price-old">
-                        1.200.000đ
-                      </span>
-                      <span className="home-product-item__price-current">
-                        999.000đ
-                      </span>
-                    </div>
-                    <div className="home-product-item__action">
-                      <span className="home-product-item__brand">Whoo</span>
-                      <span className="home-product-item__sold">
-                        100 Đã bán
-                      </span>
-                    </div>
-                    <div className="home-product-item__new">
-                      <span className="pr">New</span>
-                    </div>
-                    <div className="home-product-item__sale-off">
-                      <span className="home-product-item__sale-off-percent">
-                        43%
-                      </span>
-                      <span className="home-product-item__sale-off-lable">
-                        GIẢM
-                      </span>
-                    </div>
-                  </a>
-                </div>
+                {allProducts &&
+                  allProducts.length > 0 &&
+                  allProducts.map((item, index) => {
+                    return (
+                      <div className="col l-2-4 m-4 c-6 product-mr" key={index}>
+                        <a href="/" className="home-product-item">
+                          <div
+                            className="home-product-item__img"
+                            style={{ backgroundImage: `url(${item.image})` }}
+                          ></div>
+                          <h4 className="home-product-item__name">
+                            {item.product_name}
+                          </h4>
+                          <div className="home-product-item__price">
+                            <span className="home-product-item__price-old">
+                              {item.price}.000đ
+                            </span>
+                            <span className="home-product-item__price-current">
+                              {item.price}.000đ
+                            </span>
+                          </div>
+                          <div className="home-product-item__action">
+                            <span className="home-product-item__brand">
+                              {item.Store.name}
+                            </span>
+                            <span className="home-product-item__sold">
+                              100 Đã bán
+                            </span>
+                          </div>
+                          <div className="home-product-item__new">
+                            <span className="pr">New</span>
+                          </div>
+                          <div className="home-product-item__sale-off">
+                            <span className="home-product-item__sale-off-percent">
+                              43%
+                            </span>
+                            <span className="home-product-item__sale-off-lable">
+                              GIẢM
+                            </span>
+                          </div>
+                        </a>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
 
             <ul className="pagination home-product__pagination">
-              <li className="pagination-item">
-                <a href="/" className="pagination-item__link">
-                  <i className="pagination-item__icon fa fa-angle-left"></i>
-                </a>
-              </li>
-              <li className="pagination-item pagination-item--action">
-                <a href="/" className="pagination-item__link">
-                  1
-                </a>
-              </li>
-              <li className="pagination-item">
-                <a href="/" className="pagination-item__link">
-                  2
-                </a>
-              </li>
-              <li className="pagination-item">
-                <a href="/" className="pagination-item__link">
-                  3
-                </a>
-              </li>
-              <li className="pagination-item">
-                <a href="/" className="pagination-item__link">
-                  4
-                </a>
-              </li>
-              <li className="pagination-item">
-                <a href="/" className="pagination-item__link">
-                  5
-                </a>
-              </li>
-              <li className="pagination-item">
-                <a href="/" className="pagination-item__link">
-                  ...
-                </a>
-              </li>
-              <li className="pagination-item">
-                <a href="/" className="pagination-item__link">
-                  14
-                </a>
-              </li>
-              <li className="pagination-item">
-                <a href="/" className="pagination-item__link">
-                  <i className="pagination-item__icon fa fa-angle-right"></i>
-                </a>
-              </li>
+              <ReactPaginate
+                nextLabel="next >"
+                onPageChange={handlePageChange}
+                pageRangeDisplayed={3}
+                marginPagesDisplayed={2}
+                pageCount={totalPages}
+                previousLabel="< previous"
+                pageClassName="page-item"
+                pageLinkClassName="page-link"
+                previousClassName="page-item"
+                previousLinkClassName="page-link"
+                nextClassName="page-item"
+                nextLinkClassName="page-link"
+                breakLabel="..."
+                breakClassName="page-item"
+                breakLinkClassName="page-link"
+                containerClassName="pagination justify-content-center"
+                activeClassName="active"
+                renderOnZeroPageCount={null}
+              />
             </ul>
           </div>
         </div>

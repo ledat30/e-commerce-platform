@@ -6,6 +6,12 @@ const getAllProductsByStore = (data) => {
   );
 };
 
+const getAllProducts = (data) => {
+  return axios.get(
+    `/api/all-product/read?page=${data.page}&limit=${data.limit}`
+  );
+};
+
 const createProduct = (productData) => {
   return axios.post(`/api/product/create`, {
     ...productData,
@@ -32,4 +38,5 @@ export {
   updateProduct,
   deleteProduct,
   searchProduct,
+  getAllProducts,
 };
