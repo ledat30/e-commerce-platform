@@ -49,6 +49,7 @@ const initApiRouter = (app) => {
   router.put("/category/update", category.updateFunc);
   router.delete("/category/delete", category.deleteFunc);
   router.get("/search-category", category.searchCategory);
+  router.get('/get-all-detail-category-by-id', category.getDetailCategoryById);
 
   //store
   router.get("/store/read", storeController.readFunc);

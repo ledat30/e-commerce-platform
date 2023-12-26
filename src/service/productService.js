@@ -3,7 +3,7 @@ import db from "../models";
 const getAllProductForStoreOwner = async () => {
   try {
     let product = await db.Product.findAll({
-      attributes: ["id", "product_name", "price"],
+      attributes: ["id", "product_name", "price", "old_price"],
       include: [{ model: db.Category, attributes: ["category_name"] }],
       raw: false,
     });
@@ -37,7 +37,14 @@ const getProductWithPagination = async (page, limit, storeId) => {
       offset: offset,
       limit: limit,
       where: { storeId: storeId },
-      attributes: ["id", "product_name", "price", "description", "image"],
+      attributes: [
+        "id",
+        "product_name",
+        "price",
+        "old_price",
+        "description",
+        "image",
+      ],
       include: [
         { model: db.Category, attributes: ["category_name", "id"] },
         { model: db.Store, attributes: ["name", "id"] },
@@ -231,7 +238,15 @@ const getAllProductWithPagination = async (page, limit) => {
     const { count, rows } = await db.Product.findAndCountAll({
       offset: offset,
       limit: limit,
-      attributes: ["id", "product_name", "price", "description", "image"],
+      attributes: [
+        "id",
+        "product_name",
+        "price",
+        "old_price",
+        "description",
+        "image",
+        "promotion",
+      ],
       order: [["id", "DESC"]],
       include: [{ model: db.Store, attributes: ["name", "id"] }],
     });

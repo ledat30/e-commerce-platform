@@ -194,6 +194,62 @@ const searchCategory = async (keyword) => {
   }
 };
 
+const getDetailCategoryById = async (id) => {
+  try {
+    if (!id) {
+      return {
+        EM: "Missing required parameter!",
+        EC: 1,
+        DT: [],
+      };
+    } else {
+      let categoryData = await db.Category.findOne({
+        where: {
+          id: id,
+        },
+        attributes: ["category_name"],
+      });
+
+      if (categoryData) {
+        let productData = await db.Product.findAll({
+          where: { categoryId: id },
+          attributes: [
+            "product_name",
+            "price",
+            "image",
+            "categoryId",
+            "id",
+            "old_price",
+          ],
+          include: [{ model: db.Store, attributes: ["name", "id"] }],
+        });
+
+        if (productData && productData.length > 0) {
+          productData.forEach((item) => {
+            item.image = new Buffer.from(item.image, "base64").toString(
+              "binary"
+            );
+          });
+        }
+
+        categoryData.products = productData;
+      } else categoryData = {};
+      return {
+        EM: "Detail category by id successfully!",
+        EC: 0,
+        DT: categoryData.products,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   createCategory,
   getAllCategories,
@@ -201,4 +257,5 @@ module.exports = {
   updateCategory,
   deleteCategory,
   searchCategory,
+  getDetailCategoryById,
 };
