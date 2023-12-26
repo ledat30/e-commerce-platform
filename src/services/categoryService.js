@@ -25,6 +25,10 @@ const searchCategory = (key) => {
   return axios.get(`/api/search-category?q=${key}`);
 };
 
+const getDetailCategoryById = (data) => {
+  return axios.get(`/api/get-all-detail-category-by-id?id=${data.id}`);
+};
+
 export {
   createCategory,
   getAllCategories,
@@ -32,4 +36,5 @@ export {
   deleteCategory,
   searchCategory,
   getAllCategory,
+  getDetailCategoryById,
 };

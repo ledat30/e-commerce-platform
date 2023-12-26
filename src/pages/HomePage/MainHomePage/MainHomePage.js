@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import "./MainHomePage.scss";
-import { getAllCategory } from "../../../services/categoryService";
+import {
+  getAllCategory,
+  getDetailCategoryById,
+} from "../../../services/categoryService";
 import { getAllProducts } from "../../../services/productService";
 import ReactPaginate from "react-paginate";
 
@@ -9,7 +12,6 @@ function MainHomePage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [previewImgURL, setPreviewImgURL] = useState("");
 
   const [allProducts, setAllProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +47,6 @@ function MainHomePage() {
         page: currentPage,
         limit: currentLimit,
       });
-      console.log(response);
 
       if (response && response.EC === 0) {
         setAllProducts(response.DT.product);
@@ -56,8 +57,22 @@ function MainHomePage() {
     }
   };
 
-  const handleCategoryClick = (index) => {
-    setSelectedCategory(index);
+  const handleCategoryClick = async (id) => {
+    try {
+      if (id === null) {
+        await fetchProducts();
+        setSelectedCategory(null);
+      } else {
+        let response = await getDetailCategoryById({ id });
+        if (response && response.EC === 0) {
+          setAllProducts(response.DT);
+          setTotalPages(response.DT.totalPages);
+          setSelectedCategory(id);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
   };
 
   const handlePageChange = (selectedPage) => {
@@ -97,16 +112,26 @@ function MainHomePage() {
 
               {filteredCategories && filteredCategories.length > 0 ? (
                 <ul className="category-list">
+                  <li
+                    className={`category-item ${
+                      selectedCategory === null
+                        ? "category-item__link-active"
+                        : ""
+                    }`}
+                    onClick={() => handleCategoryClick(null)}
+                  >
+                    <div className="category-item__link">Tất cả</div>
+                  </li>
                   {filteredCategories.map((item, index) => {
-                    const isActive = index === selectedCategory;
-                    const categoryClasses = `category-item ${
-                      isActive ? "category-item__link-active" : ""
-                    }`;
                     return (
                       <li
-                        className={categoryClasses}
-                        onClick={() => handleCategoryClick(index)}
-                        key={index}
+                        className={`category-item ${
+                          selectedCategory === item.id
+                            ? "category-item__link-active"
+                            : ""
+                        }`}
+                        onClick={() => handleCategoryClick(item.id)}
+                        key={item.id}
                       >
                         <div className="category-item__link">
                           {item.category_name}
@@ -153,127 +178,81 @@ function MainHomePage() {
               </div>
             </div>
 
-            <nav className="mobile-category">
-              <ul className="mobile-category__list">
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Dụng cụ nhà bếp
-                  </a>
-                </li>
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Thiết bị hỗ trợ sửa chữa đồ đạc
-                  </a>
-                </li>
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Điện thoại Khuyến mãi cục lớn
-                  </a>
-                </li>
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Máy tính
-                  </a>
-                </li>
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Tai nghe
-                  </a>
-                </li>
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Cặp sách
-                  </a>
-                </li>
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Túi sách
-                  </a>
-                </li>
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Ví da
-                  </a>
-                </li>
-                <li className="mobile-category__item">
-                  <a href="/" className="mobile-category__link">
-                    Giầy da
-                  </a>
-                </li>
-              </ul>
-            </nav>
-
             <div className="home-product">
               <div className="row sm-gutter">
-                {allProducts &&
-                  allProducts.length > 0 &&
-                  allProducts.map((item, index) => {
-                    return (
-                      <div className="col l-2-4 m-4 c-6 product-mr" key={index}>
-                        <a href="/" className="home-product-item">
-                          <div
-                            className="home-product-item__img"
-                            style={{ backgroundImage: `url(${item.image})` }}
-                          ></div>
-                          <h4 className="home-product-item__name">
-                            {item.product_name}
-                          </h4>
-                          <div className="home-product-item__price">
-                            <span className="home-product-item__price-old">
-                              {item.price}.000đ
-                            </span>
-                            <span className="home-product-item__price-current">
-                              {item.price}.000đ
-                            </span>
-                          </div>
-                          <div className="home-product-item__action">
-                            <span className="home-product-item__brand">
-                              {item.Store.name}
-                            </span>
-                            <span className="home-product-item__sold">
-                              100 Đã bán
-                            </span>
-                          </div>
-                          <div className="home-product-item__new">
-                            <span className="pr">New</span>
-                          </div>
-                          <div className="home-product-item__sale-off">
-                            <span className="home-product-item__sale-off-percent">
-                              43%
-                            </span>
-                            <span className="home-product-item__sale-off-lable">
-                              GIẢM
-                            </span>
-                          </div>
-                        </a>
-                      </div>
-                    );
-                  })}
+                {allProducts && allProducts.length > 0 ? (
+                  allProducts.map((item, index) => (
+                    <div className="col l-2-4 m-4 c-6 product-mr" key={index}>
+                      <a href="/" className="home-product-item">
+                        <div
+                          className="home-product-item__img"
+                          style={{ backgroundImage: `url(${item.image})` }}
+                        ></div>
+                        <h4 className="home-product-item__name">
+                          {item.product_name}
+                        </h4>
+                        <div className="home-product-item__price">
+                          <span className="home-product-item__price-old">
+                            {item.old_price}.000đ
+                          </span>
+                          <span className="home-product-item__price-current">
+                            {item.price}.000đ
+                          </span>
+                        </div>
+                        <div className="home-product-item__action">
+                          <span className="home-product-item__brand">
+                            {item.Store.name}
+                          </span>
+                          <span className="home-product-item__sold">
+                            100 Đã bán
+                          </span>
+                        </div>
+                        <div className="home-product-item__new">
+                          <span className="pr">New</span>
+                        </div>
+                        <div className="home-product-item__sale-off">
+                          <span className="home-product-item__sale-off-percent">
+                            {item.promotion}%
+                          </span>
+                          <span className="home-product-item__sale-off-lable">
+                            GIẢM
+                          </span>
+                        </div>
+                      </a>
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-products-message">
+                    <p>Không có sản phẩm nào.</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            <ul className="pagination home-product__pagination">
-              <ReactPaginate
-                nextLabel="next >"
-                onPageChange={handlePageChange}
-                pageRangeDisplayed={3}
-                marginPagesDisplayed={2}
-                pageCount={totalPages}
-                previousLabel="< previous"
-                pageClassName="page-item"
-                pageLinkClassName="page-link"
-                previousClassName="page-item"
-                previousLinkClassName="page-link"
-                nextClassName="page-item"
-                nextLinkClassName="page-link"
-                breakLabel="..."
-                breakClassName="page-item"
-                breakLinkClassName="page-link"
-                containerClassName="pagination justify-content-center"
-                activeClassName="active"
-                renderOnZeroPageCount={null}
-              />
-            </ul>
+            {allProducts && allProducts.length > 0 && (
+              <ul className="pagination home-product__pagination">
+                <ReactPaginate
+                  nextLabel="next >"
+                  onPageChange={handlePageChange}
+                  pageRangeDisplayed={3}
+                  marginPagesDisplayed={2}
+                  pageCount={totalPages}
+                  previousLabel="< previous"
+                  pageClassName="page-item"
+                  pageLinkClassName="page-link"
+                  previousClassName="page-item"
+                  previousLinkClassName="page-link"
+                  nextClassName="page-item"
+                  nextLinkClassName="page-link"
+                  breakLabel="..."
+                  breakClassName="page-item"
+                  breakLinkClassName="page-link"
+                  containerClassName="pagination justify-content-center"
+                  activeClassName="active"
+                  renderOnZeroPageCount={null}
+                />
+              </ul>
+            )}
           </div>
         </div>
       </div>
