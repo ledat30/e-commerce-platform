@@ -220,6 +220,7 @@ const getDetailCategoryById = async (id) => {
             "categoryId",
             "id",
             "old_price",
+            "promotion",
           ],
           include: [{ model: db.Store, attributes: ["name", "id"] }],
         });
