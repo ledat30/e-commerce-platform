@@ -12,6 +12,9 @@ module.exports = {
       quantyly: {
         type: Sequelize.BIGINT,
       },
+      currentNumber: {
+        type: Sequelize.BIGINT,
+      },
       quantyly_in_stock: {
         type: Sequelize.BIGINT,
       },
@@ -19,6 +22,9 @@ module.exports = {
         type: Sequelize.BIGINT,
       },
       quantyly_shipped: {
+        type: Sequelize.BIGINT,
+      },
+      quantity_sold: {
         type: Sequelize.BIGINT,
       },
       productId: {

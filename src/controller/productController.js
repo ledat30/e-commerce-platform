@@ -39,7 +39,7 @@ const readFunc = async (req, res) => {
 
 const createFunc = async (req, res) => {
   try {
-    let data = await productService.createProduct(req.body);
+    let data = await productService.createProduct(req.body, req.query.storeId);
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
@@ -57,7 +57,7 @@ const createFunc = async (req, res) => {
 
 const updateFunc = async (req, res) => {
   try {
-    let data = await productService.updateProduct(req.body);
+    let data = await productService.updateProduct(req.body, req.query.storeId);
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
@@ -114,10 +114,7 @@ const readAllFunc = async (req, res) => {
   let page = req.query.page;
   let limit = req.query.limit;
 
-  let data = await productService.getAllProductWithPagination(
-    +page,
-    +limit
-  );
+  let data = await productService.getAllProductWithPagination(+page, +limit);
 
   return res.status(200).json({
     EM: data.EM,

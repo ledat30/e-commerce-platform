@@ -12,6 +12,15 @@ module.exports = {
       price: {
         type: Sequelize.FLOAT,
       },
+      old_price: {
+        type: Sequelize.STRING,
+      },
+      promotion: {
+        type: Sequelize.TEXT,
+      },
+      view_count: {
+        type: Sequelize.INTEGER,
+      },
       product_name: {
         type: Sequelize.STRING,
       },

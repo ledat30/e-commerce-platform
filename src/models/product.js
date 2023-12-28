@@ -18,10 +18,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   Product.init(
     {
-      price: DataTypes.FLOAT,
+      price: DataTypes.STRING,
+      old_price: DataTypes.STRING,
       product_name: DataTypes.STRING,
       description: DataTypes.STRING,
       image: DataTypes.BLOB("long"),
+      promotion: DataTypes.TEXT,
+      view_count: DataTypes.INTEGER,
       storeId: DataTypes.INTEGER,
       categoryId: DataTypes.INTEGER,
     },

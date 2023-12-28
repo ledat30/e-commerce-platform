@@ -116,6 +116,7 @@ const getUserAccount = async (req, res) => {
       username: req.user.username,
       id: req.user.id,
       storeId: req.user.storeId,
+      nameStore: req.user.nameStore,
     },
   });
 };

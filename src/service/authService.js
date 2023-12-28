@@ -46,15 +46,17 @@ const handleUserLogin = async (rawData) => {
         let groupWithRoles = await getGroupWithRole(user);
         let userStore = await db.Store.findOne({
           where: { userId: user.id },
-          attributes: ["id"],
+          attributes: ["id", "name"],
         });
         let storeId = userStore ? userStore.id : null;
+        let nameStore = userStore ? userStore.name : null;
         let payload = {
           email: user.email,
           groupWithRoles,
           id: user.id,
           username: user.username,
           storeId: storeId,
+          nameStore: nameStore,
         };
         let token = createJWT(payload);
         return {
@@ -67,6 +69,7 @@ const handleUserLogin = async (rawData) => {
             id: user.id,
             username: user.username,
             storeId: storeId,
+            nameStore: nameStore,
           },
         };
       }

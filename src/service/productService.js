@@ -3,7 +3,7 @@ import db from "../models";
 const getAllProductForStoreOwner = async () => {
   try {
     let product = await db.Product.findAll({
-      attributes: ["id", "product_name", "price", "old_price"],
+      attributes: ["id", "product_name", "price", "old_price", "promotion"],
       include: [{ model: db.Category, attributes: ["category_name"] }],
       raw: false,
     });
@@ -42,6 +42,7 @@ const getProductWithPagination = async (page, limit, storeId) => {
         "product_name",
         "price",
         "old_price",
+        "promotion",
         "description",
         "image",
       ],
@@ -87,7 +88,7 @@ const checkNameProduct = async (nameProduct) => {
   }
 };
 
-const createProduct = async (data) => {
+const createProduct = async (data, storeId) => {
   try {
     let check = await checkNameProduct(data.product_name);
     if (check === true) {
@@ -97,7 +98,7 @@ const createProduct = async (data) => {
         DT: "product_name",
       };
     }
-    await db.Product.create({ ...data });
+    await db.Product.create({ ...data, storeId });
     return {
       EM: "Create product successful",
       EC: 0,
@@ -113,7 +114,7 @@ const createProduct = async (data) => {
   }
 };
 
-const updateProduct = async (data) => {
+const updateProduct = async (data, storeId) => {
   try {
     let check = await checkNameProduct(data.product_name);
     if (check === true) {
@@ -132,6 +133,8 @@ const updateProduct = async (data) => {
         storeId: data.storeId,
         categoryId: data.categoryId,
         price: data.price,
+        old_price: data.old_price,
+        promotion: data.promotion,
         description: data.description,
         ...(data.image && { image: data.image }),
       });
@@ -148,9 +151,9 @@ const updateProduct = async (data) => {
       };
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
-      EM: "Somnething wrongs with services",
+      EM: "Something wrong with services",
       EC: -1,
       DT: [],
     };
@@ -243,6 +246,7 @@ const getAllProductWithPagination = async (page, limit) => {
         "product_name",
         "price",
         "old_price",
+        "promotion",
         "description",
         "image",
         "promotion",
