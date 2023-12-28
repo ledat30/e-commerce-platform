@@ -12,14 +12,16 @@ const getAllProducts = (data) => {
   );
 };
 
-const createProduct = (productData) => {
-  return axios.post(`/api/product/create`, {
+const createProduct = (productData, storeId) => {
+  return axios.post(`/api/product/create?storeId=${storeId}`, {
     ...productData,
   });
 };
 
-const updateProduct = (productData) => {
-  return axios.put(`/api/product/update`, { ...productData });
+const updateProduct = (productData, storeId) => {
+  return axios.put(`/api/product/update?storeId=${storeId}`, {
+    ...productData,
+  });
 };
 
 const deleteProduct = (product) => {

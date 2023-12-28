@@ -193,10 +193,10 @@ function MainHomePage() {
                         </h4>
                         <div className="home-product-item__price">
                           <span className="home-product-item__price-old">
-                            {item.old_price}.000đ
+                            {item.old_price}đ
                           </span>
                           <span className="home-product-item__price-current">
-                            {item.price}.000đ
+                            {item.price}đ
                           </span>
                         </div>
                         <div className="home-product-item__action">
@@ -212,7 +212,7 @@ function MainHomePage() {
                         </div>
                         <div className="home-product-item__sale-off">
                           <span className="home-product-item__sale-off-percent">
-                            {item.promotion}%
+                            {item.promotion}
                           </span>
                           <span className="home-product-item__sale-off-lable">
                             GIẢM

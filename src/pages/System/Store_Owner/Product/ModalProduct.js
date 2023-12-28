@@ -1,12 +1,13 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useState, useEffect } from "react";
+import { useContext } from "react";
+import { UserContext } from "../../../../context/userContext";
 import {
   createProduct,
   updateProduct,
 } from "../../../../services/productService";
 import { getAllCategory } from "../../../../services/categoryService";
-import { getAllStore } from "../../../../services/storeService";
 import { CommonUtils } from "../../../../utils";
 import _ from "lodash";
 import { toast } from "react-toastify";
@@ -16,27 +17,28 @@ const { Buffer } = require("buffer");
 
 const ModalProduct = (props) => {
   const [category, setCategory] = useState([]);
-  const [store, setStore] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOption, setSelectedOption] = useState(null);
   const [previewImgURL, setPreviewImgURL] = useState("");
   const { action, dataModalProduct } = props;
+  const { user } = useContext(UserContext);
 
   const defaultProductData = {
     price: "",
+    old_price: "",
     product_name: "",
     description: "",
     image: "",
-    store: "",
     category: "",
   };
 
   const validInputsDefault = {
     price: true,
+    old_price: true,
     product_name: true,
     description: true,
     image: true,
-    store: true,
+    promotion: true,
     category: true,
   };
   const [productData, setProductData] = useState(defaultProductData);
@@ -44,7 +46,6 @@ const ModalProduct = (props) => {
 
   useEffect(() => {
     getCategory();
-    getStore();
   }, []);
 
   useEffect(() => {
@@ -52,7 +53,6 @@ const ModalProduct = (props) => {
       setProductData({
         ...dataModalProduct,
         category: dataModalProduct.Category ? dataModalProduct.Category.id : "",
-        store: dataModalProduct.Store ? dataModalProduct.Store.id : "",
       });
       // Convert Buffer to base64 for image preview
       let imageBase64 = "";
@@ -71,11 +71,8 @@ const ModalProduct = (props) => {
       if (category && category.length > 0) {
         setProductData({ ...productData, category: category[0].id });
       }
-      if (store && store.length > 0) {
-        setProductData({ ...productData, store: store[0].id });
-      }
     }
-  }, [action, category, store]);
+  }, [action, category]);
 
   const getCategory = async () => {
     let response = await getAllCategory();
@@ -89,21 +86,20 @@ const ModalProduct = (props) => {
     }
   };
 
-  const getStore = async () => {
-    let response = await getAllStore();
-
-    if (response && response.EC === 0) {
-      setStore(response.DT);
-      if (response.DT && response.DT.length > 0) {
-        let store = response.DT;
-        setProductData({ ...productData, store: store[0].id });
-      }
-    }
-  };
-
   const handleOnChangeInput = (value, name) => {
     let _productData = _.cloneDeep(productData);
     _productData[name] = value;
+
+    if (name === "old_price" || name === "price") {
+      const oldPrice = parseFloat(_productData["old_price"]) || 0;
+      const currentPrice = parseFloat(_productData["price"]) || 0;
+
+      const promotionPercentage =
+        oldPrice !== 0 ? ((oldPrice - currentPrice) / oldPrice) * 100 : 0;
+
+      _productData["promotion"] = promotionPercentage.toFixed(0) + "%";
+    }
+
     setProductData(_productData);
   };
 
@@ -112,11 +108,12 @@ const ModalProduct = (props) => {
     setValidInputs(validInputsDefault);
     let arr = [
       "product_name",
-      "price",
-      "description",
-      "category",
-      "store",
       "image",
+      "category",
+      "description",
+      "old_price",
+      "price",
+      "promotion",
     ];
     let check = true;
     for (let i = 0; i < arr.length; i++) {
@@ -149,21 +146,26 @@ const ModalProduct = (props) => {
     if (check === true) {
       let response =
         action === "CREATE"
-          ? await createProduct({
-              ...productData,
-              categoryId: productData["category"],
-              storeId: productData["store"],
-            })
-          : await updateProduct({
-              ...productData,
-              categoryId: productData["category"],
-              storeId: productData["store"],
-            });
+          ? await createProduct(
+              {
+                ...productData,
+                categoryId: productData["category"],
+              },
+              user.account.storeId
+            )
+          : await updateProduct(
+              {
+                ...productData,
+                categoryId: productData["category"],
+              },
+              user.account.storeId
+            );
 
       if (response && response.EC === 0) {
         // Fetch the updated list of products
+        console.log(productData);
         const updatedProductsResponse = await getAllProductsByStore({
-          storeId: productData["store"],
+          storeId: user.account.storeId,
           page: currentPage,
           limit: 5,
         });
@@ -182,7 +184,6 @@ const ModalProduct = (props) => {
         setProductData({
           ...defaultProductData,
           category: category && category.length > 0 ? category[0].id : "",
-          store: store && store.length > 0 ? store[0].id : "",
         });
         setPreviewImgURL("");
       } else {
@@ -193,11 +194,6 @@ const ModalProduct = (props) => {
 
   const options = category.map((item) => ({
     label: item.category_name,
-    value: item.id,
-  }));
-
-  const Selectoptions = store.map((item) => ({
-    label: item.name,
     value: item.id,
   }));
 
@@ -246,36 +242,24 @@ const ModalProduct = (props) => {
               />
             </div>
             <div className="col-12 col-sm-6 from-group">
-              <label>
-                Price(<span style={{ color: "red" }}>*</span>)
-              </label>
-              <input
-                className={
-                  validInputs.price
-                    ? "form-control mt-1"
-                    : "form-control mt-1 is-invalid"
-                }
-                type="text"
-                value={productData.price}
-                onChange={(e) => handleOnChangeInput(e.target.value, "price")}
-              />
-            </div>
-            <div className="col-12 col-sm-12 from-group mt-1">
-              <label>
-                Description(<span style={{ color: "red" }}>*</span>)
-              </label>
-              <input
-                className={
-                  validInputs.description
-                    ? "form-control mt-1"
-                    : "form-control mt-1 is-invalid"
-                }
-                type="text"
-                value={productData.description}
-                onChange={(e) =>
-                  handleOnChangeInput(e.target.value, "description")
-                }
-              />
+              <label>Image</label>
+              <div className="preview-img-container">
+                <input
+                  id="prevewimg"
+                  type="file"
+                  hidden
+                  onChange={(e) => handleOnChangeImage(e, "image")}
+                />
+                <div className="upload">
+                  <label htmlFor="prevewimg" className="lable-upload mt-1">
+                    Upload <i className="fa fa-upload" aria-hidden="true"></i>
+                  </label>
+                  <div
+                    className="preview-image"
+                    style={{ backgroundImage: `url(${previewImgURL})` }}
+                  ></div>
+                </div>
+              </div>
             </div>
             <div className="col-12 col-sm-6 from-group mt-2">
               <label>
@@ -296,44 +280,73 @@ const ModalProduct = (props) => {
                 isDisabled={action === "CREATE" ? false : true}
               />
             </div>
-            <div className="col-12 col-sm-6 from-group mt-2">
+            {user && user.isAuthenticated === true && (
+              <div className="col-12 col-sm-6 from-group mt-2">
+                <label>Store</label>
+                <input
+                  disabled
+                  className={"form-control mt-1"}
+                  value={user.account.nameStore}
+                />
+              </div>
+            )}
+            <div className="col-12 col-sm-12 from-group mt-2">
               <label>
-                Choose store(<span style={{ color: "red" }}>*</span>)
+                Description(<span style={{ color: "red" }}>*</span>)
               </label>
-              <Select
-                className="mt-1"
-                value={
-                  Selectoptions.find(
-                    (option) => option.value === productData.store
-                  ) || null
+              <input
+                className={
+                  validInputs.description
+                    ? "form-control mt-1"
+                    : "form-control mt-1 is-invalid"
                 }
-                onChange={(selected) => {
-                  setSelectedOption(selected.value);
-                  handleOnChangeInput(selected.value, "store");
-                }}
-                options={Selectoptions}
-                isDisabled={action === "CREATE" ? false : true}
+                type="text"
+                value={productData.description}
+                onChange={(e) =>
+                  handleOnChangeInput(e.target.value, "description")
+                }
               />
             </div>
-            <div className="col-12 col-sm-6 from-group mt-2">
-              <label>Image</label>
-              <div className="preview-img-container">
-                <input
-                  id="prevewimg"
-                  type="file"
-                  hidden
-                  onChange={(e) => handleOnChangeImage(e, "image")}
-                />
-                <div className="upload">
-                  <label htmlFor="prevewimg" className="lable-upload mt-1">
-                    Upload <i className="fa fa-upload" aria-hidden="true"></i>
-                  </label>
-                  <div
-                    className="preview-image"
-                    style={{ backgroundImage: `url(${previewImgURL})` }}
-                  ></div>
-                </div>
-              </div>
+            <div className="col-12 col-sm-4 from-group mt-2">
+              <label>
+                Old price(<span style={{ color: "red" }}>*</span>)
+              </label>
+              <input
+                className={
+                  validInputs.old_price
+                    ? "form-control mt-1"
+                    : "form-control mt-1 is-invalid"
+                }
+                type="text"
+                value={productData.old_price}
+                onChange={(e) =>
+                  handleOnChangeInput(e.target.value, "old_price")
+                }
+              />
+            </div>
+            <div className="col-12 col-sm-4 from-group mt-2">
+              <label>
+                Current price(<span style={{ color: "red" }}>*</span>)
+              </label>
+              <input
+                className={
+                  validInputs.price
+                    ? "form-control mt-1"
+                    : "form-control mt-1 is-invalid"
+                }
+                type="text"
+                value={productData.price}
+                onChange={(e) => handleOnChangeInput(e.target.value, "price")}
+              />
+            </div>
+            <div className="col-12 col-sm-4 from-group mt-2">
+              <label>Promotion</label>
+              <input
+                className={"form-control mt-1"}
+                type="text"
+                value={productData.promotion}
+                readOnly
+              />
             </div>
           </div>
         </Modal.Body>

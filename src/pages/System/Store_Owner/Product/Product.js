@@ -166,7 +166,8 @@ function Product(ropps) {
                   <th>No</th>
                   <th>Id</th>
                   <th>Name</th>
-                  <th>Price</th>
+                  <th>Old price</th>
+                  <th>Current price</th>
                   <th>Category</th>
                   <th>Action</th>
                 </tr>
@@ -183,7 +184,8 @@ function Product(ropps) {
                           </td>
                           <td>{item.id}</td>
                           <td>{item.product_name}</td>
-                          <td>{item.price}</td>
+                          <td>{item.old_price}.vnđ</td>
+                          <td>{item.price}.vnđ</td>
                           <td>
                             {item.Category?.category_name ||
                               (item.categoryId ? item.categoryId : "")}

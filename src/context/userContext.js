@@ -33,10 +33,11 @@ function UserProvider({ children }) {
       let id = response.DT.id;
       let token = response.DT.access_token;
       let storeId = response.DT.storeId;
+      let nameStore = response.DT.nameStore;
       let data = {
         isAuthenticated: true,
         token: token,
-        account: { groupWithRoles, email, username, id, storeId },
+        account: { groupWithRoles, email, username, id, storeId, nameStore },
         isLoading: false,
       };
       setTimeout(() => {
