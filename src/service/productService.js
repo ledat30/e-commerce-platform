@@ -405,6 +405,36 @@ const getProductInStockWithPagination = async (page, limit, storeId) => {
   }
 };
 
+const deleteProductInStock = async (id) => {
+  try {
+    let product = await db.Inventory.findOne({
+      where: { id: id },
+    });
+    if (product) {
+      await product.destroy();
+      return {
+        EM: "Delete product in stock successfully",
+        EC: 0,
+        DT: [],
+      };
+    } else {
+      return {
+        EM: "Product not exist",
+        EC: 2,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -416,4 +446,5 @@ module.exports = {
   getAllProductWithPagination,
   getAllProductInStockForStoreOwner,
   getProductInStockWithPagination,
+  deleteProductInStock,
 };

@@ -85,6 +85,7 @@ const initApiRouter = (app) => {
 
   //inventory
   router.get("/inventory/read", productController.readInventory);
+  router.delete("/inventory/delete", productController.deleteProductInStock);
 
   return app.use("/api", router);
 };
