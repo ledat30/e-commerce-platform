@@ -1,7 +1,46 @@
 import { NavLink } from "react-router-dom";
 import ReactPaginate from "react-paginate";
+import { getAllProductsInStockByStore } from "../../../../services/productService";
+import { useEffect, useState } from "react";
+import { useContext } from "react";
+import { UserContext } from "../../../../context/userContext";
 
 function InVentory(ropps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages] = useState(1);
+  const [dataProductInStockByStore, setDataProductInStockByStore] = useState(
+    []
+  );
+  const { user } = useContext(UserContext);
+  const [currentLimit] = useState(5);
+
+  useEffect(() => {
+    getDataProductInStockByStore();
+  }, [currentPage]);
+
+  const getDataProductInStockByStore = async () => {
+    let response = await getAllProductsInStockByStore({
+      storeId: user.account.storeId,
+      page: currentPage,
+      limit: currentLimit,
+    });
+    if (response && response.EC === 0) {
+      setDataProductInStockByStore(response.DT.product);
+    } else {
+      console.error(
+        "Error fetching products. Check the response for more details."
+      );
+    }
+  };
+
+  const handlePageChange = (selectedPage) => {
+    setCurrentPage(selectedPage.selected + 1);
+  };
+
+  const handleRefresh = async () => {
+    await getDataProductInStockByStore();
+  };
+
   return (
     <>
       <div className="container">
@@ -11,7 +50,10 @@ function InVentory(ropps) {
               <h3>Manage products in warehouse</h3>
             </div>
             <div className="actions my-3">
-              <button className="btn btn-success refresh">
+              <button
+                className="btn btn-success refresh"
+                onClick={() => handleRefresh()}
+              >
                 <i className="fa fa-refresh"></i> Refesh
               </button>
 
@@ -46,42 +88,21 @@ function InVentory(ropps) {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>sửa rửa mặt caravel</td>
-                  <td>100</td>
-                  <td>30</td>
-                  <td>40</td>
-                  <td>20</td>
-                  <td>70</td>
-                  <td>
-                    <button title="Edit" className="btn btn-warning mx-2">
-                      <i className="fa fa-pencil"></i>
-                    </button>
-                    <button title="Delete" className="btn btn-danger">
-                      <i className="fa fa-trash-o"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-              {/* <tbody>
-                {dataProductByStore && dataProductByStore.length > 0 ? (
+                {dataProductInStockByStore &&
+                dataProductInStockByStore.length > 0 ? (
                   <>
-                    {dataProductByStore.map((item, index) => {
+                    {dataProductInStockByStore.map((item, index) => {
                       return (
                         <tr key={`row-${index}`}>
                           <td>
-                            {" "}
                             {(currentPage - 1) * currentLimit + index + 1}
                           </td>
-                          <td>{item.id}</td>
-                          <td>{item.product_name}</td>
-                          <td>{item.old_price}.vnđ</td>
-                          <td>{item.price}.vnđ</td>
-                          <td>
-                            {item.Category?.category_name ||
-                              (item.categoryId ? item.categoryId : "")}
-                          </td>
+                          <td>{item.Product.product_name}</td>
+                          <td>{item.quantyly}</td>
+                          <td>{item.currentNumber}</td>
+                          <td>{item.quantyly_ordered || 0}</td>
+                          <td>{item.quantyly_shipped || 0}</td>
+                          <td>{item.quantity_sold || 0}</td>
                           <td>
                             <button
                               title="Edit"
@@ -89,10 +110,7 @@ function InVentory(ropps) {
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button
-                              title="Delete"
-                              className="btn btn-danger"
-                            >
+                            <button title="Delete" className="btn btn-danger">
                               <i className="fa fa-trash-o"></i>
                             </button>
                           </td>
@@ -107,16 +125,16 @@ function InVentory(ropps) {
                     </tr>
                   </>
                 )}
-              </tbody> */}
+              </tbody>
             </table>
           </div>
           <div className="store-footer mt-4">
             <ReactPaginate
               nextLabel="next >"
-              onPageChange={5}
+              onPageChange={handlePageChange}
               pageRangeDisplayed={3}
               marginPagesDisplayed={2}
-              pageCount={5}
+              pageCount={totalPages}
               previousLabel="< previous"
               pageClassName="page-item"
               pageLinkClassName="page-link"

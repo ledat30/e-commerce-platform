@@ -34,6 +34,12 @@ const searchProduct = (key) => {
   return axios.get(`/api/search-product?q=${key}`);
 };
 
+const getAllProductsInStockByStore = (data) => {
+  return axios.get(
+    `/api/inventory/read?page=${data.page}&limit=${data.limit}&storeId=${data.storeId}`
+  );
+};
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -41,4 +47,5 @@ export {
   deleteProduct,
   searchProduct,
   getAllProducts,
+  getAllProductsInStockByStore,
 };
