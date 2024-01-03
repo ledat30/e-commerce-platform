@@ -40,6 +40,7 @@ const ModalProduct = (props) => {
     image: true,
     promotion: true,
     category: true,
+    quantyly: true,
   };
   const [productData, setProductData] = useState(defaultProductData);
   const [validInputs, setValidInputs] = useState(validInputsDefault);
@@ -110,6 +111,7 @@ const ModalProduct = (props) => {
       "product_name",
       "image",
       "category",
+      "quantyly",
       "description",
       "old_price",
       "price",
@@ -150,6 +152,7 @@ const ModalProduct = (props) => {
               {
                 ...productData,
                 categoryId: productData["category"],
+                quantyly: productData.quantyly,
               },
               user.account.storeId
             )
@@ -287,6 +290,25 @@ const ModalProduct = (props) => {
                   disabled
                   className={"form-control mt-1"}
                   value={user.account.nameStore}
+                />
+              </div>
+            )}
+            {props.action === "CREATE" && (
+              <div className="col-12 col-sm-12 from-group mt-2">
+                <label>
+                  Quantyly(<span style={{ color: "red" }}>*</span>)
+                </label>
+                <input
+                  className={
+                    validInputs.quantyly
+                      ? "form-control mt-1"
+                      : "form-control mt-1 is-invalid"
+                  }
+                  type="text"
+                  value={productData.quantyly}
+                  onChange={(e) =>
+                    handleOnChangeInput(e.target.value, "quantyly")
+                  }
                 />
               </div>
             )}

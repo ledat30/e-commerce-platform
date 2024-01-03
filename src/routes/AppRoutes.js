@@ -15,6 +15,7 @@ import { UserContext } from "../context/userContext";
 import { Navigate } from "react-router-dom";
 import Product from "../pages/System/Store_Owner/Product/Product";
 import PaymentMethod from "../pages/System/Admin/PaymentMethod/PaymentMethod";
+import InVentory from "../pages/System/Store_Owner/Inventory/InVentory";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -73,6 +74,10 @@ function AppRoutes() {
             <Route
               path="/store-owner/product"
               element={<PrivateRoutes element={<Product />} />}
+            />
+            <Route
+              path="/store-owner/inventory"
+              element={<PrivateRoutes element={<InVentory />} />}
             />
           </>
           <Route path="*" element={<NotFound />} />
