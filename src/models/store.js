@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Store.belongsTo(models.User, { foreignKey: "userId", as: "user" });
       Store.hasMany(models.Product, { foreignKey: "storeId" });
+      Store.hasMany(models.Inventory, { foreignKey: "storeId" });
     }
   }
   Store.init(

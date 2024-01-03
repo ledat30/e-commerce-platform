@@ -15,9 +15,6 @@ module.exports = {
       currentNumber: {
         type: Sequelize.BIGINT,
       },
-      quantyly_in_stock: {
-        type: Sequelize.BIGINT,
-      },
       quantyly_ordered: {
         type: Sequelize.BIGINT,
       },
@@ -32,6 +29,14 @@ module.exports = {
         allowNull: false,
         references: {
           model: "Products",
+          key: "id",
+        },
+      },
+      storeId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Stores",
           key: "id",
         },
       },

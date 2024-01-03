@@ -10,17 +10,18 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Inventory.belongsTo(models.Product, { foreignKey: "productId" });
+      Inventory.belongsTo(models.Store, { foreignKey: "storeId" });
     }
   }
   Inventory.init(
     {
       quantyly: DataTypes.BIGINT,
       currentNumber: DataTypes.BIGINT,
-      quantyly_in_stock: DataTypes.BIGINT,
       quantyly_ordered: DataTypes.BIGINT,
       quantyly_shipped: DataTypes.BIGINT,
       quantity_sold: DataTypes.BIGINT,
       productId: DataTypes.INTEGER,
+      storeId: DataTypes.INTEGER,
     },
     {
       sequelize,

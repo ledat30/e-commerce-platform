@@ -49,7 +49,7 @@ const initApiRouter = (app) => {
   router.put("/category/update", category.updateFunc);
   router.delete("/category/delete", category.deleteFunc);
   router.get("/search-category", category.searchCategory);
-  router.get('/get-all-detail-category-by-id', category.getDetailCategoryById);
+  router.get("/get-all-detail-category-by-id", category.getDetailCategoryById);
 
   //store
   router.get("/store/read", storeController.readFunc);
@@ -82,6 +82,9 @@ const initApiRouter = (app) => {
   router.put("/payment/update", paymentMethodController.updateFunc);
   router.delete("/payment/delete", paymentMethodController.deleteFunc);
   router.get("/search-payment", paymentMethodController.searchMethod);
+
+  //inventory
+  router.get("/inventory/read", productController.readInventory);
 
   return app.use("/api", router);
 };

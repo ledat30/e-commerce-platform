@@ -106,6 +106,8 @@ const createProduct = async (data, storeId) => {
       quantyly: data.quantyly,
     };
 
+    await updateInventory(newProduct.id, data.quantyly, storeId);
+
     return {
       EM: "Create product successful",
       EC: 0,
@@ -120,7 +122,7 @@ const createProduct = async (data, storeId) => {
     };
   }
 };
-const updateInventory = async (productId, quantyly) => {
+const updateInventory = async (productId, quantyly, storeId) => {
   try {
     let inventoryItem = await db.Inventory.findOne({
       where: {
@@ -129,17 +131,15 @@ const updateInventory = async (productId, quantyly) => {
     });
 
     if (inventoryItem) {
-      const newQuantyly = inventoryItem.quantyly + quantyly;
-      const newCurrentNumber = inventoryItem.currentNumber + quantyly;
       await inventoryItem.update({
-        quantyly: newQuantyly,
-        currentNumber: newCurrentNumber,
+        storeId: storeId,
       });
     } else {
       await db.Inventory.create({
         productId,
         quantyly: quantyly,
         currentNumber: quantyly,
+        storeId: storeId,
       });
     }
 
@@ -326,6 +326,85 @@ const getAllProductWithPagination = async (page, limit) => {
   }
 };
 
+const getAllProductInStockForStoreOwner = async () => {
+  try {
+    let product = await db.Inventory.findAll({
+      attributes: [
+        "id",
+        "quantyly",
+        "currentNumber",
+        "quantyly_ordered",
+        "quantyly_shipped",
+        "quantity_sold",
+      ],
+      include: [{ model: db.Product, attributes: ["product_name"] }],
+      raw: false,
+    });
+    if (product && product.length > 0) {
+      return {
+        EM: "Get all product success!",
+        EC: 0,
+        DT: product,
+      };
+    } else {
+      return {
+        EM: "Get all product error!",
+        EC: 0,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
+const getProductInStockWithPagination = async (page, limit, storeId) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Inventory.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      where: { storeId: storeId },
+      attributes: [
+        "id",
+        "quantyly",
+        "currentNumber",
+        "quantyly_ordered",
+        "quantyly_shipped",
+        "quantity_sold",
+      ],
+      include: [
+        { model: db.Product, attributes: ["product_name", "id"] },
+        { model: db.Store, attributes: ["name", "id"] },
+      ],
+      order: [["id", "DESC"]],
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      product: rows,
+    };
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -335,4 +414,6 @@ module.exports = {
   deleteProduct,
   searchProduct,
   getAllProductWithPagination,
+  getAllProductInStockForStoreOwner,
+  getProductInStockWithPagination,
 };
