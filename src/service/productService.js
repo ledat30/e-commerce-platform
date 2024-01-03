@@ -49,6 +49,7 @@ const getProductWithPagination = async (page, limit, storeId) => {
       include: [
         { model: db.Category, attributes: ["category_name", "id"] },
         { model: db.Store, attributes: ["name", "id"] },
+        { model: db.Inventory, attributes: ["quantyly", "id"] },
       ],
       order: [["id", "DESC"]],
     });
@@ -98,16 +99,59 @@ const createProduct = async (data, storeId) => {
         DT: "product_name",
       };
     }
-    await db.Product.create({ ...data, storeId });
+    const newProduct = await db.Product.create({ ...data, storeId });
+
+    const productInfo = {
+      productId: newProduct.id,
+      quantyly: data.quantyly,
+    };
+
     return {
       EM: "Create product successful",
+      EC: 0,
+      DT: productInfo,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Something wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+const updateInventory = async (productId, quantyly) => {
+  try {
+    let inventoryItem = await db.Inventory.findOne({
+      where: {
+        productId,
+      },
+    });
+
+    if (inventoryItem) {
+      const newQuantyly = inventoryItem.quantyly + quantyly;
+      const newCurrentNumber = inventoryItem.currentNumber + quantyly;
+      await inventoryItem.update({
+        quantyly: newQuantyly,
+        currentNumber: newCurrentNumber,
+      });
+    } else {
+      await db.Inventory.create({
+        productId,
+        quantyly: quantyly,
+        currentNumber: quantyly,
+      });
+    }
+
+    return {
+      EM: "Update inventory successful",
       EC: 0,
       DT: [],
     };
   } catch (error) {
     console.log(error);
     return {
-      EM: "Something wrongs with services",
+      EM: "Something wrongs with inventory update",
       EC: -1,
       DT: [],
     };
@@ -286,6 +330,7 @@ module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
   createProduct,
+  updateInventory,
   updateProduct,
   deleteProduct,
   searchProduct,

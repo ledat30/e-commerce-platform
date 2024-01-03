@@ -40,6 +40,9 @@ const readFunc = async (req, res) => {
 const createFunc = async (req, res) => {
   try {
     let data = await productService.createProduct(req.body, req.query.storeId);
+    if (data.EC === 0) {
+      await productService.updateInventory(data.DT.productId, data.DT.quantyly);
+    }
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
