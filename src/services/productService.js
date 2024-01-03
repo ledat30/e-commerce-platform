@@ -40,6 +40,12 @@ const getAllProductsInStockByStore = (data) => {
   );
 };
 
+const deleteProductInStock = (product) => {
+  return axios.delete(`/api/inventory/delete`, {
+    data: { id: product.id },
+  });
+};
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -48,4 +54,5 @@ export {
   searchProduct,
   getAllProducts,
   getAllProductsInStockByStore,
+  deleteProductInStock,
 };

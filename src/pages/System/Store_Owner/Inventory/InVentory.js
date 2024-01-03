@@ -1,9 +1,14 @@
 import { NavLink } from "react-router-dom";
 import ReactPaginate from "react-paginate";
-import { getAllProductsInStockByStore } from "../../../../services/productService";
+import {
+  getAllProductsInStockByStore,
+  deleteProductInStock,
+} from "../../../../services/productService";
 import { useEffect, useState } from "react";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
+import { toast } from "react-toastify";
+import ModalDelete from "./ModalDelete";
 
 function InVentory(ropps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -13,6 +18,9 @@ function InVentory(ropps) {
   );
   const { user } = useContext(UserContext);
   const [currentLimit] = useState(5);
+  const [isShowModelDelete, setIsShowModelDelete] = useState(false);
+  const [dataModel, setDataModel] = useState({});
+  const [searchInput, setSearchInput] = useState("");
 
   useEffect(() => {
     getDataProductInStockByStore();
@@ -41,6 +49,31 @@ function InVentory(ropps) {
     await getDataProductInStockByStore();
   };
 
+  const handleDeleteProduct = async (product) => {
+    setDataModel(product);
+    setIsShowModelDelete(true);
+  };
+  const handleClose = () => {
+    setIsShowModelDelete(false);
+    setDataModel({});
+  };
+
+  const confirmDeleteProduct = async () => {
+    let response = await deleteProductInStock(dataModel);
+    if (response && response.EC === 0) {
+      toast.success(response.EM);
+      await getDataProductInStockByStore();
+      setIsShowModelDelete(false);
+    } else {
+      toast.error(response.EM);
+    }
+  };
+
+  //search
+  const filteredData = dataProductInStockByStore.filter((item) =>
+    item.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
+  );
+
   return (
     <>
       <div className="container">
@@ -64,6 +97,8 @@ function InVentory(ropps) {
                     type="text"
                     name="q"
                     placeholder="Tìm kiếm product..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                   />
                   <NavLink className="sbutton" type="submit" to="">
                     <i className="fa fa-search"></i>
@@ -88,10 +123,9 @@ function InVentory(ropps) {
                 </tr>
               </thead>
               <tbody>
-                {dataProductInStockByStore &&
-                dataProductInStockByStore.length > 0 ? (
+                {filteredData && filteredData.length > 0 ? (
                   <>
-                    {dataProductInStockByStore.map((item, index) => {
+                    {filteredData.map((item, index) => {
                       return (
                         <tr key={`row-${index}`}>
                           <td>
@@ -110,7 +144,11 @@ function InVentory(ropps) {
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
-                            <button title="Delete" className="btn btn-danger">
+                            <button
+                              title="Delete"
+                              className="btn btn-danger"
+                              onClick={() => handleDeleteProduct(item)}
+                            >
                               <i className="fa fa-trash-o"></i>
                             </button>
                           </td>
@@ -121,7 +159,7 @@ function InVentory(ropps) {
                 ) : (
                   <>
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={6}>Not found product...</td>
+                      <td colSpan={8}>Not found product...</td>
                     </tr>
                   </>
                 )}
@@ -152,6 +190,12 @@ function InVentory(ropps) {
           </div>
         </div>
       </div>
+
+      <ModalDelete
+        show={isShowModelDelete}
+        handleClose={handleClose}
+        confirmDeleteProduct={confirmDeleteProduct}
+      />
     </>
   );
 }
