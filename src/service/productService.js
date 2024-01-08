@@ -434,6 +434,37 @@ const deleteProductInStock = async (id) => {
   }
 };
 
+const updateProductInStock = async (data) => {
+  try {
+    let product = await db.Inventory.findOne({
+      where: { id: data.id },
+    });
+    if (product) {
+      await product.update({
+        quantyly: data.quantyly,
+        currentNumber: data.quantyly,
+      });
+      return {
+        EM: "Update product in stock success",
+        EC: 0,
+        DT: "",
+      };
+    } else {
+      return {
+        EM: "Product not found",
+        EC: 2,
+        DT: "",
+      };
+    }
+  } catch (error) {
+    console.error(error);
+    return {
+      EM: "Something wrong with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
 
 module.exports = {
   getAllProductForStoreOwner,
@@ -447,4 +478,5 @@ module.exports = {
   getAllProductInStockForStoreOwner,
   getProductInStockWithPagination,
   deleteProductInStock,
+  updateProductInStock,
 };
