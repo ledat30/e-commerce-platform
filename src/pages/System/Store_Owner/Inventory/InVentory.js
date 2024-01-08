@@ -145,7 +145,15 @@ function InVentory(ropps) {
                           <td>
                             {(currentPage - 1) * currentLimit + index + 1}
                           </td>
-                          <td>{item.Product.product_name}</td>
+                          <td
+                            style={{
+                              maxWidth: "220px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {item.Product.product_name}
+                          </td>
                           <td>{item.quantyly}</td>
                           <td>{item.currentNumber}</td>
                           <td>{item.quantyly_ordered || 0}</td>
