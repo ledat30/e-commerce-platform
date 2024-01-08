@@ -9,6 +9,7 @@ import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
 import { toast } from "react-toastify";
 import ModalDelete from "./ModalDelete";
+import ModalUpdate from "./ModalUpdate";
 
 function InVentory(ropps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,6 +22,8 @@ function InVentory(ropps) {
   const [isShowModelDelete, setIsShowModelDelete] = useState(false);
   const [dataModel, setDataModel] = useState({});
   const [searchInput, setSearchInput] = useState("");
+  const [dataModalProduct, setDataModalProduct] = useState({});
+  const [isShowModalProduct, setIsShowModalProduct] = useState(false);
 
   useEffect(() => {
     getDataProductInStockByStore();
@@ -73,6 +76,17 @@ function InVentory(ropps) {
   const filteredData = dataProductInStockByStore.filter((item) =>
     item.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
   );
+
+  const onHideModalProduct = async () => {
+    setIsShowModalProduct(false);
+    setDataModalProduct({});
+    await getDataProductInStockByStore();
+  };
+
+  const handleEditProduct = async (product) => {
+    setDataModalProduct(product);
+    setIsShowModalProduct(true);
+  };
 
   return (
     <>
@@ -141,6 +155,7 @@ function InVentory(ropps) {
                             <button
                               title="Edit"
                               className="btn btn-warning mx-2"
+                              onClick={() => handleEditProduct(item)}
                             >
                               <i className="fa fa-pencil"></i>
                             </button>
@@ -195,6 +210,12 @@ function InVentory(ropps) {
         show={isShowModelDelete}
         handleClose={handleClose}
         confirmDeleteProduct={confirmDeleteProduct}
+      />
+
+      <ModalUpdate
+        onHide={onHideModalProduct}
+        show={isShowModalProduct}
+        dataModalProduct={dataModalProduct}
       />
     </>
   );

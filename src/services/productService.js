@@ -46,6 +46,10 @@ const deleteProductInStock = (product) => {
   });
 };
 
+const updateProductInStockByStore = (data) => {
+  return axios.put(`/api/inventory/update`, data);
+};
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -55,4 +59,5 @@ export {
   getAllProducts,
   getAllProductsInStockByStore,
   deleteProductInStock,
+  updateProductInStockByStore,
 };
