@@ -13,7 +13,12 @@ import _ from "lodash";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import { getAllProductsByStore } from "../../../../services/productService";
+import MarkdownIt from "markdown-it";
+import MdEditor from "react-markdown-editor-lite";
+import "react-markdown-editor-lite/lib/index.css";
 const { Buffer } = require("buffer");
+
+const mdParser = new MarkdownIt(/* Markdown-it options */);
 
 const ModalProduct = (props) => {
   const [category, setCategory] = useState([]);
@@ -22,6 +27,7 @@ const ModalProduct = (props) => {
   const [previewImgURL, setPreviewImgURL] = useState("");
   const { action, dataModalProduct } = props;
   const { user } = useContext(UserContext);
+  const [editorVisible, setEditorVisible] = useState(false);
 
   const defaultProductData = {
     price: "",
@@ -30,6 +36,8 @@ const ModalProduct = (props) => {
     description: "",
     image: "",
     category: "",
+    contentHtml: "",
+    contentMarkdown: "",
   };
 
   const validInputsDefault = {
@@ -132,6 +140,14 @@ const ModalProduct = (props) => {
     return check;
   };
 
+  const handleEditorChange = ({ html, text }) => {
+    setProductData({
+      ...productData,
+      contentHtml: html,
+      contentMarkdown: text,
+    });
+  };
+
   const handleOnChangeImage = async (event) => {
     let data = event.target.files;
     let file = data[0];
@@ -189,6 +205,13 @@ const ModalProduct = (props) => {
           category: category && category.length > 0 ? category[0].id : "",
         });
         setPreviewImgURL("");
+        if (editorVisible) {
+          setEditorVisible(false);
+          setProductData({
+            ...productData,
+            contentHtml: mdParser.render(productData.contentMarkdown),
+          });
+        }
       } else {
         toast.error(response.EM);
       }
@@ -370,6 +393,34 @@ const ModalProduct = (props) => {
                 readOnly
               />
             </div>
+            {editorVisible ? (
+              <div className="manage-content-editor mt-2">
+                <label>Content</label>
+                <MdEditor
+                  style={{ height: "500px" }}
+                  renderHTML={(text) => mdParser.render(text)}
+                  onChange={handleEditorChange}
+                  value={productData.contentMarkdown}
+                />
+                <Button
+                  variant="secondary"
+                  onClick={() => setEditorVisible(false)}
+                  className="mt-2"
+                >
+                  Đóng
+                </Button>
+              </div>
+            ) : (
+              <div className="col-12 col-sm-4 from-group mt-2">
+                <label style={{paddingRight:"6px"}}>Nhấn để nhập nội dung</label>
+                <Button
+                  variant="primary"
+                  onClick={() => setEditorVisible(true)}
+                >
+                  Mở
+                </Button>
+              </div>
+            )}
           </div>
         </Modal.Body>
         <Modal.Footer>
