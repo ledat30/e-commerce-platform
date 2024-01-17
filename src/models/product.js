@@ -27,6 +27,8 @@ module.exports = (sequelize, DataTypes) => {
       view_count: DataTypes.INTEGER,
       storeId: DataTypes.INTEGER,
       categoryId: DataTypes.INTEGER,
+      contentHtml: DataTypes.TEXT("long"),
+      contentMarkdown: DataTypes.TEXT("long"),
     },
     {
       sequelize,

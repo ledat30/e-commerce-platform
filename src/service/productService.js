@@ -45,6 +45,8 @@ const getProductWithPagination = async (page, limit, storeId) => {
         "promotion",
         "description",
         "image",
+        "contentMarkdown",
+        "contentHtml",
       ],
       include: [
         { model: db.Category, attributes: ["category_name", "id"] },
@@ -180,6 +182,8 @@ const updateProduct = async (data, storeId) => {
         old_price: data.old_price,
         promotion: data.promotion,
         description: data.description,
+        contentHtml: data.contentHtml,
+        contentMarkdown: data.contentMarkdown,
         ...(data.image && { image: data.image }),
       });
       return {
