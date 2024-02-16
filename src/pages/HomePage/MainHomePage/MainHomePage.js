@@ -83,6 +83,15 @@ function MainHomePage() {
     setSearchTerm(e.target.value);
   };
 
+  const returnToNewProduct = async () => {
+    try {
+      await fetchProducts();
+      setSelectedCategory(null);
+    } catch (error) {
+      console.error("Error reloading new products:", error);
+    }
+  };
+
   return (
     <div className="app__container">
       <div className="grid wide">
@@ -149,7 +158,10 @@ function MainHomePage() {
           <div className="col l-10 m-12 c-12">
             <div className="home-filter hideOnMobile-tablet">
               <span className="home-filter__label">Sắp xếp theo</span>
-              <button className="home-filter_btn btn-container btn--primary">
+              <button
+                className="home-filter_btn btn-container btn--primary"
+                onClick={returnToNewProduct}
+              >
                 Mới nhất
               </button>
               <button className="home-filter_btn btn-container">

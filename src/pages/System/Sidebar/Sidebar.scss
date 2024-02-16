@@ -75,18 +75,16 @@
 }
 
 .sidebar .nav-list {
-    padding-left: 0;
-    margin-top  : 16px;
-    overflow-y  : auto;
-    max-height  : calc(90vh - 82px);
+    padding-left   : 4px;
+    margin-top     : 16px;
+    overflow-y     : auto;
+    max-height     : calc(90vh - 82px);
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
 }
 
 .sidebar .nav-list::-webkit-scrollbar {
     width: 0;
-}
-
-.sidebar .nav-list {
-    scrollbar-width: thin;
 }
 
 .sidebar .nav-list::-webkit-scrollbar-thumb {
