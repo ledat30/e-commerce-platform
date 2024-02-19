@@ -10,6 +10,7 @@ import shippingUnitController from "../controller/shippingUnitController";
 import productController from "../controller/productController";
 import paymentMethodController from "../controller/paymentMethodController";
 import colorController from "../controller/colorController";
+import sizeController from "../controller/sizeController";
 
 const router = express.Router();
 
@@ -94,6 +95,12 @@ const initApiRouter = (app) => {
   router.get("/color/read", colorController.readFunc);
   router.delete("/color/delete", colorController.deleteFunc);
   router.put("/color/update", colorController.updateFunc);
+
+  //size
+  router.post("/size/create", sizeController.createFunc);
+  router.get("/size/read", sizeController.readFunc);
+  router.delete("/size/delete", sizeController.deleteFunc);
+  router.put("/size/update", sizeController.updateFunc);
 
   return app.use("/api", router);
 };
