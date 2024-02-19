@@ -14,6 +14,8 @@ module.exports = (sequelize, DataTypes) => {
       Product.hasMany(models.Inventory, { foreignKey: "productId" });
       Product.hasMany(models.OrderItem, { foreignKey: "productId" });
       Product.belongsTo(models.Store, { foreignKey: "storeId" });
+      Product.belongsTo(models.Size, { foreignKey: "sizeId" });
+      Product.belongsTo(models.Color, { foreignKey: "colorId" });
     }
   }
   Product.init(
@@ -27,6 +29,8 @@ module.exports = (sequelize, DataTypes) => {
       view_count: DataTypes.INTEGER,
       storeId: DataTypes.INTEGER,
       categoryId: DataTypes.INTEGER,
+      colorId: DataTypes.INTEGER,
+      sizeId: DataTypes.INTEGER,
       contentHtml: DataTypes.TEXT("long"),
       contentMarkdown: DataTypes.TEXT("long"),
     },

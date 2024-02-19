@@ -30,6 +30,14 @@ module.exports = {
       image: {
         type: Sequelize.BLOB("long"),
       },
+      contentHtml: {
+        type: Sequelize.TEXT("long"),
+        allowNull: true,
+      },
+      contentMarkdown: {
+        type: Sequelize.TEXT("long"),
+        allowNull: true,
+      },
       storeId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -43,6 +51,22 @@ module.exports = {
         allowNull: false,
         references: {
           model: "Categories",
+          key: "id",
+        },
+      },
+      colorId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "colors",
+          key: "id",
+        },
+      },
+      sizeId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "sizes",
           key: "id",
         },
       },
