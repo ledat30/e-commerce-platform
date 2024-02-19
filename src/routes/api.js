@@ -9,6 +9,7 @@ import storeController from "../controller/storeController";
 import shippingUnitController from "../controller/shippingUnitController";
 import productController from "../controller/productController";
 import paymentMethodController from "../controller/paymentMethodController";
+import colorController from "../controller/colorController";
 
 const router = express.Router();
 
@@ -87,6 +88,12 @@ const initApiRouter = (app) => {
   router.get("/inventory/read", productController.readInventory);
   router.delete("/inventory/delete", productController.deleteProductInStock);
   router.put("/inventory/update", productController.updateProductInStock);
+
+  //color
+  router.post("/color/create", colorController.createFunc);
+  router.get("/color/read", colorController.readFunc);
+  router.delete("/color/delete", colorController.deleteFunc);
+  router.put("/color/update", colorController.updateFunc);
 
   return app.use("/api", router);
 };
