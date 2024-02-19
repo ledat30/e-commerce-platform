@@ -68,6 +68,24 @@ const updateColorProduct = (data) => {
   return axios.put(`/api/color/update`, data);
 };
 
+const createSizeProduct = (data) => {
+  return axios.post(`/api/size/create`, data);
+};
+
+const getAllSizeProduct = (page, limit) => {
+  return axios.get(`/api/size/read?page=${page}&limit=${limit}`);
+};
+
+const deleteSize = (color) => {
+  return axios.delete(`/api/size/delete`, {
+    data: { id: color.id },
+  });
+};
+
+const updateSizeProduct = (data) => {
+  return axios.put(`/api/size/update`, data);
+};
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -82,4 +100,8 @@ export {
   getAllColorsProduct,
   deleteColor,
   updateColorProduct,
+  createSizeProduct,
+  getAllSizeProduct,
+  deleteSize,
+  updateSizeProduct,
 };
