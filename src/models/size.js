@@ -9,12 +9,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Size.hasMany(models.Product, { foreignKey: "sizeId" });
+      Size.belongsTo(models.Store, { foreignKey: "storeId" });
     }
   }
   Size.init(
     {
       size_value: DataTypes.STRING,
+      storeId: DataTypes.INTEGER,
     },
     {
       sequelize,

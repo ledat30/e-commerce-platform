@@ -12,6 +12,8 @@ module.exports = (sequelize, DataTypes) => {
       Store.belongsTo(models.User, { foreignKey: "userId", as: "user" });
       Store.hasMany(models.Product, { foreignKey: "storeId" });
       Store.hasMany(models.Inventory, { foreignKey: "storeId" });
+      Store.hasMany(models.Size, { foreignKey: "storeId" });
+      Store.hasMany(models.Color, { foreignKey: "storeId" });
     }
   }
   Store.init(

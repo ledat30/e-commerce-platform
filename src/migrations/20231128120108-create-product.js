@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       price: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       old_price: {
         type: Sequelize.STRING,
@@ -20,6 +20,7 @@ module.exports = {
       },
       view_count: {
         type: Sequelize.INTEGER,
+        defaultValue: 0,
       },
       product_name: {
         type: Sequelize.STRING,
@@ -51,22 +52,6 @@ module.exports = {
         allowNull: false,
         references: {
           model: "Categories",
-          key: "id",
-        },
-      },
-      colorId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "colors",
-          key: "id",
-        },
-      },
-      sizeId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "sizes",
           key: "id",
         },
       },
