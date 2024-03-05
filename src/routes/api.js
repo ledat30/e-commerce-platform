@@ -95,12 +95,14 @@ const initApiRouter = (app) => {
   router.get("/color/read", colorController.readFunc);
   router.delete("/color/delete", colorController.deleteFunc);
   router.put("/color/update", colorController.updateFunc);
+  router.get("/color/readByStore", colorController.readColorByStore);
 
   //size
   router.post("/size/create", sizeController.createFunc);
   router.get("/size/read", sizeController.readFunc);
   router.delete("/size/delete", sizeController.deleteFunc);
   router.put("/size/update", sizeController.updateFunc);
+  router.get("/size/readByStore", sizeController.readSizeByStore);
 
   return app.use("/api", router);
 };

@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Size.belongsTo(models.Store, { foreignKey: "storeId" });
+      Size.hasMany(models.Product_size_color, { foreignKey: "sizeId" });
     }
   }
   Size.init(

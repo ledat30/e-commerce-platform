@@ -15,7 +15,7 @@ const checkNameColor = async (nameColor) => {
   }
 };
 
-const createColor = async (data) => {
+const createColor = async (data, storeId) => {
   try {
     let check = await checkNameColor(data.name);
     if (check === true) {
@@ -25,7 +25,7 @@ const createColor = async (data) => {
         DT: "name",
       };
     }
-    await db.Color.create({ ...data });
+    await db.Color.create({ ...data, storeId });
     return {
       EM: "Create color successful",
       EC: 0,
@@ -67,12 +67,14 @@ const getAllColors = async () => {
   }
 };
 
-const getColorWithPagination = async (page, limit) => {
+const getColorWithPagination = async (page, limit, storeId) => {
   try {
     let offset = (page - 1) * limit;
     const { count, rows } = await db.Color.findAndCountAll({
       offset: offset,
       limit: limit,
+      where: { storeId: storeId },
+      include: [{ model: db.Store, attributes: ["name", "id"] }],
       attributes: ["id", "name"],
       order: [["id", "DESC"]],
     });
@@ -87,6 +89,32 @@ const getColorWithPagination = async (page, limit) => {
       EC: 0,
       DT: data,
     };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
+const readColorByStore = async (storeId) => {
+  try {
+    let colors = await db.Color.findAll({ where: { storeId: storeId } });
+    if (colors) {
+      return {
+        EM: "Get all colors success!",
+        EC: 0,
+        DT: colors,
+      };
+    } else {
+      return {
+        EM: "Get all colors error!",
+        EC: 0,
+        DT: [],
+      };
+    }
   } catch (error) {
     console.log(error);
     return {
@@ -126,7 +154,7 @@ const deleteColor = async (id) => {
   }
 };
 
-const updateColor = async (data) => {
+const updateColor = async (data, storeId) => {
   try {
     let check = await checkNameColor(data.name);
     if (check === true || !data.name) {
@@ -142,6 +170,7 @@ const updateColor = async (data) => {
     if (color) {
       await color.update({
         name: data.name,
+        storeId: data.storeId,
       });
       return {
         EM: "Update color success",
@@ -168,6 +197,7 @@ const updateColor = async (data) => {
 module.exports = {
   createColor,
   getAllColors,
+  readColorByStore,
   getColorWithPagination,
   deleteColor,
   updateColor,

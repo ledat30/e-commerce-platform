@@ -42,6 +42,22 @@ const createFunc = async (req, res) => {
     let data = await productService.createProduct(req.body, req.query.storeId);
     if (data.EC === 0) {
       await productService.updateInventory(data.DT.productId, data.DT.quantyly);
+
+      if (req.body.colorsAndSizes && req.body.colorsAndSizes.length > 0) {
+        const saveColorAndSizePromises = req.body.colorsAndSizes.map(
+          async ({ colorId, selectedSizes }) => {
+            const sizePromises = selectedSizes.map(async (sizeId) => {
+              await productService.saveProductColorAndSize(
+                data.DT.productId,
+                colorId,
+                sizeId
+              );
+            });
+            await Promise.all(sizePromises);
+          }
+        );
+        await Promise.all(saveColorAndSizePromises);
+      }
     }
     return res.status(200).json({
       EM: data.EM,
@@ -60,7 +76,12 @@ const createFunc = async (req, res) => {
 
 const updateFunc = async (req, res) => {
   try {
-    let data = await productService.updateProduct(req.body, req.query.storeId);
+    const colorsAndSizes = req.body.colorsAndSizes;
+    let data = await productService.updateProduct(
+      req.body,
+      req.query.storeId,
+      colorsAndSizes
+    );
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,

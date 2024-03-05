@@ -15,7 +15,7 @@ const checkNameSize = async (nameSize) => {
   }
 };
 
-const createSizeProduct = async (data) => {
+const createSizeProduct = async (data, storeId) => {
   try {
     let check = await checkNameSize(data.size_value);
     if (check === true) {
@@ -25,7 +25,7 @@ const createSizeProduct = async (data) => {
         DT: "size_value",
       };
     }
-    await db.Size.create({ ...data });
+    await db.Size.create({ ...data, storeId });
     return {
       EM: "Create size successful",
       EC: 0,
@@ -67,12 +67,14 @@ const getAllSizes = async () => {
   }
 };
 
-const getSizeWithPagination = async (page, limit) => {
+const getSizeWithPagination = async (page, limit, storeId) => {
   try {
     let offset = (page - 1) * limit;
     const { count, rows } = await db.Size.findAndCountAll({
       offset: offset,
       limit: limit,
+      where: { storeId: storeId },
+      include: [{ model: db.Store, attributes: ["name", "id"] }],
       attributes: ["id", "size_value"],
       order: [["id", "DESC"]],
     });
@@ -87,6 +89,32 @@ const getSizeWithPagination = async (page, limit) => {
       EC: 0,
       DT: data,
     };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
+const readSizeByStore = async (storeId) => {
+  try {
+    let sizes = await db.Size.findAll({ where: { storeId: storeId } });
+    if (sizes) {
+      return {
+        EM: "Get all sizes success!",
+        EC: 0,
+        DT: sizes,
+      };
+    } else {
+      return {
+        EM: "Get all sizes error!",
+        EC: 0,
+        DT: [],
+      };
+    }
   } catch (error) {
     console.log(error);
     return {
@@ -126,7 +154,7 @@ const deleteSize = async (id) => {
   }
 };
 
-const updateSize = async (data) => {
+const updateSize = async (data, storeId) => {
   try {
     let check = await checkNameSize(data.size_value);
     if (check === true || !data.size_value) {
@@ -142,6 +170,7 @@ const updateSize = async (data) => {
     if (size) {
       await size.update({
         size_value: data.size_value,
+        storeId: data.storeId,
       });
       return {
         EM: "Update size success",
@@ -169,6 +198,7 @@ module.exports = {
   createSizeProduct,
   getAllSizes,
   getSizeWithPagination,
+  readSizeByStore,
   deleteSize,
   updateSize,
 };

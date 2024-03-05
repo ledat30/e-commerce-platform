@@ -1,4 +1,5 @@
 import db from "../models";
+const { Op } = require("sequelize");
 
 const getAllProductForStoreOwner = async () => {
   try {
@@ -52,6 +53,26 @@ const getProductWithPagination = async (page, limit, storeId) => {
         { model: db.Category, attributes: ["category_name", "id"] },
         { model: db.Store, attributes: ["name", "id"] },
         { model: db.Inventory, attributes: ["quantyly", "id"] },
+        {
+          model: db.Product_size_color,
+          attributes: ["id"],
+          include: [
+            {
+              model: db.Size,
+              attributes: ["size_value"],
+            },
+            {
+              model: db.Color,
+              attributes: ["name"],
+            },
+          ],
+          where: {
+            [Op.and]: [
+              { sizeId: { [Op.not]: null } },
+              { colorId: { [Op.not]: null } },
+            ],
+          },
+        },
       ],
       order: [["id", "DESC"]],
     });
@@ -110,6 +131,19 @@ const createProduct = async (data, storeId) => {
 
     await updateInventory(newProduct.id, data.quantyly, storeId);
 
+    if (
+      data.colorsAndSizes &&
+      Array.isArray(data.colorsAndSizes) &&
+      data.colorsAndSizes.length > 0
+    ) {
+      const saveColorAndSizePromises = data.colorsAndSizes.map(
+        async ({ colorId, sizeId }) => {
+          await saveProductColorAndSize(newProduct.id, colorId, sizeId);
+        }
+      );
+      await Promise.all(saveColorAndSizePromises);
+    }
+
     return {
       EM: "Create product successful",
       EC: 0,
@@ -159,8 +193,30 @@ const updateInventory = async (productId, quantyly, storeId) => {
     };
   }
 };
+const saveProductColorAndSize = async (productId, colorId, sizeId) => {
+  try {
+    await db.Product_size_color.create({
+      productId,
+      colorId,
+      sizeId,
+    });
 
-const updateProduct = async (data, storeId) => {
+    return {
+      EM: "Save product color and size successful",
+      EC: 0,
+      DT: [],
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error saving product color and size",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
+const updateProduct = async (data, storeId, colorsAndSizes) => {
   try {
     let check = await checkNameProduct(data.product_name);
     if (check === true) {
@@ -186,6 +242,23 @@ const updateProduct = async (data, storeId) => {
         contentMarkdown: data.contentMarkdown,
         ...(data.image && { image: data.image }),
       });
+
+      if (colorsAndSizes && colorsAndSizes.length > 0) {
+        await db.Product_size_color.destroy({
+          where: { productId: data.id },
+        });
+
+        for (let colorAndSize of colorsAndSizes) {
+          for (let sizeId of colorAndSize.sizeIds) {
+            await db.Product_size_color.create({
+              productId: data.id,
+              colorId: colorAndSize.colorId,
+              sizeId: sizeId,
+            });
+          }
+        }
+      }
+
       return {
         EM: "Update product success",
         EC: 0,
@@ -210,23 +283,27 @@ const updateProduct = async (data, storeId) => {
 
 const deleteProduct = async (id) => {
   try {
+    await db.Product_size_color.destroy({
+      where: { productId: id },
+    });
+
     let product = await db.Product.findOne({
       where: { id: id },
     });
-    if (product) {
-      await product.destroy();
-      return {
-        EM: "Delete product successfully",
-        EC: 0,
-        DT: [],
-      };
-    } else {
+    if (!product) {
       return {
         EM: "Product not exist",
         EC: 2,
         DT: [],
       };
     }
+    await product.destroy();
+
+    return {
+      EM: "Delete product successfully!",
+      EC: 0,
+      DT: [],
+    };
   } catch (error) {
     console.log(error);
     return {
@@ -475,6 +552,7 @@ module.exports = {
   getProductWithPagination,
   createProduct,
   updateInventory,
+  saveProductColorAndSize,
   updateProduct,
   deleteProduct,
   searchProduct,
