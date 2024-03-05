@@ -1,5 +1,7 @@
 import "./Color.scss";
 import { useState, useEffect } from "react";
+import { useContext } from "react";
+import { UserContext } from "../../../../context/userContext";
 import { toast } from "react-toastify";
 import {
   createColorProduct,
@@ -11,6 +13,8 @@ import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
 
 function Color(props) {
+  const { user } = useContext(UserContext);
+
   const [name, setName] = useState("");
   const [validInputNameColor, setValidInputNameColor] = useState(true);
   const [attemptedSave, setAttemptedSave] = useState(false);
@@ -62,7 +66,7 @@ function Color(props) {
         }
       } else {
         // Create a new color if not in edit mode
-        let response = await createColorProduct({ name });
+        let response = await createColorProduct({ name }, user.account.storeId);
 
         if (response && response.EC === 0) {
           setName("");
@@ -92,7 +96,11 @@ function Color(props) {
   }, [currentPage]);
 
   const fetchColorsProduct = async () => {
-    let response = await getAllColorsProduct(currentPage, currentLimit);
+    let response = await getAllColorsProduct(
+      currentPage,
+      currentLimit,
+      user.account.storeId
+    );
 
     if (response && response.EC === 0) {
       setListColors(response.DT.colors);

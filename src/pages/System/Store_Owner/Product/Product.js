@@ -213,7 +213,7 @@ function Product(ropps) {
                 ) : (
                   <>
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={6}>Not found product...</td>
+                      <td colSpan={7}>Not found product...</td>
                     </tr>
                   </>
                 )}

@@ -12,15 +12,27 @@ const getAllProducts = (data) => {
   );
 };
 
-const createProduct = (productData, storeId) => {
+const createProduct = (productData, storeId, selectedColors, selectedSizes) => {
+  const colorsAndSizes = selectedColors.map((color) => ({
+    colorId: color,
+    selectedSizes: selectedSizes,
+  }));
+
   return axios.post(`/api/product/create?storeId=${storeId}`, {
     ...productData,
+    colorsAndSizes: colorsAndSizes,
   });
 };
 
-const updateProduct = (productData, storeId) => {
+const updateProduct = (productData, storeId, selectedColors, selectedSizes) => {
+  const colorsAndSizes = selectedColors.map((color) => ({
+    colorId: color,
+    sizeIds: selectedSizes,
+  }));
+
   return axios.put(`/api/product/update?storeId=${storeId}`, {
     ...productData,
+    colorsAndSizes: colorsAndSizes,
   });
 };
 
@@ -50,12 +62,18 @@ const updateProductInStockByStore = (data) => {
   return axios.put(`/api/inventory/update`, data);
 };
 
-const createColorProduct = (data) => {
-  return axios.post(`/api/color/create`, data);
+const createColorProduct = (data, storeId) => {
+  return axios.post(`/api/color/create?storeId=${storeId}`, { ...data });
 };
 
-const getAllColorsProduct = (page, limit) => {
-  return axios.get(`/api/color/read?page=${page}&limit=${limit}`);
+const getAllColorsProduct = (page, limit, storeId) => {
+  return axios.get(
+    `/api/color/read?page=${page}&limit=${limit}&storeId=${storeId}`
+  );
+};
+
+const getAllColorByStore = (storeId) => {
+  return axios.get(`/api/color/readByStore?storeId=${storeId}`);
 };
 
 const deleteColor = (color) => {
@@ -64,16 +82,22 @@ const deleteColor = (color) => {
   });
 };
 
-const updateColorProduct = (data) => {
-  return axios.put(`/api/color/update`, data);
+const updateColorProduct = (data, storeId) => {
+  return axios.put(`/api/color/update?storeId=${storeId}`, { ...data });
 };
 
-const createSizeProduct = (data) => {
-  return axios.post(`/api/size/create`, data);
+const createSizeProduct = (data, storeId) => {
+  return axios.post(`/api/size/create?storeId=${storeId}`, { ...data });
 };
 
-const getAllSizeProduct = (page, limit) => {
-  return axios.get(`/api/size/read?page=${page}&limit=${limit}`);
+const getAllSizeProduct = (page, limit, storeId) => {
+  return axios.get(
+    `/api/size/read?page=${page}&limit=${limit}&storeId=${storeId}`
+  );
+};
+
+const getAllSizeByStore = (storeId) => {
+  return axios.get(`/api/size/readByStore?storeId=${storeId}`);
 };
 
 const deleteSize = (color) => {
@@ -82,8 +106,8 @@ const deleteSize = (color) => {
   });
 };
 
-const updateSizeProduct = (data) => {
-  return axios.put(`/api/size/update`, data);
+const updateSizeProduct = (data, storeId) => {
+  return axios.put(`/api/size/update?storeId=${storeId}`, { ...data });
 };
 
 export {
@@ -98,10 +122,12 @@ export {
   updateProductInStockByStore,
   createColorProduct,
   getAllColorsProduct,
+  getAllColorByStore,
   deleteColor,
   updateColorProduct,
   createSizeProduct,
   getAllSizeProduct,
+  getAllSizeByStore,
   deleteSize,
   updateSizeProduct,
 };

@@ -8,6 +8,10 @@ import {
   updateProduct,
 } from "../../../../services/productService";
 import { getAllCategory } from "../../../../services/categoryService";
+import {
+  getAllColorByStore,
+  getAllSizeByStore,
+} from "../../../../services/productService";
 import { CommonUtils } from "../../../../utils";
 import _ from "lodash";
 import { toast } from "react-toastify";
@@ -22,12 +26,17 @@ const mdParser = new MarkdownIt(/* Markdown-it options */);
 
 const ModalProduct = (props) => {
   const [category, setCategory] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [listcolor, setListColor] = useState([]);
+  const [listSize, setListSize] = useState([]);
+  const [currentPage] = useState(1);
   const [selectedOption, setSelectedOption] = useState(null);
   const [previewImgURL, setPreviewImgURL] = useState("");
   const { action, dataModalProduct } = props;
   const { user } = useContext(UserContext);
   const [editorVisible, setEditorVisible] = useState(false);
+
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
 
   const defaultProductData = {
     price: "",
@@ -36,6 +45,8 @@ const ModalProduct = (props) => {
     description: "",
     image: "",
     category: "",
+    color: "",
+    size: "",
     contentHtml: "",
     contentMarkdown: "",
   };
@@ -55,6 +66,8 @@ const ModalProduct = (props) => {
 
   useEffect(() => {
     getCategory();
+    getColor();
+    getSize();
   }, []);
 
   useEffect(() => {
@@ -92,6 +105,30 @@ const ModalProduct = (props) => {
         let category = response.DT;
         setProductData({ ...productData, category: category[0].id });
       }
+    }
+  };
+
+  const getColor = async () => {
+    let response = await getAllColorByStore(user.account.storeId);
+
+    if (response && response.EC === 0) {
+      const colorsWithId = response.DT.map((color) => ({
+        ...color,
+        id: color.id,
+      }));
+      setListColor(colorsWithId);
+    }
+  };
+
+  const getSize = async () => {
+    let response = await getAllSizeByStore(user.account.storeId);
+
+    if (response && response.EC === 0) {
+      const sizesWithId = response.DT.map((size) => ({
+        ...size,
+        id: size.id,
+      }));
+      setListSize(sizesWithId);
     }
   };
 
@@ -159,6 +196,28 @@ const ModalProduct = (props) => {
     }
   };
 
+  const handleSelectColor = (colorId) => {
+    setSelectedColors((prevColors) => {
+      const index = prevColors.indexOf(colorId);
+      if (index === -1) {
+        return [...prevColors, colorId];
+      } else {
+        return prevColors.filter((id) => id !== colorId);
+      }
+    });
+  };
+
+  const handleSelectSize = (sizeId) => {
+    setSelectedSizes((prevSizes) => {
+      const index = prevSizes.indexOf(sizeId);
+      if (index === -1) {
+        return [...prevSizes, sizeId];
+      } else {
+        return prevSizes.filter((id) => id !== sizeId);
+      }
+    });
+  };
+
   const handleConfirmProduct = async () => {
     let check = checkValidInput();
     if (check === true) {
@@ -170,19 +229,22 @@ const ModalProduct = (props) => {
                 categoryId: productData["category"],
                 quantyly: productData.quantyly,
               },
-              user.account.storeId
+              user.account.storeId,
+              selectedColors,
+              selectedSizes
             )
           : await updateProduct(
               {
                 ...productData,
                 categoryId: productData["category"],
               },
-              user.account.storeId
+              user.account.storeId,
+              selectedColors,
+              selectedSizes
             );
 
       if (response && response.EC === 0) {
         // Fetch the updated list of products
-        console.log(productData);
         const updatedProductsResponse = await getAllProductsByStore({
           storeId: user.account.storeId,
           page: currentPage,
@@ -192,7 +254,7 @@ const ModalProduct = (props) => {
         if (updatedProductsResponse && updatedProductsResponse.EC === 0) {
           // Update the dataProductByStore state in the parent component
           props.onAddStore(updatedProductsResponse.DT.product);
-          toast.success("Create new product successfully");
+          toast.success("Update new product successfully");
         } else {
           console.error(
             "Error fetching updated products. Check the response for more details."
@@ -212,6 +274,8 @@ const ModalProduct = (props) => {
             contentHtml: mdParser.render(productData.contentMarkdown),
           });
         }
+        setSelectedColors([]);
+        setSelectedSizes([]);
       } else {
         toast.error(response.EM);
       }
@@ -232,7 +296,7 @@ const ModalProduct = (props) => {
   return (
     <>
       <Modal
-        size="lg"
+        size="xl"
         show={props.show}
         className="modal-user"
         onHide={() => handleCloseModalProduct()}
@@ -268,26 +332,6 @@ const ModalProduct = (props) => {
               />
             </div>
             <div className="col-12 col-sm-6 from-group">
-              <label>Image</label>
-              <div className="preview-img-container">
-                <input
-                  id="prevewimg"
-                  type="file"
-                  hidden
-                  onChange={(e) => handleOnChangeImage(e, "image")}
-                />
-                <div className="upload">
-                  <label htmlFor="prevewimg" className="lable-upload mt-1">
-                    Upload <i className="fa fa-upload" aria-hidden="true"></i>
-                  </label>
-                  <div
-                    className="preview-image"
-                    style={{ backgroundImage: `url(${previewImgURL})` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <div className="col-12 col-sm-6 from-group mt-2">
               <label>
                 Choose category(<span style={{ color: "red" }}>*</span>)
               </label>
@@ -306,18 +350,73 @@ const ModalProduct = (props) => {
                 isDisabled={action === "CREATE" ? false : true}
               />
             </div>
-            {user && user.isAuthenticated === true && (
-              <div className="col-12 col-sm-6 from-group mt-2">
-                <label>Store</label>
-                <input
-                  disabled
-                  className={"form-control mt-1"}
-                  value={user.account.nameStore}
-                />
+            <div className="col-12 col-sm-6 from-group mt-2">
+              <label style={{ paddingRight: "6px", paddingBottom: "3px" }}>
+                Choose color(<span style={{ color: "red" }}>*</span>)
+              </label>
+              <div className="input-fake">
+                {listcolor &&
+                  listcolor.length > 0 &&
+                  listcolor.map((color, index) => {
+                    const isSelected = selectedColors.includes(color.id);
+                    const buttonClass = isSelected
+                      ? "button-fake active-button-fake"
+                      : "button-fake";
+                    return (
+                      <div
+                        className={buttonClass}
+                        key={index}
+                        onClick={() => handleSelectColor(color.id)}
+                      >
+                        {color.name}
+                      </div>
+                    );
+                  })}
               </div>
-            )}
+            </div>
+            <div className="col-12 col-sm-6 from-group mt-2">
+              <label style={{ paddingRight: "6px", paddingBottom: "3px" }}>
+                Choose size(<span style={{ color: "red" }}>*</span>)
+              </label>
+              <div className="input-fake">
+                {listSize &&
+                  listSize.length > 0 &&
+                  listSize.map((size, index) => {
+                    const isSelected = selectedSizes.includes(size.id);
+                    const buttonClass = isSelected
+                      ? "button-fake active-button-fake"
+                      : "button-fake";
+                    return (
+                      <div
+                        className={buttonClass}
+                        key={index}
+                        onClick={() => handleSelectSize(size.id)}
+                      >
+                        {size.size_value}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+            <div className="col-12 col-sm-12 from-group mt-2">
+              <label>
+                Description(<span style={{ color: "red" }}>*</span>)
+              </label>
+              <input
+                className={
+                  validInputs.description
+                    ? "form-control mt-1"
+                    : "form-control mt-1 is-invalid"
+                }
+                type="text"
+                value={productData.description}
+                onChange={(e) =>
+                  handleOnChangeInput(e.target.value, "description")
+                }
+              />
+            </div>
             {props.action === "CREATE" && (
-              <div className="col-12 col-sm-12 from-group mt-2">
+              <div className="col-12 col-sm-4 from-group mt-2">
                 <label>
                   Quantyly(<span style={{ color: "red" }}>*</span>)
                 </label>
@@ -335,22 +434,36 @@ const ModalProduct = (props) => {
                 />
               </div>
             )}
-            <div className="col-12 col-sm-12 from-group mt-2">
-              <label>
-                Description(<span style={{ color: "red" }}>*</span>)
-              </label>
-              <input
-                className={
-                  validInputs.description
-                    ? "form-control mt-1"
-                    : "form-control mt-1 is-invalid"
-                }
-                type="text"
-                value={productData.description}
-                onChange={(e) =>
-                  handleOnChangeInput(e.target.value, "description")
-                }
-              />
+            {user && user.isAuthenticated === true && (
+              <div className="col-12 col-sm-4 from-group mt-2">
+                <label>Store</label>
+                <input
+                  readOnly
+                  className={"form-control mt-1"}
+                  value={user.account.nameStore}
+                  onMouseDown={(e) => e.preventDefault()}
+                />
+              </div>
+            )}
+            <div className="col-12 col-sm-4 from-group mt-2">
+              <label>Image</label>
+              <div className="preview-img-container">
+                <input
+                  id="prevewimg"
+                  type="file"
+                  hidden
+                  onChange={(e) => handleOnChangeImage(e, "image")}
+                />
+                <div className="upload">
+                  <label htmlFor="prevewimg" className="lable-upload mt-1">
+                    Upload <i className="fa fa-upload" aria-hidden="true"></i>
+                  </label>
+                  <div
+                    className="preview-image"
+                    style={{ backgroundImage: `url(${previewImgURL})` }}
+                  ></div>
+                </div>
+              </div>
             </div>
             <div className="col-12 col-sm-4 from-group mt-2">
               <label>
@@ -391,6 +504,7 @@ const ModalProduct = (props) => {
                 type="text"
                 value={productData.promotion}
                 readOnly
+                onMouseDown={(e) => e.preventDefault()}
               />
             </div>
             {editorVisible ? (
@@ -412,7 +526,9 @@ const ModalProduct = (props) => {
               </div>
             ) : (
               <div className="col-12 col-sm-4 from-group mt-2">
-                <label style={{paddingRight:"6px"}}>Nhấn để nhập nội dung</label>
+                <label style={{ paddingRight: "6px" }}>
+                  Nhấn để nhập nội dung
+                </label>
                 <Button
                   variant="primary"
                   onClick={() => setEditorVisible(true)}

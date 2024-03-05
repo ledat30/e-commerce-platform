@@ -1,5 +1,7 @@
 import "./Size.scss";
 import { useState, useEffect } from "react";
+import { useContext } from "react";
+import { UserContext } from "../../../../context/userContext";
 import { toast } from "react-toastify";
 import {
   createSizeProduct,
@@ -11,6 +13,8 @@ import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
 
 function Size(props) {
+  const { user } = useContext(UserContext);
+
   const [size_value, setSize_value] = useState("");
   const [validInputSize_value, setValidInputSize_value] = useState(true);
   const [attemptedSave, setAttemptedSave] = useState(false);
@@ -62,7 +66,10 @@ function Size(props) {
         }
       } else {
         // Create a new size if not in edit mode
-        let response = await createSizeProduct({ size_value });
+        let response = await createSizeProduct(
+          { size_value },
+          user.account.storeId
+        );
 
         if (response && response.EC === 0) {
           setSize_value("");
@@ -92,7 +99,11 @@ function Size(props) {
   }, [currentPage]);
 
   const fetchSizesProduct = async () => {
-    let response = await getAllSizeProduct(currentPage, currentLimit);
+    let response = await getAllSizeProduct(
+      currentPage,
+      currentLimit,
+      user.account.storeId
+    );
 
     if (response && response.EC === 0) {
       setListSizes(response.DT.sizes);
