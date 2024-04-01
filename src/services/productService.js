@@ -110,6 +110,30 @@ const updateSizeProduct = (data, storeId) => {
   return axios.put(`/api/size/update?storeId=${storeId}`, { ...data });
 };
 
+const getDetailProductById = (id) => {
+  return axios.get(`/api/detail-productById?id=${id}`);
+}
+
+const getRamdomProduct = () => {
+  return axios.get(`/api/random-products`);
+}
+
+const getAllCommentByProduct = (page, limit, productId) => {
+  return axios.get(
+    `/api/comment/read?page=${page}&limit=${limit}&productId=${productId}`
+  );
+}
+
+const createCommentProduct = (productId, userId, data) => {
+  return axios.post(`/api/comment/create?productId=${productId}&userId=${userId}`, data);
+};
+
+const deleteCommentProduct = (userId, commentId) => {
+  return axios.delete(`/api/comment/delete?userId=${userId}`, {
+    data: { id: commentId },
+  });
+};
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -130,4 +154,9 @@ export {
   getAllSizeByStore,
   deleteSize,
   updateSizeProduct,
+  getDetailProductById,
+  getRamdomProduct,
+  getAllCommentByProduct,
+  createCommentProduct,
+  deleteCommentProduct,
 };

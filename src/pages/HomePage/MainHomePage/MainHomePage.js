@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "./MainHomePage.scss";
 import {
   getAllCategory,
@@ -195,7 +196,10 @@ function MainHomePage() {
                 {allProducts && allProducts.length > 0 ? (
                   allProducts.map((item, index) => (
                     <div className="col l-2-4 m-4 c-6 product-mr" key={index}>
-                      <a href="/" className="home-product-item">
+                      <Link
+                        to={`/product/${item.id}`}
+                        className="home-product-item"
+                      >
                         <div
                           className="home-product-item__img"
                           style={{ backgroundImage: `url(${item.image})` }}
@@ -230,7 +234,7 @@ function MainHomePage() {
                             GIẢM
                           </span>
                         </div>
-                      </a>
+                      </Link>
                     </div>
                   ))
                 ) : (

@@ -7,6 +7,7 @@ import { UserContext } from "../context/userContext";
 import { Navigate } from "react-router-dom";
 import Login from "../pages/System/Login/Login";
 import HomePage from "../pages/HomePage/HomePage";
+import DetailProduct from "../pages/HomePage/Section/DetailProduct/DetailProduct";
 
 function ClinetRoutes() {
   const { user } = useContext(UserContext);
@@ -20,6 +21,10 @@ function ClinetRoutes() {
             <Route
               path="/home"
               element={<PrivateRoutes element={<HomePage />} />}
+            />
+            <Route
+              path="/product/:id"
+              element={<PrivateRoutes element={<DetailProduct />} />}
             />
           </>
           <Route path="*" element={<NotFound />} />

@@ -4,6 +4,7 @@ import "./HeaderHome.scss";
 import { logoutUser } from "../../../services/userService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 function HeaderHome() {
   const { user, logoutContext } = useContext(UserContext);
@@ -162,7 +163,7 @@ function HeaderHome() {
                 </label>
               </div>
 
-              <div className="header__logo">
+              <Link to="/home" className="header__logo">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 220 44"
@@ -179,7 +180,7 @@ function HeaderHome() {
                     EliteEmporium
                   </text>
                 </svg>
-              </div>
+              </Link>
 
               <input
                 type="checkbox"
@@ -426,8 +427,8 @@ function HeaderHome() {
               </a>
             </li>
           </ul>
-        </header>
-      </div>
+        </header >
+      </div >
     );
   } else {
     return <></>;
