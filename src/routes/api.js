@@ -85,6 +85,9 @@ const initApiRouter = (app) => {
   router.get("/comment/read", commentController.readFunc);
   router.post("/comment/create", commentController.createFunc);
   router.delete("/comment/delete", commentController.deleteFunc);
+  router.get("/comment/read-store_owner", commentController.readFuncStoreOwner);
+  router.delete("/comment/store-delete", commentController.deleteFuncStoreOwner);
+  router.get("/search-comment", commentController.searchComment);
 
   //payment method
   router.post("/payment/create", paymentMethodController.createFunc);
