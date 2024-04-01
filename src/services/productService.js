@@ -134,6 +134,23 @@ const deleteCommentProduct = (userId, commentId) => {
   });
 };
 
+const getAllCommentByStore = (page, limit, storeId) => {
+  return axios.get(
+    `/api/comment/read-store_owner?page=${page}&limit=${limit}&storeId=${storeId}`
+  );
+}
+
+const deleteComemnt = (comment) => {
+  return axios.delete(`/api/comment/store-delete`, {
+    data: { id: comment.id },
+  });
+};
+
+const searchComment = (key) => {
+  return axios.get(`/api/search-comment?q=${key}`);
+};
+
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -159,4 +176,7 @@ export {
   getAllCommentByProduct,
   createCommentProduct,
   deleteCommentProduct,
+  getAllCommentByStore,
+  deleteComemnt,
+  searchComment,
 };

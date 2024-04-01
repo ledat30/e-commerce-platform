@@ -18,6 +18,7 @@ import PaymentMethod from "../pages/System/Admin/PaymentMethod/PaymentMethod";
 import InVentory from "../pages/System/Store_Owner/Inventory/InVentory";
 import Color from "../pages/System/Store_Owner/Color/Color";
 import Size from "../pages/System/Store_Owner/Size/Size";
+import Comment from "../pages/System/Store_Owner/Comment/Comment";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -88,6 +89,10 @@ function AppRoutes() {
             <Route
               path="/store-owner/size"
               element={<PrivateRoutes element={<Size />} />}
+            />
+            <Route
+              path="/admin/comment"
+              element={<PrivateRoutes element={<Comment />} />}
             />
           </>
           <Route path="*" element={<NotFound />} />

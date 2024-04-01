@@ -31,7 +31,6 @@ function GroupRole() {
 
   const fetchAllRoles = async () => {
     let data = await fetchRoles();
-    console.log("data", data);
     if (data && +data.EC === 0) {
       setListRole(data.DT);
     }

@@ -58,6 +58,7 @@ function Sidebar(props) {
       { to: "/store-owner/size", label: "Size", icon: "fa-arrows-alt" },
       { to: "/store-owner/product", label: "Products", icon: "fa-product-hunt" },
       { to: "/store-owner/inventory", label: "Inventory", icon: "fa fa-archive" },
+      { to: "/admin/comment", label: "Comment", icon: "fa-commenting-o " },
     );
   }
 
