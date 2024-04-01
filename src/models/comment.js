@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Comment.init(
     {
-      content: DataTypes.BLOB("long"),
+      content: DataTypes.TEXT("long"),
       productId: DataTypes.INTEGER,
       userId: DataTypes.INTEGER,
     },

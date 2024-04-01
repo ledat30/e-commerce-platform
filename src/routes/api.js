@@ -11,6 +11,7 @@ import productController from "../controller/productController";
 import paymentMethodController from "../controller/paymentMethodController";
 import colorController from "../controller/colorController";
 import sizeController from "../controller/sizeController";
+import commentController from "../controller/commentController";
 
 const router = express.Router();
 
@@ -77,6 +78,13 @@ const initApiRouter = (app) => {
   router.delete("/product/delete", productController.deleteFunc);
   router.get("/search-product", productController.searchProduct);
   router.get("/all-product/read", productController.readAllFunc);
+  router.get("/detail-productById", productController.getDetailProductById);
+  router.get('/random-products', productController.getRandomProducts);
+
+  //comment product
+  router.get("/comment/read", commentController.readFunc);
+  router.post("/comment/create", commentController.createFunc);
+  router.delete("/comment/delete", commentController.deleteFunc);
 
   //payment method
   router.post("/payment/create", paymentMethodController.createFunc);

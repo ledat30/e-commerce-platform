@@ -220,6 +220,29 @@ const updateProductInStock = async (req, res) => {
   }
 };
 
+const getDetailProductById = async (req, res) => {
+  try {
+    let data = await productService.getDetailProductById(req.query.id);
+    await productService.increaseCount(req.query.id);
+    return res.status(200).json(data)
+  } catch (e) {
+    console.log(e);
+    return res.status(200).json({
+      errCode: -1,
+      errMessage: 'Error from the server'
+    })
+  }
+}
+
+const getRandomProducts = async (req, res) => {
+  try {
+    const randomProducts = await productService.getRandomProducts();
+    res.json(randomProducts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   readFunc,
   createFunc,
@@ -230,4 +253,6 @@ module.exports = {
   readInventory,
   deleteProductInStock,
   updateProductInStock,
+  getDetailProductById,
+  getRandomProducts,
 };

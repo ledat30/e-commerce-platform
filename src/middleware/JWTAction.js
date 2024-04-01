@@ -15,6 +15,7 @@ const nonSecurePaths = [
   "/search-payment",
   "/all-product/read",
   "/get-all-detail-category-by-id",
+  "/random-products",
 ];
 
 const createJWT = (payload) => {

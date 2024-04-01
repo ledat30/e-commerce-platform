@@ -547,6 +547,112 @@ const updateProductInStock = async (data) => {
   }
 };
 
+const increaseCount = async (inputId) => {
+  try {
+    const product = await db.Product.findOne({
+      where: {
+        id: inputId
+      }
+    });
+    if (!product) {
+      throw new Error("Product not found");
+    }
+    product.view_count += 1;
+    await db.Product.update(
+      { view_count: product.view_count },
+      { where: { id: inputId } }
+    );
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: "",
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+const getDetailProductById = (inputId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!inputId) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing parameter"
+        })
+      } else {
+        let data = await db.Product.findOne({
+          where: {
+            id: inputId
+          },
+          attributes: ['price', 'old_price', 'product_name', 'description', 'image',
+            'promotion', 'view_count', 'storeId', 'contentHtml', 'contentMarkdown'],
+          include: [
+            {
+              model: db.Product_size_color,
+              attributes: ["id"],
+              include: [
+                {
+                  model: db.Color,
+                  attributes: ['name']
+                },
+                {
+                  model: db.Size,
+                  attributes: ['size_value']
+                }
+              ],
+              where: {
+                [Op.and]: [
+                  { sizeId: { [Op.not]: null } },
+                  { colorId: { [Op.not]: null } },
+                ],
+              },
+            },
+            { model: db.Store, attributes: ['name'] }
+          ],
+        })
+        if (!data) {
+          resolve({
+            errCode: 2,
+            errMessage: "Product not found"
+          })
+        } else {
+          resolve({
+            errCode: 0,
+            errMessage: "ok",
+            data
+          })
+        }
+      }
+    } catch (e) {
+      reject(e);
+    }
+  })
+}
+
+const getRandomProducts = async () => {
+  try {
+    const allProducts = await db.Product.findAll({
+      attributes: ["id", "product_name", "price", "old_price", "image"],
+    });
+    if (allProducts && allProducts.length > 0) {
+      allProducts.forEach((item) => {
+        item.image = new Buffer.from(item.image, "base64").toString(
+          "binary"
+        );
+      });
+    }
+    const randomProducts = getRandomItemsFromArray(allProducts, 5);
+    return randomProducts;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+const getRandomItemsFromArray = (array, numberOfItems) => {
+  const shuffledArray = array.sort(() => 0.5 - Math.random());
+  return shuffledArray.slice(0, numberOfItems);
+};
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -561,4 +667,7 @@ module.exports = {
   getProductInStockWithPagination,
   deleteProductInStock,
   updateProductInStock,
+  increaseCount,
+  getDetailProductById,
+  getRandomProducts,
 };
