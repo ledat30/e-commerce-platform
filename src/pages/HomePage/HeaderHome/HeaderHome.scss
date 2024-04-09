@@ -485,8 +485,8 @@
 
 .header__cart-img {
     width : 42px;
-    height: 42px;
-    margin: 12px;
+    height: 55px;
+    margin: 5px;
     border: 1px solid #e8e8e8;
 }
 
@@ -545,6 +545,11 @@
 .header__cart-item-body {
     display        : flex;
     justify-content: space-between;
+}
+
+.color_size {
+    font-size: 11px;
+    float    : left;
 }
 
 .header__cart-item-description {

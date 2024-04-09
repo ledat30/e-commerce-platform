@@ -1,14 +1,34 @@
 import { useContext } from "react";
+import React, { } from "react";
 import { UserContext } from "../../../context/userContext";
+import { useCart } from '../../../context/cartContext';
 import "./HeaderHome.scss";
 import { logoutUser } from "../../../services/userService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { deleteProductCart } from "../../../services/productService";
 import { Link } from 'react-router-dom';
 
 function HeaderHome() {
   const { user, logoutContext } = useContext(UserContext);
+  console.log(user);
+  const { cartItems, fetchCartItems } = useCart();
   let navigate = useNavigate();
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await deleteProductCart(productId);
+      toast.success("Product removed from cart successfully");
+      fetchCartItems(user.account.id);
+    } catch (error) {
+      console.error("Error deleting product from cart:", error);
+      toast.error("Failed to remove product from cart");
+    }
+  };
+
+  const handleDetailCart = () => {
+    navigate("/detail-cart");
+  };
 
   const handleLogout = async () => {
     let data = await logoutUser();
@@ -222,184 +242,80 @@ function HeaderHome() {
                 <div className="header-cart-wrap">
                   <i className="header__cart-icon fa fa-shopping-cart"></i>
 
-                  <span className="header-cart-notice">3</span>
+                  <span className="header-cart-notice">
+                    {cartItems.map(product => product.OrderItems.length).reduce((total, count) => total + count, 0)}
+                  </span>
 
-                  {/* nếu k có sản phẩm thêm  header__cart-list-co-cart vào thẻ  <div className="header__cart-list ">  */}
-                  <div className="header__cart-list ">
-                    <img
-                      src="./assets/img/no-cart.png"
-                      alt=""
-                      className="header__cart-no-cart-img"
-                    />
-                    <span className="header__cart-list-msg">
-                      Chưa có sản phẩm
-                    </span>
+                  <div className="header__cart-list header__cart-list-co-cart">
+                    {cartItems && cartItems.length > 0 && cartItems[0].OrderItems.length > 0 ? (
+                      <>
+                        <h4 className="header__cart-heading">Sản phẩm đã thêm</h4>
+                        {cartItems && cartItems.map((item, index) => {
+                          return (
+                            <ul className="header__cart-list-item" key={index}>
+                              {item.OrderItems.map((orderItem, orderIndex) => (
+                                <li className="header__cart-item" key={orderIndex} >
+                                  <img
+                                    src="https://down-vn.img.susercontent.com/file/vn-50009109-cebfae17cd5979d823fb74ac79a922fa_xhdpi"
+                                    alt=""
+                                    className="header__cart-img"
+                                  />
+                                  <div className="header__cart-item-info">
+                                    <div className="header__cart-item-head">
+                                      <h5 className="header__cart-item-name">
+                                        {orderItem.Product_size_color.Product.product_name}
+                                      </h5>
+                                      <div className="header__cart-item-price-wrap">
+                                        <span className="header__cart-item-price">
+                                          {orderItem.Product_size_color.Product.price}
+                                        </span>
+                                        <span className="header__cart-item-miltiply">
+                                          x
+                                        </span>
+                                        <span className="header__cart-item-qnt">{orderItem.quantily}</span>
+                                      </div>
+                                    </div>
 
-                    {/* sp  */}
-                    <h4 className="header__cart-heading">Sản phẩm đã thêm</h4>
-                    <ul className="header__cart-list-item">
-                      {/* cart item  */}
-                      <li className="header__cart-item">
+                                    <div className="header__cart-item-body">
+                                      <span className="header__cart-item-description">
+                                        {orderItem.Product_size_color.Product.description}
+                                      </span>
+                                      <span className="header__cart-item-remove"
+                                        onClick={() => handleDeleteProduct(orderItem.id)}
+                                      >
+                                        Xoá
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span className="color_size">Color : {orderItem.Product_size_color.Color.name}
+                                      </span>
+                                      <span className="color_size pl-1">
+                                        , Size : {orderItem.Product_size_color.Size.size_value}
+                                      </span >
+                                    </div>
+
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          )
+                        })}
+                        <button className="btn-container btn--primary header__cart-view-cart" onClick={handleDetailCart}>
+                          Xem giỏ hàng
+                        </button>
+                      </>
+                    ) : (
+                      <>
                         <img
-                          src="https://down-vn.img.susercontent.com/file/vn-50009109-cebfae17cd5979d823fb74ac79a922fa_xhdpi"
+                          src="https://banhtombaloc4475.abaha.vn/assets/images/no-cart.png"
                           alt=""
-                          className="header__cart-img"
+                          className="header__cart-no-cart-img"
                         />
-                        <div className="header__cart-item-info">
-                          <div className="header__cart-item-head">
-                            <h5 className="header__cart-item-name">
-                              Dầu gội đầu nhãn hiệu hàng đầu thế giới , giúp làm
-                              sạch gầu sạch dầu thừa
-                            </h5>
-                            <div className="header__cart-item-price-wrap">
-                              <span className="header__cart-item-price">
-                                150.000đ
-                              </span>
-                              <span className="header__cart-item-miltiply">
-                                x
-                              </span>
-                              <span className="header__cart-item-qnt">2</span>
-                            </div>
-                          </div>
-                          <div className="header__cart-item-body">
-                            <span className="header__cart-item-description">
-                              Hãng dầu gội ngăn dầu , ngăn gầu vượt trội
-                            </span>
-                            <span className="header__cart-item-remove">
-                              Xoá
-                            </span>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="header__cart-item">
-                        <img
-                          src="https://down-vn.img.susercontent.com/file/vn-50009109-cebfae17cd5979d823fb74ac79a922fa_xhdpi"
-                          alt=""
-                          className="header__cart-img"
-                        />
-                        <div className="header__cart-item-info">
-                          <div className="header__cart-item-head">
-                            <h5 className="header__cart-item-name">
-                              Dầu gội đầu
-                            </h5>
-                            <div className="header__cart-item-price-wrap">
-                              <span className="header__cart-item-price">
-                                150.000đ
-                              </span>
-                              <span className="header__cart-item-miltiply">
-                                x
-                              </span>
-                              <span className="header__cart-item-qnt">2</span>
-                            </div>
-                          </div>
-                          <div className="header__cart-item-body">
-                            <span className="header__cart-item-description">
-                              Hãng dầu gội ngăn dầu , ngăn gầu vượt trội
-                            </span>
-                            <span className="header__cart-item-remove">
-                              Xoá
-                            </span>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="header__cart-item">
-                        <img
-                          src="https://down-vn.img.susercontent.com/file/vn-50009109-cebfae17cd5979d823fb74ac79a922fa_xhdpi"
-                          alt=""
-                          className="header__cart-img"
-                        />
-                        <div className="header__cart-item-info">
-                          <div className="header__cart-item-head">
-                            <h5 className="header__cart-item-name">
-                              Dầu gội đầu
-                            </h5>
-                            <div className="header__cart-item-price-wrap">
-                              <span className="header__cart-item-price">
-                                150.000đ
-                              </span>
-                              <span className="header__cart-item-miltiply">
-                                x
-                              </span>
-                              <span className="header__cart-item-qnt">2</span>
-                            </div>
-                          </div>
-                          <div className="header__cart-item-body">
-                            <span className="header__cart-item-description">
-                              Hãng dầu gội ngăn dầu , ngăn gầu vượt trội
-                            </span>
-                            <span className="header__cart-item-remove">
-                              Xoá
-                            </span>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="header__cart-item">
-                        <img
-                          src="https://down-vn.img.susercontent.com/file/vn-50009109-cebfae17cd5979d823fb74ac79a922fa_xhdpi"
-                          alt=""
-                          className="header__cart-img"
-                        />
-                        <div className="header__cart-item-info">
-                          <div className="header__cart-item-head">
-                            <h5 className="header__cart-item-name">
-                              Dầu gội đầu nhãn hiệu hàng đầu thế giới , giúp làm
-                              sạch gầu sạch dầu thừa
-                            </h5>
-                            <div className="header__cart-item-price-wrap">
-                              <span className="header__cart-item-price">
-                                150.000đ
-                              </span>
-                              <span className="header__cart-item-miltiply">
-                                x
-                              </span>
-                              <span className="header__cart-item-qnt">2</span>
-                            </div>
-                          </div>
-                          <div className="header__cart-item-body">
-                            <span className="header__cart-item-description">
-                              Hãng dầu gội ngăn dầu , ngăn gầu vượt trội
-                            </span>
-                            <span className="header__cart-item-remove">
-                              Xoá
-                            </span>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="header__cart-item">
-                        <img
-                          src="https://down-vn.img.susercontent.com/file/vn-50009109-cebfae17cd5979d823fb74ac79a922fa_xhdpi"
-                          alt=""
-                          className="header__cart-img"
-                        />
-                        <div className="header__cart-item-info">
-                          <div className="header__cart-item-head">
-                            <h5 className="header__cart-item-name">
-                              Dầu gội đầu
-                            </h5>
-                            <div className="header__cart-item-price-wrap">
-                              <span className="header__cart-item-price">
-                                150.000đ
-                              </span>
-                              <span className="header__cart-item-miltiply">
-                                x
-                              </span>
-                              <span className="header__cart-item-qnt">2</span>
-                            </div>
-                          </div>
-                          <div className="header__cart-item-body">
-                            <span className="header__cart-item-description">
-                              Hãng dầu gội ngăn dầu , ngăn gầu vượt trội
-                            </span>
-                            <span className="header__cart-item-remove">
-                              Xoá
-                            </span>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                    <button className="btn-container btn--primary header__cart-view-cart">
-                      Xem giỏ hàng
-                    </button>
+                        <span className="header__cart-list-msg">
+                          Chưa có sản phẩm
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

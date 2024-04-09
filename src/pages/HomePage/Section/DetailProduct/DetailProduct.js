@@ -1,12 +1,13 @@
 import "./DetailProduct.scss";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
+import { useCart } from '../../../../context/cartContext';
 import React, { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import HeaderHome from "../../HeaderHome/HeaderHome";
 import Footer from "../../Footer/Footer";
 import { Link } from "react-router-dom";
-import { getDetailProductById, getRamdomProduct, getAllCommentByProduct, createCommentProduct, deleteCommentProduct } from '../../../../../src/services/productService';
+import { getDetailProductById, getRamdomProduct, getAllCommentByProduct, createCommentProduct, deleteCommentProduct, addToCart } from '../../../../../src/services/productService';
 import _ from 'lodash';
 import { marked } from 'marked';
 import { toast } from "react-toastify";
@@ -15,7 +16,10 @@ const { Buffer } = require("buffer");
 
 function DetailProduct() {
   const { user } = useContext(UserContext);
-  const [quantity, setQuantity] = useState(1);
+  console.log(user);
+  const { fetchCartItems } = useCart();
+  const [quantily, setQuantily] = useState(1);
+  const [price_per_item, setPrice_per_item] = useState("");
   const [dataDetailProduct, setDataDetailproduct] = useState({});
   const { id: productId } = useParams();
   const [shouldReloadPage, setShouldReloadPage] = useState(false);
@@ -32,7 +36,6 @@ function DetailProduct() {
   const [content, setContent] = useState("");
   const [validInputComment, setValidInputComment] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
-  console.log(listComments);
 
   const toggleContent = () => {
     setIsExpanded(!isExpanded);
@@ -92,18 +95,20 @@ function DetailProduct() {
   };
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        if (productId) {
-          const product = await getDetailProductById(productId);
-          setDataDetailproduct(product.data);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
     fetchProduct();
-  }, [productId]);
+  }, []);
+
+  const fetchProduct = async () => {
+    try {
+      if (productId) {
+        const product = await getDetailProductById(productId);
+        setDataDetailproduct(product.data);
+        setPrice_per_item(product.data.price)
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   useEffect(() => {
     if (dataDetailProduct.image) {
@@ -158,17 +163,17 @@ function DetailProduct() {
   const handleQuantityChange = (event) => {
     const value = parseInt(event.target.value);
     if (!isNaN(value)) {
-      setQuantity(value);
+      setQuantily(value);
     }
   };
 
   const incrementQuantity = () => {
-    setQuantity(quantity + 1);
+    setQuantily(quantily + 1);
   };
 
   const decrementQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
+    if (quantily > 1) {
+      setQuantily(quantily - 1);
     }
   };
 
@@ -183,6 +188,44 @@ function DetailProduct() {
   const handlePageClick = async (event) => {
     setCurrentPage(+event.selected + 1);
   };
+
+  const handleAddToCart = async () => {
+
+    if (!selectedSize || !selectedColor) {
+      toast.error("Please select size and color");
+      return;
+    }
+    try {
+      const selectedColorSize = dataDetailProduct.Product_size_colors.find(item =>
+        item.Color.name === selectedColor &&
+        item.Size.size_value === selectedSize
+      );
+      if (selectedColorSize) {
+        const productColorSizeId = selectedColorSize.id;
+
+        const response = await addToCart(
+          productColorSizeId,
+          user.account.id,
+          { quantily: quantily, price_per_item: price_per_item, }
+        );
+        if (response && response.EC === 0) {
+          toast.success(response.EM);
+          fetchProduct();
+          fetchCartItems(user.account.id);
+          setQuantily(1);
+          setSelectedColor("");
+          setSelectedSize("");
+        } else {
+          toast.error(response.EM);
+        }
+      } else {
+        toast.error("Selected color, size are not available");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Failed to add product to cart. Please try again later.");
+    }
+  }
 
   return (
     <div className="container-detail">
@@ -217,10 +260,12 @@ function DetailProduct() {
                       Chọn size
                       <div className="choose-size-color">
                         {Array.from(new Set(dataDetailProduct?.Product_size_colors?.map(item => item.Size.size_value))).map((size_value, index) => {
+                          const isActive = size_value === selectedSize && dataDetailProduct.Inventories[0].currentNumber > 0;
+                          const isNoHover = dataDetailProduct.Inventories[0].currentNumber === 0;
                           return (
                             <div key={index}
-                              className={`choose ${size_value === selectedSize ? 'active' : ''}`}
-                              onClick={() => handleSizeClick(size_value)}
+                              className={`choose ${isActive ? 'active' : ''} ${isNoHover ? 'no-hover' : ''}`}
+                              onClick={() => dataDetailProduct.Inventories[0].currentNumber > 0 && handleSizeClick(size_value)}
                             >
                               {size_value}
                             </div>
@@ -232,11 +277,12 @@ function DetailProduct() {
                       Chọn màu
                       <div className="choose-size-color">
                         {Array.from(new Set(dataDetailProduct?.Product_size_colors?.map(item => item.Color.name))).map((name, index) => {
+                          const isActive = name === selectedColor && dataDetailProduct.Inventories[0].currentNumber > 0;
+                          const isNoHover = dataDetailProduct.Inventories[0].currentNumber === 0;
                           return (
-                            <div
-                              key={index}
-                              className={`choose ${name === selectedColor ? 'active' : ''}`}
-                              onClick={() => handleColorClick(name)}
+                            <div key={index}
+                              className={`choose ${isActive ? 'active' : ''} ${isNoHover ? 'no-hover' : ''}`}
+                              onClick={() => dataDetailProduct.Inventories[0].currentNumber > 0 && handleColorClick(name)}
                             >
                               {name}
                             </div>
@@ -249,12 +295,12 @@ function DetailProduct() {
                         Số lượng
                         <button
                           className={
-                            quantity === 1
+                            quantily === 1
                               ? "button-quantily disabled ml"
                               : "button-quantily ml"
                           }
                           onClick={decrementQuantity}
-                          disabled={quantity === 1}
+                          disabled={quantily === 1}
                         >
                           -
                         </button>
@@ -262,21 +308,30 @@ function DetailProduct() {
                           className="input-quantily"
                           id="quantityInput"
                           type="number"
-                          value={quantity}
+                          value={quantily}
                           onChange={handleQuantityChange}
                           readOnly={true}
                         />
                         <button
                           className="button-quantily"
                           onClick={incrementQuantity}
+                          disabled={quantily >= dataDetailProduct.Inventories[0].currentNumber}
                         >
                           +
                         </button>
                       </div>
                     </div>
                     <div className="button-buy-add_cart">
-                      <div className="buy">Buy now</div>
-                      <div className="add_cart">Add to cart</div>
+                      {
+                        dataDetailProduct.Inventories[0].currentNumber > 0 ? (
+                          <>
+                            <div className="buy">Buy now</div>
+                            <div className="add_cart" onClick={handleAddToCart}>Add to cart</div>
+                          </>
+                        ) : (
+                          <div className="out_of_stock">Hết hàng</div>
+                        )
+                      }
                     </div>
                   </div>
                 </div>

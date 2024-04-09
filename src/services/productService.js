@@ -150,6 +150,19 @@ const searchComment = (key) => {
   return axios.get(`/api/search-comment?q=${key}`);
 };
 
+const addToCart = (productColorSizeId, userId, data) => {
+  return axios.post(`/api/product/add-to-cart?productColorSizeId=${productColorSizeId}&userId=${userId}`, { ...data });
+}
+
+const readProductCart = (userId) => {
+  return axios.get(`/api/product/read-product-cart?userId=${userId}`);
+}
+
+const deleteProductCart = (productId) => {
+  return axios.delete(`/api/product/delete-product-cart`, {
+    data: { id: productId },
+  });
+}
 
 export {
   getAllProductsByStore,
@@ -179,4 +192,7 @@ export {
   getAllCommentByStore,
   deleteComemnt,
   searchComment,
+  addToCart,
+  readProductCart,
+  deleteProductCart,
 };

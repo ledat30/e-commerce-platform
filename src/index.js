@@ -9,6 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Provider } from "react-redux";
 import store from "./store/redux/store";
 import { UserProvider } from "./context/userContext";
+import { CartProvider } from './context/cartContext';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -16,9 +17,11 @@ root.render(
     <React.StrictMode>
       <GlobalStyles>
         <UserProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <CartProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </CartProvider>
         </UserProvider>
       </GlobalStyles>
     </React.StrictMode>
