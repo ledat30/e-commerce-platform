@@ -608,7 +608,8 @@ const getDetailProductById = (inputId) => {
                 ],
               },
             },
-            { model: db.Store, attributes: ['name'] }
+            { model: db.Store, attributes: ['name'] },
+            { model: db.Inventory, attributes: ['currentNumber'] }
           ],
         })
         if (!data) {
@@ -653,6 +654,143 @@ const getRandomItemsFromArray = (array, numberOfItems) => {
   return shuffledArray.slice(0, numberOfItems);
 };
 
+const postAddToCart = async (productColorSizeId, userId, body) => {
+  try {
+    let order = await db.Order.findOne({ where: { userId: userId } });
+    if (!order) {
+      order = await db.Order.create({
+        total_amount: 0,
+        order_date: new Date(),
+        status: 'pending',
+        userId: userId,
+      });
+    }
+
+    let orderItem = await db.OrderItem.findOne({ where: { orderId: order.id, productColorSizeId: productColorSizeId } });
+    if (orderItem) {
+      orderItem.quantily = body.quantily;
+      await orderItem.save();
+    } else {
+      orderItem = await db.OrderItem.create({
+        orderId: order.id,
+        productColorSizeId: productColorSizeId,
+        quantily: body.quantily,
+        price_per_item: body.price_per_item,
+      });
+    }
+
+    let totalAmount = 0;
+    const allOrderItems = await db.OrderItem.findAll({ where: { orderId: order.id } });
+    allOrderItems.forEach(item => {
+      totalAmount += (item.quantily * item.price_per_item);
+    });
+
+    order.total_amount = totalAmount;
+    await order.save();
+
+    return {
+      EM: "Add to cart success!",
+      EC: 0,
+      DT: orderItem
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      EM: "Create error",
+      EC: -1,
+      DT: ""
+    };
+  }
+};
+
+const getAllProductAddToCart = async (userId) => {
+  try {
+    let product = await db.Order.findAll({
+      where: { userId: userId },
+      attributes: ["id", "total_amount"],
+      include: [{
+        model: db.OrderItem, attributes: ["id", "quantily", "price_per_item"],
+        order: [["id", "DESC"]],
+        include: [
+          {
+            model: db.Product_size_color,
+            attributes: ['id'],
+            include: [
+              {
+                model: db.Product,
+                attributes: ["product_name", "price", "description", 'image'],
+              },
+              {
+                model: db.Size,
+                attributes: ["size_value"],
+              },
+              {
+                model: db.Color,
+                attributes: ["name"],
+              },
+            ],
+            where: {
+              [Op.and]: [
+                { sizeId: { [Op.not]: null } },
+                { colorId: { [Op.not]: null } },
+              ],
+            },
+          },
+        ],
+      }],
+    });
+    if (product && product.length > 0) {
+      return {
+        EM: "Get all product add to cart success!",
+        EC: 0,
+        DT: product,
+      };
+    } else {
+      return {
+        EM: "Get all product add to cart error!",
+        EC: -1,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
+const deleteProductCart = async (id) => {
+  try {
+    let product = await db.OrderItem.findOne({
+      where: { id: id },
+    });
+    if (!product) {
+      return {
+        EM: "Product not exist",
+        EC: 2,
+        DT: [],
+      };
+    }
+    await product.destroy();
+
+    return {
+      EM: "Delete product successfully!",
+      EC: 0,
+      DT: [],
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error from server",
+      EC: 1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -670,4 +808,7 @@ module.exports = {
   increaseCount,
   getDetailProductById,
   getRandomProducts,
+  postAddToCart,
+  getAllProductAddToCart,
+  deleteProductCart,
 };

@@ -80,6 +80,9 @@ const initApiRouter = (app) => {
   router.get("/all-product/read", productController.readAllFunc);
   router.get("/detail-productById", productController.getDetailProductById);
   router.get('/random-products', productController.getRandomProducts);
+  router.post("/product/add-to-cart", productController.postAddToCart);
+  router.get("/product/read-product-cart", productController.readProductCart);
+  router.delete("/product/delete-product-cart", productController.deleteProductCart);
 
   //comment product
   router.get("/comment/read", commentController.readFunc);

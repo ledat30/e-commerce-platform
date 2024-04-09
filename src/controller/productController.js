@@ -243,6 +243,79 @@ const getRandomProducts = async (req, res) => {
   }
 }
 
+const postAddToCart = async (req, res) => {
+  try {
+    let data = await productService.postAddToCart(req.query.productColorSizeId, req.query.userId, req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Create error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
+const readProductCart = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await productService.getProductCartWithPagination(
+        +page,
+        +limit,
+        userId
+      );
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    } else {
+      let data = await productService.getAllProductAddToCart(userId);
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
+const deleteProductCart = async (req, res) => {
+  try {
+    let data = await productService.deleteProductCart(req.body.id);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
   readFunc,
   createFunc,
@@ -255,4 +328,7 @@ module.exports = {
   updateProductInStock,
   getDetailProductById,
   getRandomProducts,
+  postAddToCart,
+  readProductCart,
+  deleteProductCart,
 };

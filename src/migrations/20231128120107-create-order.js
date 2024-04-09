@@ -20,7 +20,7 @@ module.exports = {
       },
       payment_methodID: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "PaymentMethods",
           key: "id",

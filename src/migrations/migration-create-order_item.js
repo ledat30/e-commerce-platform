@@ -23,11 +23,11 @@ module.exports = {
           key: "id",
         },
       },
-      productId: {
+      productColorSizeId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
-          model: "Products",
+          model: "Product_size_colors",
           key: "id",
         },
       },

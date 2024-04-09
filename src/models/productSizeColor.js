@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       Product_size_color.belongsTo(models.Product, { foreignKey: "productId" });
       Product_size_color.belongsTo(models.Size, { foreignKey: "sizeId" });
       Product_size_color.belongsTo(models.Color, { foreignKey: "colorId" });
+      Product_size_color.hasMany(models.OrderItem, { foreignKey: "productColorSizeId" });
     }
   }
   //object relational mapping
