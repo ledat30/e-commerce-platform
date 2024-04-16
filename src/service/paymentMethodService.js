@@ -53,7 +53,7 @@ const getAllMethod = async () => {
     } else {
       return {
         EM: "Get all payment error!",
-        EC: 0,
+        EC: -2,
         DT: [],
       };
     }

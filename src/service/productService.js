@@ -1,5 +1,6 @@
 import db from "../models";
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
+const { sequelize } = db;
 
 const getAllProductForStoreOwner = async () => {
   try {
@@ -53,26 +54,6 @@ const getProductWithPagination = async (page, limit, storeId) => {
         { model: db.Category, attributes: ["category_name", "id"] },
         { model: db.Store, attributes: ["name", "id"] },
         { model: db.Inventory, attributes: ["quantyly", "id"] },
-        {
-          model: db.Product_size_color,
-          attributes: ["id"],
-          include: [
-            {
-              model: db.Size,
-              attributes: ["size_value"],
-            },
-            {
-              model: db.Color,
-              attributes: ["name"],
-            },
-          ],
-          where: {
-            [Op.and]: [
-              { sizeId: { [Op.not]: null } },
-              { colorId: { [Op.not]: null } },
-            ],
-          },
-        },
       ],
       order: [["id", "DESC"]],
     });
@@ -665,6 +646,13 @@ const postAddToCart = async (productColorSizeId, userId, body) => {
         userId: userId,
       });
     }
+    if (order.status === 'Processing') {
+      return {
+        EM: "This product has been ordered and is processing, please reorder later!",
+        EC: -2,
+        DT: [],
+      };
+    }
 
     let orderItem = await db.OrderItem.findOne({ where: { orderId: order.id, productColorSizeId: productColorSizeId } });
     if (orderItem) {
@@ -706,7 +694,7 @@ const postAddToCart = async (productColorSizeId, userId, body) => {
 const getAllProductAddToCart = async (userId) => {
   try {
     let product = await db.Order.findAll({
-      where: { userId: userId },
+      where: { userId: userId, status: 'pending' },
       attributes: ["id", "total_amount"],
       include: [{
         model: db.OrderItem, attributes: ["id", "quantily", "price_per_item"],
@@ -719,6 +707,12 @@ const getAllProductAddToCart = async (userId) => {
               {
                 model: db.Product,
                 attributes: ["product_name", "price", "description", 'image'],
+                include: [
+                  {
+                    model: db.Inventory,
+                    attributes: ['currentNumber', `id`],
+                  }
+                ],
               },
               {
                 model: db.Size,
@@ -791,6 +785,92 @@ const deleteProductCart = async (id) => {
   }
 }
 
+const createBuyProduct = async (orderId, productColorSizeId, body) => {
+
+  const purchaseQuantity = parseInt(body.quantily);
+  const payment_methodID = body.payment_methodID;
+  const pricePerItem = parseFloat(body.price_per_item);
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    const order = await db.Order.findByPk(orderId, { transaction });
+    if (!order) {
+      throw new Error('Order not found.');
+    }
+
+    const item = await db.OrderItem.findOne({
+      where: { orderId: orderId, productColorSizeId: productColorSizeId },
+      transaction
+    });
+
+    if (!item) throw new Error('Product not found in order.');
+
+    let newOrder = null;
+
+    if (purchaseQuantity === item.quantily) {
+      await order.update({ status: 'Processing', payment_methodID: payment_methodID }, { transaction });
+      await db.Invoice.create({
+        orderId: order.id,
+        invoice_date: new Date(),
+        total_amount: pricePerItem * purchaseQuantity,
+        payment_methodID: payment_methodID,
+      }, { transaction });
+    } else {
+      newOrder = await db.Order.create({
+        userId: order.userId,
+        status: 'Processing',
+        total_amount: pricePerItem * purchaseQuantity,
+        order_date: new Date(),
+        payment_methodID: payment_methodID,
+      }, { transaction });
+
+      await item.update({ quantily: purchaseQuantity, orderId: newOrder.id }, { transaction });
+    }
+    if (newOrder) {
+      await db.Invoice.create({
+        orderId: newOrder.id,
+        invoice_date: new Date(),
+        total_amount: pricePerItem * purchaseQuantity,
+        payment_methodID: newOrder.payment_methodID,
+      }, { transaction });
+    }
+
+    // Update Inventory
+    const productColorSize = await db.Product_size_color.findByPk(item.productColorSizeId);
+    if (!productColorSize) {
+      throw new Error('Product color size not found.');
+    }
+
+    const product = await productColorSize.getProduct();
+    if (!product) {
+      throw new Error('Product not found.');
+    }
+
+    const inventory = await db.Inventory.findOne({ where: { productId: product.id } });
+    if (!inventory) {
+      throw new Error('Inventory not found.');
+    }
+
+    const updatedCurrentNumber = inventory.currentNumber - purchaseQuantity;
+    const updateQuantylyOrdered = inventory.quantyly - updatedCurrentNumber;
+    await inventory.update({ currentNumber: updatedCurrentNumber, quantyly_ordered: updateQuantylyOrdered }, { transaction });
+
+
+    //end
+    await transaction.commit();
+    return {
+      EM: 'Update successful',
+      EC: 0,
+      DT: { orderId: newOrder ? newOrder.id : order.id }
+    };
+  } catch (error) {
+    console.error('Transaction error:', error);
+    await transaction.rollback();
+    throw error;
+  }
+};
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -811,4 +891,5 @@ module.exports = {
   postAddToCart,
   getAllProductAddToCart,
   deleteProductCart,
+  createBuyProduct,
 };

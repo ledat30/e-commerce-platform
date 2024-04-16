@@ -52,6 +52,7 @@ const handleUserLogin = async (rawData) => {
         let nameStore = userStore ? userStore.name : null;
         let payload = {
           email: user.email,
+          address: user.address,
           groupWithRoles,
           id: user.id,
           username: user.username,
@@ -66,6 +67,7 @@ const handleUserLogin = async (rawData) => {
             access_token: token,
             groupWithRoles,
             email: user.email,
+            address: user.address,
             id: user.id,
             username: user.username,
             storeId: storeId,
