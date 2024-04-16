@@ -8,6 +8,10 @@ const getAllPayment = (page, limit) => {
   return axios.get(`/api/payment/read?page=${page}&limit=${limit}`);
 };
 
+const getAllPaymentClient = () => {
+  return axios.get(`/api/payment/read`);
+}
+
 const updatePayment = (data) => {
   return axios.put(`/api/payment/update`, data);
 };
@@ -25,6 +29,7 @@ const searchPayment = (key) => {
 export {
   createPayment,
   getAllPayment,
+  getAllPaymentClient,
   updatePayment,
   deletePayment,
   searchPayment,

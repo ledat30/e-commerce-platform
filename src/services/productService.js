@@ -164,6 +164,10 @@ const deleteProductCart = (productId) => {
   });
 }
 
+const buyProduct = (productColorSizeId, orderId, data) => {
+  return axios.post(`/api/product/buy?productColorSizeId=${productColorSizeId}&orderId=${orderId}`, { ...data });
+}
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -195,4 +199,5 @@ export {
   addToCart,
   readProductCart,
   deleteProductCart,
+  buyProduct,
 };

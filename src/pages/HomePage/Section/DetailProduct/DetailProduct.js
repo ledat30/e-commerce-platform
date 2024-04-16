@@ -16,7 +16,6 @@ const { Buffer } = require("buffer");
 
 function DetailProduct() {
   const { user } = useContext(UserContext);
-  console.log(user);
   const { fetchCartItems } = useCart();
   const [quantily, setQuantily] = useState(1);
   const [price_per_item, setPrice_per_item] = useState("");

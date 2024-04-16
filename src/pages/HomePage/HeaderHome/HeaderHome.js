@@ -8,10 +8,10 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { deleteProductCart } from "../../../services/productService";
 import { Link } from 'react-router-dom';
+const { Buffer } = require("buffer");
 
 function HeaderHome() {
   const { user, logoutContext } = useContext(UserContext);
-  console.log(user);
   const { cartItems, fetchCartItems } = useCart();
   let navigate = useNavigate();
 
@@ -253,50 +253,52 @@ function HeaderHome() {
                         {cartItems && cartItems.map((item, index) => {
                           return (
                             <ul className="header__cart-list-item" key={index}>
-                              {item.OrderItems.map((orderItem, orderIndex) => (
-                                <li className="header__cart-item" key={orderIndex} >
-                                  <img
-                                    src="https://down-vn.img.susercontent.com/file/vn-50009109-cebfae17cd5979d823fb74ac79a922fa_xhdpi"
-                                    alt=""
-                                    className="header__cart-img"
-                                  />
-                                  <div className="header__cart-item-info">
-                                    <div className="header__cart-item-head">
-                                      <h5 className="header__cart-item-name">
-                                        {orderItem.Product_size_color.Product.product_name}
-                                      </h5>
-                                      <div className="header__cart-item-price-wrap">
-                                        <span className="header__cart-item-price">
-                                          {orderItem.Product_size_color.Product.price}
+                              {item.OrderItems.map((orderItem, orderIndex) => {
+                                let imageBase64 = '';
+                                if (orderItem.Product_size_color.Product.image) {
+                                  imageBase64 = new Buffer.from(orderItem.Product_size_color.Product.image, 'base64').toString('binary');
+                                }
+                                return (
+                                  <li className="header__cart-item" key={orderIndex} >
+                                    <div className="header__cart-img" style={{ backgroundImage: `url(${imageBase64})` }}
+                                    />
+                                    <div className="header__cart-item-info">
+                                      <div className="header__cart-item-head">
+                                        <h5 className="header__cart-item-name">
+                                          {orderItem.Product_size_color.Product.product_name}
+                                        </h5>
+                                        <div className="header__cart-item-price-wrap">
+                                          <span className="header__cart-item-price">
+                                            {orderItem.Product_size_color.Product.price}
+                                          </span>
+                                          <span className="header__cart-item-miltiply">
+                                            x
+                                          </span>
+                                          <span className="header__cart-item-qnt">{orderItem.quantily}</span>
+                                        </div>
+                                      </div>
+
+                                      <div className="header__cart-item-body">
+                                        <span className="header__cart-item-description">
+                                          {orderItem.Product_size_color.Product.description}
                                         </span>
-                                        <span className="header__cart-item-miltiply">
-                                          x
+                                        <span className="header__cart-item-remove"
+                                          onClick={() => handleDeleteProduct(orderItem.id)}
+                                        >
+                                          Xoá
                                         </span>
-                                        <span className="header__cart-item-qnt">{orderItem.quantily}</span>
+                                      </div>
+                                      <div>
+                                        <span className="color_size">Color : {orderItem.Product_size_color.Color.name}
+                                        </span>
+                                        <span className="color_size pl-1">
+                                          , Size : {orderItem.Product_size_color.Size.size_value}
+                                        </span >
                                       </div>
                                     </div>
-
-                                    <div className="header__cart-item-body">
-                                      <span className="header__cart-item-description">
-                                        {orderItem.Product_size_color.Product.description}
-                                      </span>
-                                      <span className="header__cart-item-remove"
-                                        onClick={() => handleDeleteProduct(orderItem.id)}
-                                      >
-                                        Xoá
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <span className="color_size">Color : {orderItem.Product_size_color.Color.name}
-                                      </span>
-                                      <span className="color_size pl-1">
-                                        , Size : {orderItem.Product_size_color.Size.size_value}
-                                      </span >
-                                    </div>
-
-                                  </div>
-                                </li>
-                              ))}
+                                  </li>
+                                )
+                              })}
                             </ul>
                           )
                         })}

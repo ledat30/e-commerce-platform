@@ -140,11 +140,10 @@ function Color(props) {
                 Color name (<span style={{ color: "red" }}>*</span>)
               </label>
               <input
-                className={`form-control mt-1 ${
-                  validInputNameColor.category_name || !attemptedSave
-                    ? ""
-                    : "is-invalid"
-                }`}
+                className={`form-control mt-1 ${validInputNameColor.category_name || !attemptedSave
+                  ? ""
+                  : "is-invalid"
+                  }`}
                 type="email"
                 value={name}
                 onChange={(e) => setName(e.target.value)}

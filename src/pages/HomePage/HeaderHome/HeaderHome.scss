@@ -484,10 +484,13 @@
 }
 
 .header__cart-img {
-    width : 42px;
-    height: 55px;
-    margin: 5px;
-    border: 1px solid #e8e8e8;
+    width              : 42px;
+    height             : 55px;
+    margin             : 5px;
+    background-size    : cover;
+    background-repeat  : no-repeat;
+    background-position: center center;
+    border             : 1px solid #e8e8e8;
 }
 
 .header__cart-heading {
@@ -553,8 +556,10 @@
 }
 
 .header__cart-item-description {
-    color    : #757575;
-    font-size: 12px;
+    color     : #757575;
+    font-size : 12px;
+    width     : 270px;
+    text-align: start;
 }
 
 .header__cart-item-remove {
