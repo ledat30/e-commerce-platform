@@ -150,8 +150,8 @@ const searchComment = (key) => {
   return axios.get(`/api/search-comment?q=${key}`);
 };
 
-const addToCart = (productColorSizeId, userId, data) => {
-  return axios.post(`/api/product/add-to-cart?productColorSizeId=${productColorSizeId}&userId=${userId}`, { ...data });
+const addToCart = (productColorSizeId, userId, storeId, data) => {
+  return axios.post(`/api/product/add-to-cart?productColorSizeId=${productColorSizeId}&userId=${userId}&storeId=${storeId}`, { ...data });
 }
 
 const readProductCart = (userId) => {
@@ -164,9 +164,21 @@ const deleteProductCart = (productId) => {
   });
 }
 
-const buyProduct = (productColorSizeId, orderId, data) => {
-  return axios.post(`/api/product/buy?productColorSizeId=${productColorSizeId}&orderId=${orderId}`, { ...data });
+const buyProduct = (productColorSizeId, orderId, storeId, data) => {
+  return axios.post(`/api/product/buy?productColorSizeId=${productColorSizeId}&orderId=${orderId}&storeId=${storeId}`, { ...data });
 }
+
+const getAllOrderByStore = (page, limit, storeId) => {
+  return axios.get(
+    `/api/product/orderByUser?page=${page}&limit=${limit}&storeId=${storeId}`
+  );
+};
+
+const ConfirmAllOrders = (storeId, data) => {
+  return axios.post(
+    `/api/product/confirm-all-order?storeId=${storeId}`, data
+  );
+};
 
 export {
   getAllProductsByStore,
@@ -200,4 +212,6 @@ export {
   readProductCart,
   deleteProductCart,
   buyProduct,
+  getAllOrderByStore,
+  ConfirmAllOrders,
 };

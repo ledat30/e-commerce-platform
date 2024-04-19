@@ -8,6 +8,10 @@ const getAllShippingUnit = (page, limit) => {
   return axios.get(`/api/shipping-unit/read?page=${page}&limit=${limit}`);
 };
 
+const getAllShippingUnits = () => {
+  return axios.get(`/api/shipping-unit/read`);
+};
+
 const deleteShippingUnit = (shippingUnit) => {
   return axios.delete(`/api/shipping-unit/delete`, {
     data: { id: shippingUnit.id },
@@ -27,5 +31,6 @@ export {
   getAllShippingUnit,
   deleteShippingUnit,
   searchShippingUnit,
+  getAllShippingUnits,
   updateShippingUnit,
 };

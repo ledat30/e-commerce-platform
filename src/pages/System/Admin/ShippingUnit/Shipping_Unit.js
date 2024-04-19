@@ -1,6 +1,7 @@
 import "./ShippingUnit.scss";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import Select from "react-select";
 import {
   createShippingUnit,
   getAllShippingUnit,
@@ -8,13 +9,17 @@ import {
   searchShippingUnit,
   updateShippingUnit,
 } from "../../../../services/shippingUnitService";
+import { groupShippingUnitFunc } from "../../../../services/userService";
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
 import { debounce } from "lodash";
 
 function Shipping_Unit(props) {
   const [shipping_unit_name, setShipping_unit_name] = useState("");
+  const [nameUserShippingUnit, setNameUserShippingUnit] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
   const [validInputShippingUnit, setValidInputShippingUnit] = useState(true);
+  const [validInputNameUserShippingUnit, setValidInputNameUserShippingUnit] = useState(true);
   const [attemptedSave, setAttemptedSave] = useState(false);
 
   const [editMode, setEditMode] = useState(false);
@@ -38,17 +43,34 @@ function Shipping_Unit(props) {
     }
   };
 
+  useEffect(() => {
+    getGroupsShippingUnit();
+  }, []);
+
+  const getGroupsShippingUnit = async () => {
+    let response = await groupShippingUnitFunc();
+    if (response && response.EC === 0) {
+      setNameUserShippingUnit(response.DT);
+    }
+  };
+
   const handlePageClick = async (event) => {
     setCurrentPage(+event.selected + 1);
   };
 
   const checkValidInput = () => {
-    if (!shipping_unit_name) {
+    let isValid = true;
+    if (!shipping_unit_name.trim()) {
       setValidInputShippingUnit(false);
-      toast.error("Empty input shipping unit name");
-      return false;
+      toast.error("Please enter complete information");
+      isValid = false;
     }
-    return true;
+    if (!selectedOption) {
+      setValidInputNameUserShippingUnit(false);
+      toast.error("Please select user.");
+      isValid = false;
+    }
+    return isValid;
   };
 
   const handleConfirmShippingUnit = async () => {
@@ -58,6 +80,7 @@ function Shipping_Unit(props) {
         let response = await updateShippingUnit({
           id: editShippingUnitId,
           shipping_unit_name,
+          userId: selectedOption.value
         });
 
         if (response && response.EC === 0) {
@@ -65,6 +88,7 @@ function Shipping_Unit(props) {
           toast.success(response.EM);
           await fetchShippingUnit();
           setAttemptedSave(false);
+          setNameUserShippingUnit([]);
           setValidInputShippingUnit(true);
           setEditMode(false);
           setEditShippingUnitId(null);
@@ -76,20 +100,26 @@ function Shipping_Unit(props) {
           });
         }
       } else {
-        let response = await createShippingUnit({ shipping_unit_name });
+        let response = await createShippingUnit({ shipping_unit_name, userId: selectedOption.value });
 
         if (response && response.EC === 0) {
           setShipping_unit_name("");
           toast.success(response.EM);
           await fetchShippingUnit();
+          setNameUserShippingUnit([]);
           setAttemptedSave(false);
           setValidInputShippingUnit(true);
+          setValidInputNameUserShippingUnit(true);
         } else if (response && response.EC !== 0) {
           toast.error(response.EM);
           setValidInputShippingUnit({
             ...validInputShippingUnit,
             [response.DT]: false,
           });
+          setValidInputNameUserShippingUnit({
+            ...validInputNameUserShippingUnit,
+            [response.DT]: false,
+          })
         }
       }
     }
@@ -131,6 +161,27 @@ function Shipping_Unit(props) {
     }
   }, 300);
 
+  const options = Array.isArray(nameUserShippingUnit) ? nameUserShippingUnit.map(item => ({
+    label: item.username,
+    value: item.id
+  })) : [];
+
+  const handleOnChangeInput = (value, key) => {
+    const updatedUsers = nameUserShippingUnit.map(user =>
+      user.id === value ? { ...user, [key]: value } : user
+    );
+    setNameUserShippingUnit(updatedUsers);
+  };
+
+  const selectStyles = {
+    control: (base, state) => ({
+      ...base,
+      borderColor: !validInputNameUserShippingUnit && attemptedSave ? '#dc3545' : base.borderColor,
+      '&:hover': { borderColor: !validInputNameUserShippingUnit && attemptedSave ? '#dc3545' : base.borderColor },
+      boxShadow: !validInputNameUserShippingUnit && attemptedSave ? '0 0 0 0.2rem rgba(220, 53, 69, 0.25)' : 'none'
+    })
+  };
+
   return (
     <>
       <div className="shipping_unit-container">
@@ -139,19 +190,33 @@ function Shipping_Unit(props) {
             <h4>Manage shipping unit</h4>
           </div>
           <div className="category-input row">
-            <div className="col-11 from-group">
+            <div className="col-7 from-group">
               <label>
                 Shipping unit name (<span style={{ color: "red" }}>*</span>)
               </label>
               <input
-                className={`form-control mt-1 ${
-                  validInputShippingUnit.shipping_unit_name || !attemptedSave
-                    ? ""
-                    : "is-invalid"
-                }`}
+                className={`form-control mt-1 ${validInputShippingUnit.shipping_unit_name || !attemptedSave
+                  ? ""
+                  : "is-invalid"
+                  }`}
                 type="email"
                 value={shipping_unit_name}
                 onChange={(e) => setShipping_unit_name(e.target.value)}
+              />
+            </div>
+            <div className="col-4 from-group">
+              <label>
+                Choose user(<span style={{ color: "red" }}>*</span>)
+              </label>
+              <Select
+                className={`mt-1 ${!validInputNameUserShippingUnit && attemptedSave ? "is-invalid" : ""}`}
+                value={options.find(option => option.value === selectedOption?.value) || null}
+                onChange={(selected) => {
+                  setSelectedOption(selected);
+                  handleOnChangeInput(selected.value, "nameUserShippingUnit");
+                }}
+                options={options}
+                styles={selectStyles}
               />
             </div>
             <div className="col-1 from-group mt">
@@ -188,6 +253,7 @@ function Shipping_Unit(props) {
                   <th>No</th>
                   <th>Id</th>
                   <th>Shipping unit</th>
+                  <th>Username</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -202,6 +268,7 @@ function Shipping_Unit(props) {
                           </td>
                           <td>{item.id}</td>
                           <td>{item.shipping_unit_name}</td>
+                          <td>{item.User.username}</td>
                           <td>
                             <button
                               title="Edit"
@@ -230,7 +297,7 @@ function Shipping_Unit(props) {
                 ) : (
                   <>
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={6}>Not found shipping unit...</td>
+                      <td colSpan={5}>Not found shipping unit...</td>
                     </tr>
                   </>
                 )}

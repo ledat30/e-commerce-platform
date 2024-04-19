@@ -59,6 +59,7 @@ function Sidebar(props) {
       { to: "/store-owner/product", label: "Products", icon: "fa-product-hunt" },
       { to: "/store-owner/inventory", label: "Inventory", icon: "fa fa-archive" },
       { to: "/admin/comment", label: "Comment", icon: "fa-commenting-o " },
+      { to: "/admin/order", label: "Order", icon: "fa-shopping-cart" },
     );
   }
 

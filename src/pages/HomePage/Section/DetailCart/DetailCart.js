@@ -31,6 +31,7 @@ function DetailCart() {
                     selectedOrderItemIds.push({
                         productColorSizeId: orderItem.Product_size_color.id,
                         orderId: item.id,
+                        storeId: orderItem.Product_size_color.Product.Store.id,
                         quantily: quantities[orderItem.Product_size_color.Product.Inventories[0].id],
                         price: orderItem.Product_size_color.Product.price
                     });
@@ -43,7 +44,7 @@ function DetailCart() {
                 return;
             }
             const responses = await Promise.all(selectedOrderItemIds.map(orderItem =>
-                buyProduct(orderItem.productColorSizeId, orderItem.orderId, { quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id })
+                buyProduct(orderItem.productColorSizeId, orderItem.orderId, orderItem.storeId, { quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id })
             ));
 
             const allSuccess = responses.every(response => response.EC === 0);

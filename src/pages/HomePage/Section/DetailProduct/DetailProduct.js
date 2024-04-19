@@ -205,6 +205,7 @@ function DetailProduct() {
         const response = await addToCart(
           productColorSizeId,
           user.account.id,
+          dataDetailProduct.Store.id,
           { quantily: quantily, price_per_item: price_per_item, }
         );
         if (response && response.EC === 0) {
