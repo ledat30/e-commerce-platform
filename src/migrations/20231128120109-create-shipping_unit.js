@@ -12,6 +12,14 @@ module.exports = {
       shipping_unit_name: {
         type: Sequelize.STRING,
       },
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

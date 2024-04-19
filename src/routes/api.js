@@ -33,6 +33,7 @@ const initApiRouter = (app) => {
   router.get("/search-user", userController.searchUser);
   router.get("/account", userController.getUserAccount);
   router.get("/user-group-store", userController.groupStoreFunc);
+  router.get("/user-group-shipping_unit", userController.groupShippingUnitFunc);
 
   //role routes
   router.get("/role/read", roleController.readFunc);
@@ -84,6 +85,8 @@ const initApiRouter = (app) => {
   router.get("/product/read-product-cart", productController.readProductCart);
   router.delete("/product/delete-product-cart", productController.deleteProductCart);
   router.post("/product/buy", productController.createBuyProduct);
+  router.get("/product/orderByUser", productController.orderByUser);
+  router.post("/product/confirm-all-order", productController.ConfirmAllOrders);
 
   //comment product
   router.get("/comment/read", commentController.readFunc);

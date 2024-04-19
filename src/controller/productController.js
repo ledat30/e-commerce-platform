@@ -245,7 +245,7 @@ const getRandomProducts = async (req, res) => {
 
 const postAddToCart = async (req, res) => {
   try {
-    let data = await productService.postAddToCart(req.query.productColorSizeId, req.query.userId, req.body);
+    let data = await productService.postAddToCart(req.query.productColorSizeId, req.query.userId, req.query.storeId, req.body);
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
@@ -318,8 +318,8 @@ const deleteProductCart = async (req, res) => {
 
 const createBuyProduct = async (req, res) => {
   try {
-    const { orderId, productColorSizeId } = req.query;
-    let data = await productService.createBuyProduct(orderId, productColorSizeId, req.body);
+    const { orderId, productColorSizeId, storeId } = req.query;
+    let data = await productService.createBuyProduct(orderId, productColorSizeId, storeId, req.body);
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
@@ -332,6 +332,49 @@ const createBuyProduct = async (req, res) => {
       EC: "-1",
       DT: "",
     });
+  }
+}
+
+const orderByUser = async (req, res) => {
+  try {
+    const storeId = req.query.storeId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await productService.orderByUser(+page, +limit, storeId);
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      })
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: -1,
+      DT: "",
+    })
+  }
+}
+
+const ConfirmAllOrders = async (req, res) => {
+  let storeId = req.query.storeId;
+  try {
+    let data = await productService.ConfirmAllOrders(storeId, req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error service",
+      EC: -1,
+      DT: "",
+    })
   }
 }
 
@@ -351,4 +394,6 @@ module.exports = {
   readProductCart,
   deleteProductCart,
   createBuyProduct,
+  orderByUser,
+  ConfirmAllOrders,
 };

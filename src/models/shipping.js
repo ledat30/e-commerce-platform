@@ -9,9 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Shipping.belongsTo(models.Order, { foreignKey: "orderId" });
-      Shipping.belongsTo(models.ShippingUnit, {
-        foreignKey: "shipping_unitId",
+      Shipping.belongsTo(models.Shipping_Unit_Order, {
+        foreignKey: "shipping_unit_orderId",
       });
     }
   }
@@ -19,9 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       shipping_address: DataTypes.STRING,
       shipping_cost: DataTypes.FLOAT,
-      orderId: DataTypes.INTEGER,
       status: DataTypes.STRING,
-      shipping_unitId: DataTypes.INTEGER,
+      shipping_unit_orderId: DataTypes.INTEGER,
     },
     {
       sequelize,

@@ -14,6 +14,20 @@ const checkNameShippingUnit = async (nameShippingUnit) => {
     console.log(error);
   }
 };
+const checkUser = async (userId) => {
+  try {
+    let name = await db.ShippingUnit.findOne({
+      where: { userId: userId },
+    });
+    if (name) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 const createShippingUnit = async (data) => {
   try {
@@ -23,6 +37,14 @@ const createShippingUnit = async (data) => {
         EM: "The shipping unit name is already exists",
         EC: 1,
         DT: "shipping_unit_name",
+      };
+    }
+    let checkName = await checkUser(data.userId);
+    if (checkName === true) {
+      return {
+        EM: "The user name is already exists",
+        EC: 1,
+        DT: "userId",
       };
     }
     await db.ShippingUnit.create({ ...data });
@@ -74,6 +96,9 @@ const getShippingUnitWithPagination = async (page, limit) => {
       offset: offset,
       limit: limit,
       attributes: ["id", "shipping_unit_name"],
+      include: [
+        { model: db.User, attributes: [`username`] },
+      ],
       order: [["id", "DESC"]],
     });
     let totalPages = Math.ceil(count / limit);
@@ -139,6 +164,12 @@ const searchShippingUnit = async (keyword) => {
         ],
       },
       attributes: ["shipping_unit_name", "id"],
+      include: [
+        {
+          model: db.User,
+          attributes: ["username"],
+        },
+      ],
     });
     return {
       EM: "Ok",
@@ -171,6 +202,7 @@ const updateShippingUnit = async (data) => {
     if (shippingUnit) {
       await shippingUnit.update({
         shipping_unit_name: data.shipping_unit_name,
+        userId: data.userId,
       });
       return {
         EM: "Update shipping unit success",

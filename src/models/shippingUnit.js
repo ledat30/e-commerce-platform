@@ -9,12 +9,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      ShippingUnit.hasMany(models.Shipping, { foreignKey: "shipping_unitId" });
+      ShippingUnit.belongsTo(models.User, { foreignKey: "userId" });
+      ShippingUnit.hasMany(models.Shipping_Unit_Order, { foreignKey: "shippingUnitId" });
     }
   }
   ShippingUnit.init(
     {
       shipping_unit_name: DataTypes.STRING,
+      userId: DataTypes.INTEGER,
     },
     {
       sequelize,

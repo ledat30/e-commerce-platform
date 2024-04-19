@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       Store.hasMany(models.Inventory, { foreignKey: "storeId" });
       Store.hasMany(models.Size, { foreignKey: "storeId" });
       Store.hasMany(models.Color, { foreignKey: "storeId" });
+      Store.hasMany(models.Order, { foreignKey: "storeId" });
     }
   }
   Store.init(

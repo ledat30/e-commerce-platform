@@ -589,7 +589,7 @@ const getDetailProductById = (inputId) => {
                 ],
               },
             },
-            { model: db.Store, attributes: ['name'] },
+            { model: db.Store, attributes: ['name', 'id'] },
             { model: db.Inventory, attributes: ['currentNumber'] }
           ],
         })
@@ -635,15 +635,16 @@ const getRandomItemsFromArray = (array, numberOfItems) => {
   return shuffledArray.slice(0, numberOfItems);
 };
 
-const postAddToCart = async (productColorSizeId, userId, body) => {
+const postAddToCart = async (productColorSizeId, userId, storeId, body) => {
   try {
-    let order = await db.Order.findOne({ where: { userId: userId } });
+    let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId } });
     if (!order) {
       order = await db.Order.create({
         total_amount: 0,
         order_date: new Date(),
         status: 'pending',
         userId: userId,
+        storeId: storeId,
       });
     }
     if (order.status === 'Processing') {
@@ -711,7 +712,8 @@ const getAllProductAddToCart = async (userId) => {
                   {
                     model: db.Inventory,
                     attributes: ['currentNumber', `id`],
-                  }
+                  },
+                  { model: db.Store, attributes: ['name', 'id'] },
                 ],
               },
               {
@@ -785,7 +787,7 @@ const deleteProductCart = async (id) => {
   }
 }
 
-const createBuyProduct = async (orderId, productColorSizeId, body) => {
+const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
 
   const purchaseQuantity = parseInt(body.quantily);
   const payment_methodID = body.payment_methodID;
@@ -823,6 +825,7 @@ const createBuyProduct = async (orderId, productColorSizeId, body) => {
         total_amount: pricePerItem * purchaseQuantity,
         order_date: new Date(),
         payment_methodID: payment_methodID,
+        storeId: storeId,
       }, { transaction });
 
       await item.update({ quantily: purchaseQuantity, orderId: newOrder.id }, { transaction });
@@ -871,6 +874,84 @@ const createBuyProduct = async (orderId, productColorSizeId, body) => {
   }
 };
 
+const orderByUser = async (page, limit, storeId) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Order.findAndCountAll({
+      where: { status: 'Processing', storeId: storeId },
+      offset: offset,
+      limit: limit,
+      attributes: [`id`, `total_amount`, `order_date`],
+      include: [
+        { model: db.PaymentMethod, attributes: [`method_name`] },
+        { model: db.User, attributes: [`username`] },
+        {
+          model: db.OrderItem,
+          attributes: ['quantily'],
+          include: [
+            {
+              model: db.Product_size_color,
+              attributes: ['id'],
+              include: [
+                { model: db.Product, attributes: [`product_name`] },
+                { model: db.Color, attributes: [`name`] },
+                { model: db.Size, attributes: [`size_value`] }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      orders: rows,
+    }
+    return {
+      EM: 'Ok',
+      EC: 0,
+      DT: data,
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: `Something wrongs with services`,
+      EC: -1,
+      DT: [],
+    }
+  }
+};
+
+const ConfirmAllOrders = async (storeId, body) => {
+  try {
+    await db.Order.update(
+      { status: 'confirmed' },
+      { where: { status: "Processing", storeId: storeId }, returning: true }
+    );
+
+    const confirmedOrders = await db.Order.findAll({
+      where: { status: "confirmed", storeId: storeId }
+    });
+    const confirmedOrderIds = confirmedOrders.map(order => order.id);
+
+    const shippingUnitOrders = confirmedOrderIds.map(orderId => {
+      return {
+        orderId: orderId,
+        shippingUnitId: body.shippingUnitId,
+      };
+    });
+
+    await db.Shipping_Unit_Order.bulkCreate(shippingUnitOrders);
+
+    return { EM: `All orders have been confirmed and orderId has been updated in ShippingUnit`, EC: 0, DT: '' };
+  } catch (error) {
+    console.error('Error confirming orders:', error);
+    return { EM: 'Failed to confirm orders', EC: -1, DT: '' };
+  }
+};
+
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -892,4 +973,6 @@ module.exports = {
   getAllProductAddToCart,
   deleteProductCart,
   createBuyProduct,
+  orderByUser,
+  ConfirmAllOrders,
 };

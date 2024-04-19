@@ -18,19 +18,11 @@ module.exports = {
       shipping_cost: {
         type: Sequelize.FLOAT,
       },
-      orderId: {
+      shipping_unit_orderId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Orders",
-          key: "id",
-        },
-      },
-      shipping_unitId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "ShippingUnits",
+          model: "Shipping_Unit_Orders",
           key: "id",
         },
       },

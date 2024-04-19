@@ -6,6 +6,7 @@ const nonSecurePaths = [
   "/register",
   "/logout",
   "/user-group-store",
+  "/user-group-shipping_unit",
   "/search-store",
   "/search-category",
   "/search-role",
@@ -21,6 +22,7 @@ const nonSecurePaths = [
   "/random-products",
   "/color/readByStore",
   "/size/readByStore",
+  "/shipping-unit/read",
 ];
 
 const createJWT = (payload) => {

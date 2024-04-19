@@ -12,8 +12,9 @@ module.exports = (sequelize, DataTypes) => {
       Order.belongsTo(models.User, { foreignKey: "userId" });
       Order.belongsTo(models.PaymentMethod, { foreignKey: "payment_methodID" });
       Order.hasMany(models.Invoice, { foreignKey: "orderId" });
-      Order.hasMany(models.Shipping, { foreignKey: "orderId" });
       Order.hasMany(models.OrderItem, { foreignKey: "orderId" });
+      Order.belongsTo(models.Store, { foreignKey: "storeId" });
+      Order.hasMany(models.Shipping_Unit_Order, { foreignKey: "orderId" });
     }
   }
   Order.init(
@@ -23,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       payment_methodID: DataTypes.INTEGER,
       status: DataTypes.STRING,
       userId: DataTypes.INTEGER,
+      storeId: DataTypes.INTEGER,
     },
     {
       sequelize,
