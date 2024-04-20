@@ -51,10 +51,12 @@ function Login(props) {
       let id = response.DT.id;
       let storeId = response.DT.storeId;
       let nameStore = response.DT.nameStore;
+      let shipingUnitId = response.DT.shipingUnitId;
+      let shipingUnitName = response.DT.shipingUnitName;
       let data = {
         isAuthenticated: true,
         token: token,
-        account: { groupWithRoles, email, username, address, id, storeId, nameStore },
+        account: { groupWithRoles, email, username, address, id, storeId, nameStore, shipingUnitId, shipingUnitName },
       };
       localStorage.setItem("jwt", token);
       loginContext(data);

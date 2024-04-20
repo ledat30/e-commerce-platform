@@ -20,6 +20,7 @@ import Color from "../pages/System/Store_Owner/Color/Color";
 import Size from "../pages/System/Store_Owner/Size/Size";
 import Comment from "../pages/System/Store_Owner/Comment/Comment";
 import Order from "../pages/System/Store_Owner/Order/Order";
+import ShippingUnit_Order from "../pages/System/ShippingUnit/ShippingUnit_Order/ShippingUnit_Order";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -103,7 +104,25 @@ function AppRoutes() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       );
-    } else {
+    } else if (user.account.groupWithRoles.id === 3) {
+      return (
+        <Routes>
+          {/* shipping unit routes */}
+          <>
+            <Route
+              path="/"
+              element={<PrivateRoutes element={<Dashboard />} />}
+            />
+            <Route
+              path="/shippingUnit_order"
+              element={<PrivateRoutes element={<ShippingUnit_Order />} />}
+            />
+          </>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      );
+    }
+    else {
       return <Navigate to="/login" />;
     }
   } else {

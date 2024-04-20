@@ -63,6 +63,17 @@ function Sidebar(props) {
     );
   }
 
+  if (
+    user &&
+    user.isAuthenticated === true &&
+    user.account.groupWithRoles.id === 3
+  ) {
+    menuItems.push(
+      { to: "/", label: "Dashboard", icon: "fa-home" },
+      { to: '/shippingUnit_order', label: "Shipping Unit order", icon: "fa-truck" },
+    );
+  }
+
   const filteredItems = menuItems.filter((item) =>
     item.label.toLowerCase().includes(searchInput.toLowerCase())
   );

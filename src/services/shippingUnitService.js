@@ -8,6 +8,10 @@ const getAllShippingUnit = (page, limit) => {
   return axios.get(`/api/shipping-unit/read?page=${page}&limit=${limit}`);
 };
 
+const readAllOrderByShippingUnit = (page, limit, shipingUnitId) => {
+  return axios.get(`/api/shipping-unit/read_all-orderBy_shippingUnit?page=${page}&limit=${limit}&shipingUnitId=${shipingUnitId}`);
+};
+
 const getAllShippingUnits = () => {
   return axios.get(`/api/shipping-unit/read`);
 };
@@ -33,4 +37,5 @@ export {
   searchShippingUnit,
   getAllShippingUnits,
   updateShippingUnit,
+  readAllOrderByShippingUnit,
 };
