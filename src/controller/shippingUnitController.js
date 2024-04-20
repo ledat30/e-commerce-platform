@@ -108,10 +108,36 @@ const updateFunc = async (req, res) => {
   }
 };
 
+const readAllOrderByShippingUnit = async (req, res) => {
+  try {
+    const shipingUnitId = req.query.shipingUnitId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await shippingUnitService.readAllOrderByShippingUnit(+page, +limit, shipingUnitId);
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      })
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error service",
+      EC: -1,
+      DT: "",
+    })
+  }
+
+}
+
 module.exports = {
   createFunc,
   readFunc,
   deleteFunc,
   searchShippingUnit,
   updateFunc,
+  readAllOrderByShippingUnit,
 };

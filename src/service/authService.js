@@ -1,6 +1,6 @@
 import db from "../models/index";
 import bcrypt from "bcryptjs";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import { getGroupWithRole } from "./jwtService";
 import { createJWT } from "../middleware/JWTAction";
 
@@ -50,6 +50,12 @@ const handleUserLogin = async (rawData) => {
         });
         let storeId = userStore ? userStore.id : null;
         let nameStore = userStore ? userStore.name : null;
+        let shippingUnit = await db.ShippingUnit.findOne({
+          where: { userId: user.id },
+          attributes: [`id`, `shipping_unit_name`],
+        });
+        let shipingUnitId = shippingUnit ? shippingUnit.id : null;
+        let shipingUnitName = shippingUnit ? shippingUnit.shipping_unit_name : null;
         let payload = {
           email: user.email,
           address: user.address,
@@ -58,6 +64,8 @@ const handleUserLogin = async (rawData) => {
           username: user.username,
           storeId: storeId,
           nameStore: nameStore,
+          shipingUnitId: shipingUnitId,
+          shipingUnitName: shipingUnitName,
         };
         let token = createJWT(payload);
         return {
@@ -72,6 +80,8 @@ const handleUserLogin = async (rawData) => {
             username: user.username,
             storeId: storeId,
             nameStore: nameStore,
+            shipingUnitId: shipingUnitId,
+            shipingUnitName: shipingUnitName,
           },
         };
       }

@@ -1,3 +1,4 @@
+import { where } from "sequelize";
 import db from "../models/index";
 
 const checkNameShippingUnit = async (nameShippingUnit) => {
@@ -226,6 +227,62 @@ const updateShippingUnit = async (data) => {
   }
 };
 
+const readAllOrderByShippingUnit = async (page, limit, shipingUnitId) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Shipping_Unit_Order.findAndCountAll({
+      where: { status: 'Received from store', shippingUnitId: shipingUnitId },
+      offset: offset,
+      limit: limit,
+      include: [
+        {
+          model: db.Order,
+          include: [
+            {
+              model: db.OrderItem,
+              attributes: [`quantily`],
+              include: [
+                {
+                  model: db.Product_size_color,
+                  attributes: ['id'],
+                  include: [
+                    { model: db.Product, attributes: [`product_name`] },
+                    { model: db.Color, attributes: [`name`] },
+                    { model: db.Size, attributes: [`size_value`] }
+                  ]
+                }
+              ]
+            },
+            {
+              model: db.User,
+              attributes: ['username', 'address']
+            },
+            { model: db.PaymentMethod, attributes: [`method_name`] },
+          ]
+        }
+      ]
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      orders: rows,
+    }
+    return {
+      EM: 'Ok',
+      EC: 0,
+      DT: data,
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: `Something wrongs with services`,
+      EC: -1,
+      DT: [],
+    }
+  }
+}
+
 module.exports = {
   createShippingUnit,
   getAllShippingUnit,
@@ -233,4 +290,5 @@ module.exports = {
   deleteShippingUnit,
   searchShippingUnit,
   updateShippingUnit,
+  readAllOrderByShippingUnit,
 };

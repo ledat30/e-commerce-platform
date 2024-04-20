@@ -118,6 +118,8 @@ const getUserAccount = async (req, res) => {
       id: req.user.id,
       storeId: req.user.storeId,
       nameStore: req.user.nameStore,
+      shipingUnitId: req.user.shipingUnitId,
+      shipingUnitName: req.user.shipingUnitName,
     },
   });
 };

@@ -71,6 +71,7 @@ const initApiRouter = (app) => {
     shippingUnitController.searchShippingUnit
   );
   router.put("/shipping-unit/update", shippingUnitController.updateFunc);
+  router.get("/shipping-unit/read_all-orderBy_shippingUnit", shippingUnitController.readAllOrderByShippingUnit);
 
   //product
   router.get("/product/read", productController.readFunc);

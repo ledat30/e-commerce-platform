@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         {
             orderId: DataTypes.INTEGER,
             shippingUnitId: DataTypes.INTEGER,
+            status: DataTypes.STRING,
         },
         {
             sequelize,

@@ -939,6 +939,7 @@ const ConfirmAllOrders = async (storeId, body) => {
       return {
         orderId: orderId,
         shippingUnitId: body.shippingUnitId,
+        status: 'Received from store',
       };
     });
 
