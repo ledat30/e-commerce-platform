@@ -792,7 +792,7 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
   const purchaseQuantity = parseInt(body.quantily);
   const payment_methodID = body.payment_methodID;
   const pricePerItem = parseFloat(body.price_per_item);
-
+  const shippingFee = parseFloat(body.shippingFee);
   const transaction = await sequelize.transaction();
 
   try {
@@ -815,14 +815,14 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
       await db.Invoice.create({
         orderId: order.id,
         invoice_date: new Date(),
-        total_amount: pricePerItem * purchaseQuantity,
+        total_amount: pricePerItem * purchaseQuantity + shippingFee,
         payment_methodID: payment_methodID,
       }, { transaction });
     } else {
       newOrder = await db.Order.create({
         userId: order.userId,
         status: 'Processing',
-        total_amount: pricePerItem * purchaseQuantity,
+        total_amount: pricePerItem * purchaseQuantity + shippingFee,
         order_date: new Date(),
         payment_methodID: payment_methodID,
         storeId: storeId,
@@ -834,7 +834,7 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
       await db.Invoice.create({
         orderId: newOrder.id,
         invoice_date: new Date(),
-        total_amount: pricePerItem * purchaseQuantity,
+        total_amount: pricePerItem * purchaseQuantity + shippingFee,
         payment_methodID: newOrder.payment_methodID,
       }, { transaction });
     }
