@@ -9,6 +9,8 @@ import { UserContext } from "../../../../context/userContext";
 import { deleteProductCart, buyProduct } from "../../../../services/productService";
 import { getAllPaymentClient } from "../../../../services/paymentMethodService";
 import { useCart } from '../../../../context/cartContext';
+import axios from 'axios';
+import { point, distance } from '@turf/turf';
 const { Buffer } = require("buffer");
 
 function DetailCart() {
@@ -22,6 +24,72 @@ function DetailCart() {
     const [totalPayment, setTotalPayment] = useState(0);
     const [listPayMents, setListPayMents] = useState([]);
     const [activeIndex, setActiveIndex] = useState(null);
+
+    useEffect(() => {
+        const calculateShippingFee = async () => {
+            try {
+                // tọa độ của địa chỉ nhận hàng 
+                const address = user.account.address;
+                if (!address) {
+                    throw new Error('Địa chỉ người dùng không tồn tại.');
+                }
+                const destinationCoordinates = await geocodeAddress(address);
+
+                // Tọa độ của cửa hàng 
+                const storeCoordinates = { lat: 21.024813, lng: 105.988944 };
+
+                //  khoảng cách giữa địa chỉ nhận hàng và cửa hàng
+                const distanceInKm = calculateDistance(destinationCoordinates, storeCoordinates);
+                const roundedDistance = distanceInKm.toFixed(1);
+
+                //  công thức phí vận chuyển 
+                const shippingRatePerKm = 2000;
+
+                const shippingTotal = (roundedDistance / 1000) * shippingRatePerKm;
+                const ship = shippingTotal;
+                const formattedShip = (ship * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+                setShippingFee(formattedShip);
+
+            } catch (error) {
+                console.error('Lỗi khi tính phí vận chuyển:', error);
+            }
+        };
+
+        //gọi lại khi thông tin user thay đổi
+        calculateShippingFee();
+    }, [user]);
+
+    //chuyển đổi địa chỉ thành tọa độ
+    const geocodeAddress = async (address) => {
+        try {
+            const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
+                params: {
+                    key: '06ba581ba3b34e7897f56d8f8683266c',
+                    q: address,
+                    limit: 1,
+                },
+            });
+            if (response.data && response.data.results.length > 0) {
+                const { lat, lng } = response.data.results[0].geometry;
+                return { lat, lng };
+            } else {
+                throw new Error('Không tìm thấy tọa độ cho địa chỉ này.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi geocode địa chỉ:', error);
+            throw error;
+        }
+    };
+
+    // tính khoảng cách giữa hai điểm
+    const calculateDistance = (source, destination) => {
+        const sourcePoint = point([source.lng, source.lat]);
+        const destinationPoint = point([destination.lng, destination.lat]);
+        const options = { units: 'kilometers' };
+        const distanceInKm = distance(sourcePoint, destinationPoint, options);
+        return distanceInKm;
+    };
 
     const handBuyProduct = async () => {
         const selectedOrderItemIds = [];
@@ -44,7 +112,7 @@ function DetailCart() {
                 return;
             }
             const responses = await Promise.all(selectedOrderItemIds.map(orderItem =>
-                buyProduct(orderItem.productColorSizeId, orderItem.orderId, orderItem.storeId, { quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id })
+                buyProduct(orderItem.productColorSizeId, orderItem.orderId, orderItem.storeId, { quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id, shippingFee: shippingFee })
             ));
 
             const allSuccess = responses.every(response => response.EC === 0);
@@ -112,27 +180,24 @@ function DetailCart() {
                 return itemTotal;
             }, 0);
         }, 0);
-        const amount = totalAmount;
-        const formattedAmount = (amount * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-        setTotalAmount(formattedAmount);
+
+        const formattedTotalAmount = (totalAmount * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
         if (selectedItemCount > 0) {
-            const shippingTotal = 30;
-            const ship = shippingTotal;
-            const formattedShip = (ship * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            const total = totalAmount + parseFloat(shippingFee);
+            const formatTotal = (total * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
-            const totalPayment = totalAmount + shippingTotal;
-            const pay = totalPayment;
-            const formattedPay = (pay * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-
-            setShippingFee(formattedShip);
-            setTotalPayment(formattedPay);
-        } else {
-            const formattedShip = (0 * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
-            setShippingFee(formattedShip);
-            const formattedPay = (0 * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-            setTotalPayment(formattedPay);
+            setTotalPayment(formatTotal);
         }
-    }, [cartItems, quantities, selectedItems, selectedItemCount]);
+        else {
+            const total = 0;
+            const formatTotal = (total * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+            setTotalPayment(formatTotal);
+        }
+        setTotalAmount(formattedTotalAmount);
+    }, [cartItems, quantities, selectedItems, selectedItemCount, shippingFee]);
+
 
     const handleSelectAllChange = (e) => {
         const newChecked = e.target.checked;
