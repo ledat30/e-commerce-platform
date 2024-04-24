@@ -1,0 +1,145 @@
+.container_profile {
+    background-color: #f5f5f5;
+
+    .container {
+        .title_main {
+            display        : flex;
+            margin         : 20px 0 5px 0;
+            background     : #fff;
+            border-radius  : 3px;
+            padding        : 10px 20px;
+            box-shadow     : 0 1px 1px 0 rgba(0, 0, 0, .05);
+            justify-content: space-around;
+
+            .title_order {
+                font-size  : 16px;
+                cursor     : pointer;
+                font-weight: 500;
+            }
+
+            .title_order:hover {
+                color: #df2525;
+            }
+
+            .title_order.active {
+                color: #fe6433;
+            }
+
+            .seperate {
+                color: #9e9b9b;
+            }
+
+            .title_profile {
+                font-size  : 16px;
+                cursor     : pointer;
+                font-weight: 500;
+            }
+
+            .title_profile:hover {
+                color: #df2525;
+            }
+
+            .title_profile.active {
+                color: #fe6433;
+            }
+        }
+
+        .content {
+            display      : flex;
+            margin       : 2px 0 10px 0;
+            background   : #fff;
+            border-radius: 3px;
+            padding      : 10px 20px;
+            box-shadow   : 0 1px 1px 0 rgba(0, 0, 0, .05);
+
+            .content_left {
+                .product {
+                    display      : flex;
+                    border-bottom: 1px solid rgb(221, 217, 217);
+
+                    .name-order {
+                        .name-product {
+                            padding-top: 10px;
+                            color      : #8b8787;
+                            font-size  : 15px;
+                        }
+
+                        .quantity {
+                            color    : #8b8787;
+                            font-size: 14px;
+                        }
+
+                        .total_price {
+                            font-size: 14px;
+                            color    : #8b8787;
+
+                            .price {
+                                color          : #fe6433;
+                                text-decoration: underline;
+                            }
+                        }
+
+                        .img_product {
+                            .img {
+                                width              : 100px;
+                                height             : 100px;
+                                background-repeat  : no-repeat;
+                                background-size    : contain;
+                                background-position: center center;
+                                object-fit         : cover;
+                                border-radius      : 3px;
+                                margin             : 10px 0;
+                            }
+                        }
+                    }
+
+                    .status-order {
+                        padding-left: 150px;
+
+                        .status {
+                            margin-top      : 60px;
+                            background-color: #fe6433;
+                            text-align      : center;
+                            border-radius   : 2px;
+                            padding         : 5px 10px;
+                        }
+                    }
+                }
+            }
+
+            .content_right {
+                padding         : 10px;
+                justify-content : center;
+                align-items     : center;
+                width           : 215vh;
+                margin          : 0 250px;
+                border-radius   : 5px;
+                background-color: #c9ddce;
+
+                .title {
+                    font-size     : 18px;
+                    text-align    : center;
+                    padding-bottom: 10px;
+                }
+
+                .name_user {
+                    padding-top   : 13px;
+                    padding-bottom: 13px;
+                    font-size     : 16px;
+                    color         : #494646;
+                }
+
+                .button {
+                    float: right;
+                }
+
+                .address {
+                    padding-top   : 13px;
+                    padding-bottom: 13px;
+                    font-size     : 16px;
+                    color         : #494646;
+                }
+            }
+        }
+    }
+}

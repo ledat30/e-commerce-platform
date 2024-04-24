@@ -30,6 +30,10 @@ function HeaderHome() {
     navigate("/detail-cart");
   };
 
+  const handleProfile = () => {
+    navigate('/profile-user');
+  }
+
   const handleLogout = async () => {
     let data = await logoutUser();
     localStorage.removeItem("jwt");
@@ -150,11 +154,8 @@ function HeaderHome() {
                     </span>
 
                     <ul className="header__navbar-user-menu">
-                      <li className="header__navbar-user-item">
+                      <li className="header__navbar-user-item" onClick={handleProfile}>
                         <span>Tài khoản của tôi</span>
-                      </li>
-                      <li className="header__navbar-user-item">
-                        <span>Đơn mua </span>
                       </li>
                       <li
                         className="header__navbar-user-item"
