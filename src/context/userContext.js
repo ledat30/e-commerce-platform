@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getUserAccount } from "../services/userService";
+import { getUserAccount, editProfile } from "../services/userService";
 
 const UserContext = React.createContext(null);
 
@@ -22,6 +22,13 @@ function UserProvider({ children }) {
   // Logout updates the user data to default
   const logoutContext = () => {
     setUser({ ...defaultData, isLoading: false });
+  };
+
+  const updateUserInfo = (newUserInfo) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      account: { ...prevUser.account, ...newUserInfo },
+    }));
   };
 
   const fetchUser = async () => {
@@ -59,8 +66,22 @@ function UserProvider({ children }) {
     }
   }, []);
 
+  const handleUpdateUserInfo = async (updatedInfo) => {
+    try {
+      const response = await editProfile(updatedInfo);
+      if (response && response.EC === 0) {
+        updateUserInfo(updatedInfo);
+        console.log("User info updated successfully!");
+      } else {
+        console.error("Failed to update user info");
+      }
+    } catch (error) {
+      console.error("Error updating user info:", error);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, loginContext, logoutContext }}>
+    <UserContext.Provider value={{ user, loginContext, logoutContext, updateUserInfo, handleUpdateUserInfo }}>
       {children}
     </UserContext.Provider>
   );

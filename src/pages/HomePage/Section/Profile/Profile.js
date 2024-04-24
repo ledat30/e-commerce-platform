@@ -1,17 +1,82 @@
 import './Profile.scss';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
 import HeaderHome from "../../HeaderHome/HeaderHome";
 import Footer from "../../Footer/Footer";
+import { toast } from "react-toastify";
+import { editProfile } from '../../../../services/userService';
 
 function Profile() {
-    const { user } = useContext(UserContext);
-    console.log(user);
+    const { user, handleUpdateUserInfo } = useContext(UserContext);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedUser, setEditedUser] = useState({ ...user });
+    const [usernameInput, setUsernameInput] = useState('');
+    const [emailInput, setEmailInput] = useState('');
+    const [addressInput, setAddressInput] = useState('');
     const [activeTab, setActiveTab] = useState('orders');
+    const contentRef = useRef(null);
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    useEffect(() => {
+        setUsernameInput(user.account.username);
+        setEmailInput(user.account.email);
+        setAddressInput(user.account.address);
+    }, [user]);
+
+    const handleClickOutside = (event) => {
+        if (contentRef.current && !contentRef.current.contains(event.target)) {
+            if (event.target.tagName !== "BUTTON" || !event.target.classList.contains("submit-button")) {
+                setIsEditing(false);
+                setEditedUser({ ...user });
+            }
+        }
+    };
+
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
     };
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        if (name === 'username') setUsernameInput(value);
+        if (name === 'email') setEmailInput(value);
+        if (name === 'address') setAddressInput(value);
+        e.stopPropagation();
+    };
+
+    const handleSubmit = async () => {
+        const data = {
+            id: user.account.id,
+            username: usernameInput,
+            email: emailInput,
+            address: addressInput,
+        };
+        try {
+            const response = await editProfile(data);
+            if (response && response.EC === 0) {
+                toast.success(response.EM);
+                handleUpdateUserInfo(data);
+                setIsEditing(false);
+            } else {
+                toast.error(response.EM);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+
     return (
         <div className="container_profile">
             <HeaderHome />
@@ -51,37 +116,78 @@ function Profile() {
                         </div>
                     )}
                     {activeTab === 'profile' && (
-                        <div className='content_right'>
+                        <div className='content_right' ref={contentRef}>
                             <div className='title'>
                                 Hồ sơ người dùng
                             </div>
                             <div className='name_user'>
-                                Họ và tên : {user.account.username}
+                                Họ và tên : {isEditing ? (
+                                    <input
+                                        type="text"
+                                        name="username"
+                                        value={usernameInput}
+                                        onChange={handleInputChange}
+                                        className='input'
+                                    />
+                                ) : (
+                                    user.account.username
+                                )}
                                 <button
                                     title="Edit"
                                     className="btn btn-warning button"
+                                    onClick={handleEditClick}
                                 >
                                     <i className="fa fa-pencil"></i>
                                 </button>
                             </div>
                             <div className='name_user'>
-                                Email cá nhân : {user.account.email}
+                                Email cá nhân : {isEditing ? (
+                                    <input
+                                        type="text"
+                                        name="email"
+                                        value={emailInput}
+                                        onChange={handleInputChange}
+                                        className='input'
+                                    />
+                                ) : (
+                                    user.account.email
+                                )}
                                 <button
                                     title="Edit"
                                     className="btn btn-warning button"
+                                    onClick={handleEditClick}
                                 >
                                     <i className="fa fa-pencil"></i>
                                 </button>
                             </div>
                             <div className='address'>
-                                Địa chỉ : {user.account.address}
+                                Địa chỉ : {isEditing ? (
+                                    <input
+                                        type="text"
+                                        name="address"
+                                        value={addressInput}
+                                        onChange={handleInputChange}
+                                        className='input'
+                                    />
+                                ) : (
+                                    user.account.address
+                                )}
                                 <button
                                     title="Edit"
                                     className="btn btn-warning button"
+                                    onClick={handleEditClick}
                                 >
                                     <i className="fa fa-pencil"></i>
                                 </button>
                             </div>
+                            {isEditing && (
+                                <button
+                                    className="btn btn-success submit"
+                                    onClick={handleSubmit}
+                                >
+                                    Submit
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

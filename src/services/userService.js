@@ -24,6 +24,10 @@ const updateUser = (userData) => {
   return axios.put(`/api/user/update`, { ...userData });
 };
 
+const editProfile = (data) => {
+  return axios.put(`/api/user/edit-profile`, data);
+};
+
 const deleteUser = (user) => {
   return axios.delete(`/api/user/delete`, {
     data: { id: user.id },
@@ -70,4 +74,5 @@ export {
   logoutUser,
   getGroupStore,
   groupShippingUnitFunc,
+  editProfile,
 };
