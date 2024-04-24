@@ -34,6 +34,7 @@ const initApiRouter = (app) => {
   router.get("/account", userController.getUserAccount);
   router.get("/user-group-store", userController.groupStoreFunc);
   router.get("/user-group-shipping_unit", userController.groupShippingUnitFunc);
+  router.put("/user/edit-profile", userController.editProfile);
 
   //role routes
   router.get("/role/read", roleController.readFunc);

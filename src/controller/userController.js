@@ -68,6 +68,24 @@ const updateFunc = async (req, res) => {
   }
 };
 
+const editProfile = async (req, res) => {
+  try {
+    let data = await userService.editProfile(req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
 const deleteFunc = async (req, res) => {
   try {
     let data = await userService.deleteUser(req.body.id);
@@ -170,4 +188,5 @@ module.exports = {
   getUserAccount,
   groupStoreFunc,
   groupShippingUnitFunc,
+  editProfile,
 };

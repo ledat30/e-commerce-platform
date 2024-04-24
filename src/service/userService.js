@@ -152,6 +152,39 @@ const updateUser = async (data) => {
   }
 };
 
+const editProfile = async (data) => {
+  try {
+    let user = await db.User.findOne({
+      where: { id: data.id },
+    });
+    if (user) {
+      await user.update({
+        username: data.username,
+        address: data.address,
+        email: data.email,
+      });
+      return {
+        EM: "Update user success",
+        EC: 0,
+        DT: "",
+      };
+    } else {
+      return {
+        EM: "User not found",
+        EC: -2,
+        DT: "",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
 const deleteUser = async (id) => {
   try {
     let user = await db.User.findOne({
@@ -301,4 +334,5 @@ module.exports = {
   searchUser,
   getGroupStore,
   groupShippingUnitFunc,
+  editProfile,
 };

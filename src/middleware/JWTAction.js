@@ -23,6 +23,7 @@ const nonSecurePaths = [
   "/color/readByStore",
   "/size/readByStore",
   "/shipping-unit/read",
+  "/user/edit-profile",
 ];
 
 const createJWT = (payload) => {
