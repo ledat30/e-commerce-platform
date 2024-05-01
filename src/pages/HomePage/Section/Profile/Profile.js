@@ -6,12 +6,15 @@ import { UserContext } from "../../../../context/userContext";
 import HeaderHome from "../../HeaderHome/HeaderHome";
 import Footer from "../../Footer/Footer";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import { editProfile } from '../../../../services/userService';
 import { getreadStatusOrderWithPagination } from '../../../../services/productService';
+import { deleteProductCart } from "../../../../services/productService";
 const { Buffer } = require("buffer");
 
 function Profile() {
     const { user, handleUpdateUserInfo } = useContext(UserContext);
+    let navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [editedUser, setEditedUser] = useState({ ...user });
     const [usernameInput, setUsernameInput] = useState('');
@@ -26,10 +29,10 @@ function Profile() {
     const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        fetchCategories();
+        fetchProducts();
     }, [currentPage]);
 
-    const fetchCategories = async () => {
+    const fetchProducts = async () => {
         let response = await getreadStatusOrderWithPagination(currentPage, currentLimit, user.account.id);
 
         if (response && response.EC === 0) {
@@ -101,6 +104,21 @@ function Profile() {
         }
     };
 
+    const handleDeleteProduct = async (productId) => {
+        try {
+            await deleteProductCart(productId);
+            toast.success("Product removed successfully");
+            fetchProducts();
+
+        } catch (error) {
+            console.error("Error deleting product from cart:", error);
+            toast.error("Failed to remove product from cart");
+        }
+    }
+
+    const handleHome = () => {
+        navigate("/home");
+    };
 
     return (
         <div className="container_profile">
@@ -180,7 +198,7 @@ function Profile() {
                                                     <div className='cancel'>
                                                         {order.status === "Processing" ? (
                                                             <div>
-                                                                Bạn muốn huỷ đơn <button className="btn btn-success">
+                                                                Bạn muốn huỷ đơn <button className="btn btn-success" onClick={() => handleDeleteProduct(order.id)}>
                                                                     <i className="fa fa-trash-o" aria-hidden="true"></i> Huỷ đơn
                                                                 </button>
                                                             </div>
@@ -195,7 +213,17 @@ function Profile() {
                                     </div>
                                 )
                             })}
-                            {totalPages > 0 && (
+
+                            {listProducts.length === 0 && (
+                                <>
+                                    <div className="no_product">
+                                        <span className="title_no-product">Chưa có sản phẩm nào ?</span>
+                                        <p className="click_buy" onClick={handleHome}>Mua ngay</p>
+                                    </div>
+                                </>
+                            )}
+
+                            {totalPages > 0 && listProducts.length > 0 && (
                                 <div className="user-footer mt-3">
                                     <ReactPaginate
                                         nextLabel="sau >"
