@@ -89,6 +89,7 @@ const initApiRouter = (app) => {
   router.post("/product/buy", productController.createBuyProduct);
   router.get("/product/orderByUser", productController.orderByUser);
   router.post("/product/confirm-all-order", productController.ConfirmAllOrders);
+  router.get("/product/read_status-order", productController.readStatusOrderByUser);
 
   //comment product
   router.get("/comment/read", commentController.readFunc);

@@ -952,6 +952,80 @@ const ConfirmAllOrders = async (storeId, body) => {
   }
 };
 
+const getreadStatusOrderWithPagination = async (page, limit, userId) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Order.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      where: {
+        userId: userId,
+        status: {
+          [db.Sequelize.Op.ne]: 'pending',
+        }
+      },
+      attributes: ["id", "total_amount", 'status'],
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: db.OrderItem,
+          attributes: ['id', 'quantily'],
+          include: [
+            {
+              model: db.Product_size_color,
+              attributes: ['id'],
+              include: [
+                {
+                  model: db.Product,
+                  attributes: ["product_name", 'image'],
+                  include: [
+                    { model: db.Store, attributes: ['name', 'id'] },
+                  ]
+                },
+                {
+                  model: db.Size,
+                  attributes: ["size_value"],
+                },
+                {
+                  model: db.Color,
+                  attributes: ["name"],
+                },
+              ],
+              where: {
+                [Op.and]: [
+                  { sizeId: { [Op.not]: null } },
+                  { colorId: { [Op.not]: null } },
+                ],
+              },
+            }
+          ]
+        },
+        {
+          model: db.Shipping_Unit_Order,
+          attributes: ['status'],
+        }
+      ]
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      products: rows,
+    };
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
 
 module.exports = {
   getAllProductForStoreOwner,
@@ -976,4 +1050,5 @@ module.exports = {
   createBuyProduct,
   orderByUser,
   ConfirmAllOrders,
+  getreadStatusOrderWithPagination,
 };

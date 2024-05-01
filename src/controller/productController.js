@@ -378,6 +378,35 @@ const ConfirmAllOrders = async (req, res) => {
   }
 }
 
+const readStatusOrderByUser = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await productService.getreadStatusOrderWithPagination(
+        +page,
+        +limit,
+        userId
+      );
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
   readFunc,
   createFunc,
@@ -396,4 +425,5 @@ module.exports = {
   createBuyProduct,
   orderByUser,
   ConfirmAllOrders,
+  readStatusOrderByUser,
 };
