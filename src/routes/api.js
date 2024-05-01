@@ -90,6 +90,7 @@ const initApiRouter = (app) => {
   router.get("/product/orderByUser", productController.orderByUser);
   router.post("/product/confirm-all-order", productController.ConfirmAllOrders);
   router.get("/product/read_status-order", productController.readStatusOrderByUser);
+  router.delete("/product/cancel-order", productController.cancelOrder);
 
   //comment product
   router.get("/comment/read", commentController.readFunc);

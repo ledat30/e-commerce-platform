@@ -637,7 +637,7 @@ const getRandomItemsFromArray = (array, numberOfItems) => {
 
 const postAddToCart = async (productColorSizeId, userId, storeId, body) => {
   try {
-    let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId } });
+    let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId, createdAt: new Date() } });
     if (!order) {
       order = await db.Order.create({
         total_amount: 0,
@@ -735,11 +735,12 @@ const getAllProductAddToCart = async (userId) => {
         ],
       }],
     });
-    if (product && product.length > 0) {
+    const products = product.filter(order => order.OrderItems.length > 0);
+    if (products && products.length > 0) {
       return {
         EM: "Get all product add to cart success!",
         EC: 0,
-        DT: product,
+        DT: products,
       };
     } else {
       return {
@@ -1027,6 +1028,43 @@ const getreadStatusOrderWithPagination = async (page, limit, userId) => {
   }
 }
 
+const cancelOrder = async (id) => {
+  try {
+    await db.OrderItem.destroy({
+      where: { orderId: id }
+    });
+
+    await db.Invoice.destroy({
+      where: { orderId: id }
+    });
+
+    const deletedOrderCount = await db.Order.destroy({
+      where: { id: id }
+    });
+
+    if (deletedOrderCount > 0) {
+      return {
+        EM: "Order and related records deleted successfully!",
+        EC: 0,
+        DT: null,
+      };
+    } else {
+      return {
+        EM: "No order found with the provided ID!",
+        EC: -1,
+        DT: null,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Error occurred while canceling the order",
+      EC: -1,
+      DT: null,
+    };
+  }
+}
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -1051,4 +1089,5 @@ module.exports = {
   orderByUser,
   ConfirmAllOrders,
   getreadStatusOrderWithPagination,
+  cancelOrder,
 };
