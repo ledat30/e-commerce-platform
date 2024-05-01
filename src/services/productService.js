@@ -164,6 +164,12 @@ const deleteProductCart = (productId) => {
   });
 }
 
+const cancelOrder = (orderId) => {
+  return axios.delete(`/api/product/cancel-order`, {
+    data: { id: orderId },
+  });
+}
+
 const buyProduct = (productColorSizeId, orderId, storeId, data) => {
   return axios.post(`/api/product/buy?productColorSizeId=${productColorSizeId}&orderId=${orderId}&storeId=${storeId}`, { ...data });
 }
@@ -221,4 +227,5 @@ export {
   getAllOrderByStore,
   ConfirmAllOrders,
   getreadStatusOrderWithPagination,
+  cancelOrder,
 };

@@ -8,8 +8,7 @@ import Footer from "../../Footer/Footer";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { editProfile } from '../../../../services/userService';
-import { getreadStatusOrderWithPagination } from '../../../../services/productService';
-import { deleteProductCart } from "../../../../services/productService";
+import { getreadStatusOrderWithPagination, cancelOrder } from '../../../../services/productService';
 const { Buffer } = require("buffer");
 
 function Profile() {
@@ -104,9 +103,10 @@ function Profile() {
         }
     };
 
-    const handleDeleteProduct = async (productId) => {
+    const handleDeleteProduct = async (orderId) => {
+        console.log(orderId);
         try {
-            await deleteProductCart(productId);
+            await cancelOrder(orderId);
             toast.success("Product removed successfully");
             fetchProducts();
 

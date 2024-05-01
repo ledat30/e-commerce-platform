@@ -216,6 +216,9 @@ function DetailCart() {
             ...prevState,
             [itemId]: !prevState[itemId]
         }));
+        if (selectAll) {
+            setSelectAll(false);
+        }
     };
 
     const renderCheckbox = (itemId) => (
