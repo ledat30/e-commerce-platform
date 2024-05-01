@@ -1,11 +1,14 @@
 import './Profile.scss';
 import React, { useState, useRef, useEffect } from 'react';
+import ReactPaginate from "react-paginate";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
 import HeaderHome from "../../HeaderHome/HeaderHome";
 import Footer from "../../Footer/Footer";
 import { toast } from "react-toastify";
 import { editProfile } from '../../../../services/userService';
+import { getreadStatusOrderWithPagination } from '../../../../services/productService';
+const { Buffer } = require("buffer");
 
 function Profile() {
     const { user, handleUpdateUserInfo } = useContext(UserContext);
@@ -16,6 +19,28 @@ function Profile() {
     const [addressInput, setAddressInput] = useState('');
     const [activeTab, setActiveTab] = useState('orders');
     const contentRef = useRef(null);
+    const [listProducts, setListProducts] = useState([]);
+    console.log(listProducts);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [currentLimit] = useState(5);
+    const [totalPages, setTotalPages] = useState(0);
+
+    useEffect(() => {
+        fetchCategories();
+    }, [currentPage]);
+
+    const fetchCategories = async () => {
+        let response = await getreadStatusOrderWithPagination(currentPage, currentLimit, user.account.id);
+
+        if (response && response.EC === 0) {
+            setListProducts(response.DT.products);
+            setTotalPages(response.DT.totalPages);
+        }
+    };
+
+    const handlePageClick = async (event) => {
+        setCurrentPage(+event.selected + 1);
+    };
 
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
@@ -95,24 +120,105 @@ function Profile() {
                 <div className='content'>
                     {activeTab === 'orders' && (
                         <div className='content_left'>
-                            <div className='product'>
-                                <div className='name-order'>
-                                    Tên đơn hàng
-                                    <div className='name-product'>
-                                        Sữa rửa mặt carave dịu nhẹ với mọi loại da
+                            {listProducts.map((order, index) => {
+                                return (
+                                    <div className='product' key={index}>
+                                        {order.OrderItems.map((item, itemIndex) => {
+                                            const formattedTotalAmount = (order.total_amount * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                                            let imageBase64 = '';
+                                            if (item.Product_size_color.Product.image) {
+                                                imageBase64 = new Buffer.from(item.Product_size_color.Product.image, 'base64').toString('binary');
+                                            }
+                                            return (
+                                                <div key={itemIndex} className='product_item'>
+                                                    <div className='name-order'>
+                                                        Tên đơn hàng
+                                                        <div className='name-product'>
+                                                            {item.Product_size_color.Product.product_name}
+                                                        </div>
+                                                        <span className='quantity'>Số lượng : x{item.quantily}</span> , <span className='total_price'>Tổng tiền : <span className='price'>{formattedTotalAmount}</span></span>
+                                                        <div style={{ backgroundImage: `url(${imageBase64})` }} className='img_product'>
+                                                        </div>
+                                                    </div>
+                                                    <div className='status-order'>
+                                                        Trạng thái đơn hàng
+                                                        <div className='status'>
+                                                            {order.status === "Processing" && (
+                                                                <>
+                                                                    <div className='order_status'>Đơn hàng đã được đặt thành công</div>
+                                                                    <span className='icon_status'>
+                                                                        <i className="fa fa-long-arrow-down" aria-hidden="true"></i>
+                                                                    </span>
+                                                                </>
+                                                            )}
+                                                            {order.status === "confirmed" && (
+                                                                <>
+                                                                    <div className='order_status'>Đã xác nhận từ cửa hàng</div>
+                                                                    <span className='icon_status'>
+                                                                        <i className="fa fa-long-arrow-down" aria-hidden="true"></i>
+                                                                    </span>
+                                                                </>
+                                                            )}
+
+                                                            {order.Shipping_Unit_Orders.map((item, index) => {
+                                                                return (
+                                                                    <>
+                                                                        <div className='order_status' key={index}>
+                                                                            {item.status === 'Received from store' && (
+                                                                                <>Đơn vị vận chuyển đã nhận đơn hàng</>
+                                                                            )}
+                                                                        </div>
+                                                                        <span className='icon_status'>
+                                                                            <i className="fa fa-long-arrow-down" aria-hidden="true"></i>
+                                                                        </span>
+                                                                    </>
+                                                                )
+                                                            })}
+                                                            {/* <div className='order_status'>Đã giao hàng</div> */}
+                                                        </div>
+                                                    </div>
+                                                    <div className='cancel'>
+                                                        {order.status === "Processing" ? (
+                                                            <div>
+                                                                Bạn muốn huỷ đơn <button className="btn btn-success">
+                                                                    <i className="fa fa-trash-o" aria-hidden="true"></i> Huỷ đơn
+                                                                </button>
+                                                            </div>
+
+                                                        ) : (
+                                                            <p>Đơn hàng đã xác nhận không thể huỷ</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
                                     </div>
-                                    <span className='quantity'>Số lượng : x3</span> , <span className='total_price'>Tổng tiền : <span className='price'>120.000.000đ</span></span>
-                                    <div className='img_product'>
-                                        <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTggfOap8_Hn9mHErpcIh6h0nmlr1XLMtf7fQ&s' className='img'></img>
-                                    </div>
+                                )
+                            })}
+                            {totalPages > 0 && (
+                                <div className="user-footer mt-3">
+                                    <ReactPaginate
+                                        nextLabel="sau >"
+                                        onPageChange={handlePageClick}
+                                        pageRangeDisplayed={3}
+                                        marginPagesDisplayed={2}
+                                        pageCount={totalPages}
+                                        previousLabel="< Trước"
+                                        pageClassName="page-item"
+                                        pageLinkClassName="page-link"
+                                        previousClassName="page-item"
+                                        previousLinkClassName="page-link"
+                                        nextClassName="page-item"
+                                        nextLinkClassName="page-link"
+                                        breakLabel="..."
+                                        breakClassName="page-item"
+                                        breakLinkClassName="page-link"
+                                        containerClassName="pagination justify-content-center"
+                                        activeclassname="active"
+                                        renderOnZeroPageCount={null}
+                                    />
                                 </div>
-                                <div className='status-order'>
-                                    Trạng thái đơn hàng
-                                    <div className='status'>
-                                        Đang được giao
-                                    </div>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     )}
                     {activeTab === 'profile' && (

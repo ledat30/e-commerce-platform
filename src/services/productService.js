@@ -180,6 +180,12 @@ const ConfirmAllOrders = (storeId, data) => {
   );
 };
 
+const getreadStatusOrderWithPagination = (page, limit, userId) => {
+  return axios.get(
+    `/api/product/read_status-order?page=${page}&limit=${limit}&userId=${userId}`
+  );
+};
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -214,4 +220,5 @@ export {
   buyProduct,
   getAllOrderByStore,
   ConfirmAllOrders,
+  getreadStatusOrderWithPagination,
 };
