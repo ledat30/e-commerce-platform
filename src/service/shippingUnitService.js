@@ -283,6 +283,49 @@ const readAllOrderByShippingUnit = async (page, limit, shipingUnitId) => {
   }
 }
 
+const confirmOrder = async (body) => {
+  try {
+    for (const citySuffix in body) {
+      const { shipperId, orders } = body[citySuffix];
+      for (const order of orders) {
+        await createShippingUnitUser(shipperId, order.shipping_unit_orderId, order.orderId);
+      }
+    }
+    return { EC: 0, EM: "Successfully confirmed orders", DT: {} };
+  } catch (error) {
+    console.error("Error processing confirmation:", error);
+    return { EC: -1, EM: "Failed to confirm orders", DT: {} };
+  }
+}
+
+const createShippingUnitUser = async (shipperId, shipping_unit_orderId, orderId) => {
+  const t = await db.sequelize.transaction();
+
+  try {
+    await db.Shipping_Unit_Order_user.create({
+      shipping_unit_orderId: shipping_unit_orderId,
+      userId: shipperId,
+      status: 'Shipper received',
+    }, { transaction: t });
+
+    await db.Shipping_Unit_Order.update({
+      status: 'Sent to shipper'
+    }, {
+      where: {
+        orderId: orderId
+      },
+      transaction: t
+    });
+
+    await t.commit();
+    return { EC: 0, EM: "Order updated and user added successfully", DT: {} };
+  } catch (error) {
+    await t.rollback();
+    console.error("Error updating order or adding user:", error);
+    return { EC: -1, EM: "Failed to update order or add user", DT: {} };
+  }
+};
+
 module.exports = {
   createShippingUnit,
   getAllShippingUnit,
@@ -291,4 +334,5 @@ module.exports = {
   searchShippingUnit,
   updateShippingUnit,
   readAllOrderByShippingUnit,
+  confirmOrder,
 };

@@ -35,6 +35,7 @@ const initApiRouter = (app) => {
   router.get("/user-group-store", userController.groupStoreFunc);
   router.get("/user-group-shipping_unit", userController.groupShippingUnitFunc);
   router.put("/user/edit-profile", userController.editProfile);
+  router.get("/user-group-shipper", userController.getGroupShipper);
 
   //role routes
   router.get("/role/read", roleController.readFunc);
@@ -73,6 +74,7 @@ const initApiRouter = (app) => {
   );
   router.put("/shipping-unit/update", shippingUnitController.updateFunc);
   router.get("/shipping-unit/read_all-orderBy_shippingUnit", shippingUnitController.readAllOrderByShippingUnit);
+  router.post("/shipping-unit/confirm", shippingUnitController.confirmOrder);
 
   //product
   router.get("/product/read", productController.readFunc);

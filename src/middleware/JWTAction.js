@@ -26,6 +26,8 @@ const nonSecurePaths = [
   "/user/edit-profile",
   "/product/read_status-order",
   "/product/cancel-order",
+  "/user-group-shipper",
+  "/shipping-unit/confirm",
 ];
 
 const createJWT = (payload) => {

@@ -325,6 +325,36 @@ const groupShippingUnitFunc = async () => {
   }
 }
 
+const getGroupShipper = async () => {
+  try {
+    let users = await db.User.findAll({
+      where: { groupId: 5 },
+      attributes: ["id", "username", 'address'],
+      order: [["id", "DESC"]],
+    });
+    if (users && users.length > 0) {
+      return {
+        EM: "Get group shipper success!",
+        EC: 0,
+        DT: users,
+      };
+    } else {
+      return {
+        EM: "Get group shipper error!",
+        EC: 0,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
   createNewUser,
   getAllUsers,
@@ -335,4 +365,5 @@ module.exports = {
   getGroupStore,
   groupShippingUnitFunc,
   editProfile,
+  getGroupShipper,
 };
