@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useContext } from "react";
+import { toast } from "react-toastify";
 import { UserContext } from "../../../../context/userContext";
 import {
-    readAllOrderByShippingUnit
+    readAllOrderByShippingUnit, confirmOrders
 } from "../../../../services/shippingUnitService";
+import { getGroupShipper } from '../../../../services/userService';
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
 
@@ -14,6 +16,19 @@ function ShippingUnitOrder() {
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
     const [searchInput, setSearchInput] = useState("");
+    const [listShippers, setListShippers] = useState([]);
+
+    useEffect(() => {
+        fetchAllShipper();
+    }, [])
+
+    const fetchAllShipper = async () => {
+        let response = await getGroupShipper();
+
+        if (response && response.EC === 0) {
+            setListShippers(response.DT)
+        }
+    }
 
     //search
     const filteredData = listOrders.filter((item) =>
@@ -42,6 +57,51 @@ function ShippingUnitOrder() {
         fetchAllOrders();
     }
 
+    const handleConfirmOrders = () => {
+        const groupedOrders = groupOrdersByCitySuffix(listOrders, listShippers);
+        sendGroupedOrdersToBackend(groupedOrders);
+    };
+
+    const groupOrdersByCitySuffix = (orders, shippers) => {
+        const groupedOrders = {};
+        orders.forEach(order => {
+            const orderCitySuffix = order.Order.User.address.split(', ').map(s => s.trim()).pop().toLowerCase();
+            shippers.forEach(shipper => {
+                const addressParts = shipper.address.split(', ');
+                const shipperCitySuffix = addressParts[addressParts.length - 1].trim().toLowerCase();
+                if (orderCitySuffix === shipperCitySuffix) {
+                    if (!groupedOrders[shipperCitySuffix]) {
+                        groupedOrders[shipperCitySuffix] = {
+                            shipperId: shipper.id,
+                            orders: []
+                        };
+                    }
+                    groupedOrders[shipperCitySuffix].orders.push({
+                        shipping_unit_orderId: order.id,
+                        orderId: order.orderId
+                    });
+                }
+            });
+        });
+        return groupedOrders;
+    };
+
+    const sendGroupedOrdersToBackend = async (groupedOrders) => {
+        await confirmOrders(groupedOrders)
+            .then(response => {
+                if (response.EC === 0) {
+                    toast.success('Orders confirmed successfully!');
+                    fetchAllOrders();
+                } else {
+                    toast.error('Failed to confirm orders!');
+                }
+            })
+            .catch(error => {
+                console.error('Error confirming orders:', error);
+                toast.error('Error while confirming orders.');
+            });
+    };
+
     return (
         <>
             <div className="category-container">
@@ -65,6 +125,7 @@ function ShippingUnitOrder() {
                                     <button
                                         title="Xác nhận"
                                         className="btn btn-success"
+                                        onClick={handleConfirmOrders}
                                     >
                                         Confirm all orders
                                     </button>
@@ -89,14 +150,14 @@ function ShippingUnitOrder() {
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Product name</th>
+                                    <th>Product</th>
                                     <th>Color</th>
                                     <th>Size</th>
                                     <th>User</th>
                                     <th>Address</th>
                                     <th>Quantity</th>
-                                    <th>Total amount</th>
-                                    <th>Order date</th>
+                                    <th>Total</th>
+                                    <th>Date</th>
                                 </tr>
                             </thead>
                             <tbody>

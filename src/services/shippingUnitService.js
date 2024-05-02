@@ -30,6 +30,10 @@ const updateShippingUnit = (data) => {
   return axios.put(`/api/shipping-unit/update`, data);
 };
 
+const confirmOrders = (groupedOrders) => {
+  return axios.post(`/api/shipping-unit/confirm`, groupedOrders);
+}
+
 export {
   createShippingUnit,
   getAllShippingUnit,
@@ -38,4 +42,5 @@ export {
   getAllShippingUnits,
   updateShippingUnit,
   readAllOrderByShippingUnit,
+  confirmOrders,
 };

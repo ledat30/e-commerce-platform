@@ -61,6 +61,10 @@ const groupShippingUnitFunc = () => {
   return axios.get(`/api/user-group-shipping_unit`);
 }
 
+const getGroupShipper = () => {
+  return axios.get(`/api/user-group-shipper`);
+};
+
 export {
   fetchRoles,
   fetchGroups,
@@ -75,4 +79,5 @@ export {
   getGroupStore,
   groupShippingUnitFunc,
   editProfile,
+  getGroupShipper,
 };
