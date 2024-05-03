@@ -812,7 +812,7 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
     let newOrder = null;
 
     if (purchaseQuantity === item.quantily) {
-      await order.update({ status: 'Processing', payment_methodID: payment_methodID }, { transaction });
+      await order.update({ status: 'Processing', payment_methodID: payment_methodID, total_amount: pricePerItem * purchaseQuantity + shippingFee, }, { transaction });
       await db.Invoice.create({
         orderId: order.id,
         invoice_date: new Date(),
@@ -1065,6 +1065,74 @@ const cancelOrder = async (id) => {
   }
 }
 
+const readAllOrderByShipper = async (page, limit, userId) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Shipping_Unit_Order_user.findAndCountAll({
+      where: { status: 'Shipper received', userId: userId },
+      attributes: ['status', 'id', 'userId', 'shipping_unit_orderId'],
+      offset: offset,
+      limit: limit,
+      include: [
+        {
+          model: db.Shipping_Unit_Order,
+          attributes: ['id', 'orderId', 'shippingUnitId'],
+          include: [
+            {
+              model: db.Order,
+              attributes: ['id', 'total_amount', 'order_date', 'payment_methodID', 'userId', 'storeId'],
+              include: [
+                {
+                  model: db.OrderItem,
+                  attributes: [`quantily`],
+                  include: [
+                    {
+                      model: db.Product_size_color,
+                      attributes: ['id'],
+                      include: [
+                        { model: db.Product, attributes: [`product_name`] },
+                        { model: db.Color, attributes: [`name`] },
+                        { model: db.Size, attributes: [`size_value`] }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  model: db.User,
+                  attributes: ['username', 'address']
+                },
+                { model: db.PaymentMethod, attributes: [`method_name`] },
+              ]
+            },
+          ]
+        },
+        {
+          model: db.User,
+          attributes: ['username', 'id']
+        },
+      ]
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      orders: rows,
+    }
+    return {
+      EM: 'Ok',
+      EC: 0,
+      DT: data,
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: `Something wrongs with services`,
+      EC: -1,
+      DT: [],
+    }
+  }
+}
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
@@ -1090,4 +1158,5 @@ module.exports = {
   ConfirmAllOrders,
   getreadStatusOrderWithPagination,
   cancelOrder,
+  readAllOrderByShipper,
 };
