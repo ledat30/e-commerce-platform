@@ -192,6 +192,12 @@ const getreadStatusOrderWithPagination = (page, limit, userId) => {
   );
 };
 
+const readAllOrderByShipper = (page, limit, userId) => {
+  return axios.get(
+    `/api/shipper/read_all-orderBy_shipper?page=${page}&limit=${limit}&userId=${userId}`
+  );
+};
+
 export {
   getAllProductsByStore,
   createProduct,
@@ -228,4 +234,5 @@ export {
   ConfirmAllOrders,
   getreadStatusOrderWithPagination,
   cancelOrder,
+  readAllOrderByShipper,
 };

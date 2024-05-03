@@ -29,7 +29,7 @@ function App() {
     user.account &&
     user.account.groupWithRoles &&
     user.account.groupWithRoles.id &&
-    [1, 2, 3].includes(user.account.groupWithRoles.id)
+    [1, 2, 3, 5].includes(user.account.groupWithRoles.id)
   ) {
     appClass = "app";
   }
@@ -47,16 +47,16 @@ function App() {
               user.account &&
               user.account.groupWithRoles &&
               user.account.groupWithRoles.id &&
-              [1, 2, 3].includes(user.account.groupWithRoles.id) && (
+              [1, 2, 3, 5].includes(user.account.groupWithRoles.id) && (
                 <SlideBar />
               )}
           </div>
           <div className={contentClass}>
             {user &&
-            user.account &&
-            user.account.groupWithRoles &&
-            user.account.groupWithRoles.id &&
-            user.account.groupWithRoles.id === 4 ? (
+              user.account &&
+              user.account.groupWithRoles &&
+              user.account.groupWithRoles.id &&
+              user.account.groupWithRoles.id === 4 ? (
               <ClinetRoutes />
             ) : (
               <AppRoutes />

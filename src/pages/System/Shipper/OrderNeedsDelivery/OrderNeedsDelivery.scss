@@ -1,0 +1,44 @@
+.all-optin {
+    display       : flex;
+    flex-direction: column;
+
+    .icon {
+        cursor   : pointer;
+        font-size: 17px;
+    }
+
+    .option1 {
+        border                 : none;
+        width                  : 100px;
+        height                 : 30px;
+        background-color       : rgb(158, 218, 146);
+        border-top-right-radius: 3px;
+        border-top-left-radius : 3px;
+        padding-left           : 3px;
+        border-bottom          : 1px solid #9e9999;
+        cursor                 : pointer;
+    }
+
+    .option1:hover {
+        background-color: #7ac481;
+    }
+
+    .option2 {
+        border                    : none;
+        width                     : 100px;
+        cursor                    : pointer;
+        height                    : 50px;
+        background-color          : rgb(231, 140, 153);
+        border-bottom-left-radius : 3px;
+        border-bottom-right-radius: 3px;
+        padding-left              : 3px;
+    }
+
+    .option2:hover {
+        background-color: rgb(224, 160, 170);
+    }
+
+    .hand {
+        font-size: 13px;
+    }
+}

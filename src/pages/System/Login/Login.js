@@ -63,7 +63,8 @@ function Login(props) {
       if (
         groupWithRoles.id === 1 ||
         groupWithRoles.id === 2 ||
-        groupWithRoles.id === 3
+        groupWithRoles.id === 3 ||
+        groupWithRoles.id === 5
       ) {
         navigate("/");
       } else if (groupWithRoles.id === 4) {

@@ -74,6 +74,17 @@ function Sidebar(props) {
     );
   }
 
+  if (
+    user &&
+    user.isAuthenticated === true &&
+    user.account.groupWithRoles.id === 5
+  ) {
+    menuItems.push(
+      { to: "/", label: "Dashboard", icon: "fa-home" },
+      { to: '/shipper-order', label: "Order needs delivery", icon: "fa-truck" },
+    );
+  }
+
   const filteredItems = menuItems.filter((item) =>
     item.label.toLowerCase().includes(searchInput.toLowerCase())
   );

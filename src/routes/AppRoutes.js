@@ -21,6 +21,7 @@ import Size from "../pages/System/Store_Owner/Size/Size";
 import Comment from "../pages/System/Store_Owner/Comment/Comment";
 import Order from "../pages/System/Store_Owner/Order/Order";
 import ShippingUnit_Order from "../pages/System/ShippingUnit/ShippingUnit_Order/ShippingUnit_Order";
+import OrderNeedsDelivery from '../pages/System/Shipper/OrderNeedsDelivery/OrderNeedsDelivery';
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -121,8 +122,24 @@ function AppRoutes() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       );
-    }
-    else {
+    } else if (user.account.groupWithRoles.id === 5) {
+      return (
+        <Routes>
+          {/* shipper routes */}
+          <>
+            <Route
+              path="/"
+              element={<PrivateRoutes element={<Dashboard />} />}
+            />
+            <Route
+              path="/shipper-order"
+              element={<PrivateRoutes element={<OrderNeedsDelivery />} />}
+            />
+          </>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      );
+    } else {
       return <Navigate to="/login" />;
     }
   } else {
