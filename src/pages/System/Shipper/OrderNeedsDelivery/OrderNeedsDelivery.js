@@ -3,7 +3,7 @@ import './OrderNeedsDelivery.scss';
 import { useContext } from "react";
 import { toast } from "react-toastify";
 import { UserContext } from "../../../../context/userContext";
-import { readAllOrderByShipper } from '../../../../services/productService';
+import { readAllOrderByShipper, shipperConfirmOrder, orderConfirmationFailed } from '../../../../services/productService';
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
 
@@ -15,6 +15,36 @@ function OrderNeedsDelivery() {
     const [listOrders, setListOrders] = useState([]);
     const [searchInput, setSearchInput] = useState("");
     const [showOptions, setShowOptions] = useState({});
+
+    const shipperConfirmOrderFailed = async (shipping_unit_orderId) => {
+        try {
+            const response = await orderConfirmationFailed(user.account.id, { shipping_unit_orderId });
+            if (response && response.EC === 0) {
+                toast.success(response.EM);
+                await fetchListOrder();
+            }
+            else {
+                toast.error(response.EM)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const confirmOrder = async (shipping_unit_orderId) => {
+        try {
+            const response = await shipperConfirmOrder(user.account.id, { shipping_unit_orderId });
+            if (response && response.EC === 0) {
+                toast.success(response.EM);
+                await fetchListOrder();
+            }
+            else {
+                toast.error(response.EM)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const toggleOptions = (index) => {
         setShowOptions(prev => ({
@@ -133,8 +163,12 @@ function OrderNeedsDelivery() {
                                                             {showOptions[index] && (
                                                                 <>
                                                                     <span><i className="fa fa-hand-o-up hand" aria-hidden="true"></i></span>
-                                                                    <span className="option1">Đã giao</span>
-                                                                    <span className="option2">Giao không thành công</span>
+                                                                    <span className="option1" onClick={() => confirmOrder(item.Shipping_Unit_Order.id)}>
+                                                                        Đã giao
+                                                                    </span>
+                                                                    <span className="option2" onClick={() => shipperConfirmOrderFailed(item.Shipping_Unit_Order.id)}>
+                                                                        Giao không thành công
+                                                                    </span>
                                                                 </>
                                                             )}
                                                         </div>

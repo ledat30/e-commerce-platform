@@ -198,12 +198,24 @@ const readAllOrderByShipper = (page, limit, userId) => {
   );
 };
 
+const shipperConfirmOrder = (userId, data) => {
+  return axios.post(
+    `/api/shipper/confirm-order?userId=${userId}`, data);
+};
+
+const orderConfirmationFailed = (userId, data) => {
+  return axios.post(
+    `/api/shipper/order_confirmation-failed?userId=${userId}`, data);
+};
+
 export {
   getAllProductsByStore,
   createProduct,
+  orderConfirmationFailed,
   updateProduct,
   deleteProduct,
   searchProduct,
+  shipperConfirmOrder,
   getAllProducts,
   getAllProductsInStockByStore,
   deleteProductInStock,
