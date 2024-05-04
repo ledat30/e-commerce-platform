@@ -1004,6 +1004,12 @@ const getreadStatusOrderWithPagination = async (page, limit, userId) => {
         {
           model: db.Shipping_Unit_Order,
           attributes: ['status'],
+          include: [
+            {
+              model: db.Shipping_Unit_Order_user,
+              attributes: ['status']
+            }
+          ]
         }
       ]
     });
