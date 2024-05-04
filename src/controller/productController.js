@@ -449,6 +449,44 @@ const readAllOrderByShipper = async (req, res) => {
   }
 }
 
+const shipperConfirmOrder = async (req, res) => {
+  let userId = req.query.userId;
+  try {
+    let data = await productService.shipperConfirmOrder(userId, req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error service",
+      EC: -1,
+      DT: "",
+    })
+  }
+}
+
+const orderConfirmationFailed = async (req, res) => {
+  let userId = req.query.userId;
+  try {
+    let data = await productService.orderConfirmationFailed(userId, req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error service",
+      EC: -1,
+      DT: "",
+    })
+  }
+}
+
 module.exports = {
   readFunc,
   createFunc,
@@ -459,6 +497,7 @@ module.exports = {
   readInventory,
   deleteProductInStock,
   updateProductInStock,
+  orderConfirmationFailed,
   getDetailProductById,
   getRandomProducts,
   postAddToCart,
@@ -470,4 +509,5 @@ module.exports = {
   readStatusOrderByUser,
   cancelOrder,
   readAllOrderByShipper,
+  shipperConfirmOrder,
 };

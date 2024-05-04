@@ -1133,10 +1133,53 @@ const readAllOrderByShipper = async (page, limit, userId) => {
   }
 }
 
+const shipperConfirmOrder = async (userId, body) => {
+  try {
+    await db.Shipping_Unit_Order_user.update(
+      { status: 'Delivered' },
+      { where: { status: "Shipper received", userId: userId, shipping_unit_orderId: body.shipping_unit_orderId }, returning: true }
+    );
+    return {
+      EM: `The order has been delivered successfully!`,
+      EC: 0,
+      DT: '',
+    };
+  } catch (error) {
+    console.error('Error confirming orders:', error);
+    return {
+      EM: 'Failed to confirm orders',
+      EC: -1,
+      DT: '',
+    };
+  }
+}
+
+const orderConfirmationFailed = async (userId, body) => {
+  try {
+    await db.Shipping_Unit_Order_user.update(
+      { status: 'Order delivery failed' },
+      { where: { status: "Shipper received", userId: userId, shipping_unit_orderId: body.shipping_unit_orderId }, returning: true }
+    );
+    return {
+      EM: `Order delivery failed`,
+      EC: 0,
+      DT: '',
+    };
+  } catch (error) {
+    console.error('Error confirming orders:', error);
+    return {
+      EM: 'Order delivery failed',
+      EC: -1,
+      DT: '',
+    };
+  }
+}
+
 module.exports = {
   getAllProductForStoreOwner,
   getProductWithPagination,
   createProduct,
+  orderConfirmationFailed,
   updateInventory,
   saveProductColorAndSize,
   updateProduct,
@@ -1159,4 +1202,5 @@ module.exports = {
   getreadStatusOrderWithPagination,
   cancelOrder,
   readAllOrderByShipper,
+  shipperConfirmOrder,
 };
