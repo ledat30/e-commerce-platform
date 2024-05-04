@@ -185,14 +185,31 @@ function Profile() {
                                                                             {item.status === 'Received from store' && (
                                                                                 <>Đơn vị vận chuyển đã nhận đơn hàng</>
                                                                             )}
+                                                                            {item.status === 'Sent to shipper' && (
+                                                                                <>Đã chuyển đến nhân viên vận chuyển</>
+                                                                            )}
                                                                         </div>
                                                                         <span className='icon_status'>
                                                                             <i className="fa fa-long-arrow-down" aria-hidden="true"></i>
                                                                         </span>
+
+                                                                        {item.Shipping_Unit_Order_users.map((item1, index1) => {
+                                                                            return (
+                                                                                <>
+                                                                                    <div className='order_status' key={index1}>
+                                                                                        {item1.status === 'Delivered' && (
+                                                                                            <>Đã giao hàng thành công <i className="fa fa-check success" aria-hidden="true"></i></>
+                                                                                        )}
+                                                                                        {item1.status === 'Order delivery failed' && (
+                                                                                            <>Giao hàng không thành công <i class="fa fa-times fail" aria-hidden="true"></i></>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </>
+                                                                            )
+                                                                        })}
                                                                     </>
                                                                 )
                                                             })}
-                                                            {/* <div className='order_status'>Đã giao hàng</div> */}
                                                         </div>
                                                     </div>
                                                     <div className='cancel'>

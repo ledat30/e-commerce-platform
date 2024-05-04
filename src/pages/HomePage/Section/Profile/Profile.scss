@@ -101,6 +101,14 @@
 
                                 .order_status {
                                     color: #9e9b9b;
+
+                                    .success {
+                                        color: green;
+                                    }
+
+                                    .fail {
+                                        color: red;
+                                    }
                                 }
 
                                 .icon_status {
