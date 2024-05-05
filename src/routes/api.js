@@ -96,6 +96,7 @@ const initApiRouter = (app) => {
   router.get("/shipper/read_all-orderBy_shipper", productController.readAllOrderByShipper);
   router.post("/shipper/confirm-order", productController.shipperConfirmOrder);
   router.post("/shipper/order_confirmation-failed", productController.orderConfirmationFailed);
+  router.get("/product/order_success_byShipper", productController.orderSuccessByShipper);
 
   //comment product
   router.get("/comment/read", commentController.readFunc);
