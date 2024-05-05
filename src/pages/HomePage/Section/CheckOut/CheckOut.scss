@@ -1,0 +1,211 @@
+.container-checkout {
+    background-color: #f5f5f5;
+
+    .containe {
+        margin       : 25px 0 15px 0;
+        background   : #fff;
+        border-radius: 3px;
+        padding      : 0 0 0 20px;
+        box-shadow   : 0 1px 1px 0 rgba(0, 0, 0, .05);
+        display      : flex;
+
+        .left {
+            width       : 70%;
+            border-right: 10px solid #f5f5f5;
+
+            .title-left {
+                background-color      : rgb(235, 235, 235);
+                margin-left           : -20px;
+                border-top-left-radius: 3px;
+                padding               : 5px 0 5px 20px;
+            }
+
+            .info {
+                display    : flex;
+                padding-top: 10px;
+
+                .name-user {
+                    padding-right: 30px;
+                }
+
+                .sđt {
+                    color: #6d6a6a;
+                }
+            }
+
+            .address {
+                padding-top   : 3px;
+                padding-bottom: 10px;
+
+                .home {
+                    background-color: #fb5631;
+                    border-radius   : 5px;
+                    color           : white;
+                    padding         : 1px 3px;
+                    font-size       : 14px;
+                }
+            }
+
+            .title-product {
+                background-color      : rgb(235, 235, 235);
+                margin-left           : -20px;
+                border-top-left-radius: 3px;
+                padding               : 5px 0 5px 20px;
+            }
+
+            .product {
+                padding-top   : 20px;
+                padding-bottom: 20px;
+
+                .info_product {
+                    display: flex;
+
+                    .img_prod {
+                        .img {
+                            width              : 120px;
+                            height             : 100px;
+                            background-repeat  : no-repeat;
+                            background-size    : contain;
+                            background-position: center center;
+                            object-fit         : cover;
+                            border-radius      : 3px;
+                        }
+                    }
+
+                    .detail-product {
+                        padding: 0 10px 0 5px;
+
+                        .name-prod {
+                            font-size: 15px;
+                            color    : #424141;
+                        }
+
+                        .size_color {
+                            font-size: 14px;
+                            color    : #949292;
+                        }
+                    }
+
+                    .price {
+                        padding-right: 22px;
+                        padding-left : 23px;
+
+                        .price_new {
+                            color: #fb5631;
+                        }
+
+                        .price_old {
+                            color          : #999595;
+                            text-decoration: line-through;
+                            font-size      : 15px;
+                        }
+
+                        .sale {
+                            font-size: 14px;
+                            color    : #666363;
+                        }
+                    }
+
+                    .quantity {
+                        color    : #6d6a6a;
+                        font-size: 15px;
+                    }
+                }
+            }
+        }
+
+        .right {
+            padding-left: 20px;
+            width       : 30%;
+
+            .order {
+                margin-right: 20px;
+
+                .title-order {
+                    font-size  : 20px;
+                    font-weight: 500;
+                    padding    : 10px 0 15px 0;
+                }
+
+                .items {
+                    display        : flex;
+                    justify-content: space-between;
+
+                    .total {
+                        color: rgb(122, 120, 120);
+                    }
+
+                    .so_luong {
+                        font-size: 12px;
+                    }
+                }
+
+                .ship {
+                    display        : flex;
+                    justify-content: space-between;
+
+                    .ship-unit {
+                        color: rgb(122, 120, 120);
+                    }
+
+                }
+
+                .total_payment {
+                    display        : flex;
+                    justify-content: space-between;
+                    padding-top    : 10px;
+
+                    .tien {
+                        color: #fe6433;
+                    }
+                }
+
+                .payment_method {
+                    padding-top: 10px;
+                    margin-top : 10px;
+                    border-top : 1px solid rgb(231, 227, 227);
+
+                    .option {
+                        display        : flex;
+                        justify-content: space-between;
+                        padding-bottom : 10px;
+
+                        .method {
+                            font-size: 15px;
+                            cursor   : pointer;
+                        }
+
+                        .choose_method {
+                            color : rgb(206, 201, 201);
+                            cursor: pointer;
+
+                            .on {
+                                color: black;
+                            }
+                        }
+                    }
+                }
+
+                .button-buy {
+                    padding-bottom: 30px;
+                    padding-top   : 20px;
+
+                    .buy {
+                        width           : 100%;
+                        margin-right    : 15px;
+                        color           : white;
+                        padding         : 10px;
+                        cursor          : pointer;
+                        text-align      : center;
+                        border-radius   : 3px;
+                        background-color: #ffb916;
+                    }
+
+                    .buy:hover {
+                        background-color: #e59b11;
+                    }
+                }
+            }
+        }
+    }
+}

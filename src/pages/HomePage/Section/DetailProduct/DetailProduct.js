@@ -1,5 +1,6 @@
 import "./DetailProduct.scss";
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../../context/userContext";
 import { useCart } from '../../../../context/cartContext';
 import React, { useState, useEffect } from "react";
@@ -35,6 +36,11 @@ function DetailProduct() {
   const [content, setContent] = useState("");
   const [validInputComment, setValidInputComment] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  let navigate = useNavigate();
+
+  const handleBuyNow = () => {
+    navigate(`/checkout/${productId}`);
+  }
 
   const toggleContent = () => {
     setIsExpanded(!isExpanded);
@@ -325,7 +331,7 @@ function DetailProduct() {
                       {
                         dataDetailProduct.Inventories[0].currentNumber > 0 ? (
                           <>
-                            <div className="buy">Buy now</div>
+                            <div className="buy" onClick={handleBuyNow}>Buy now</div>
                             <div className="add_cart" onClick={handleAddToCart}>Add to cart</div>
                           </>
                         ) : (

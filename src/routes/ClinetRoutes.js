@@ -10,6 +10,7 @@ import HomePage from "../pages/HomePage/HomePage";
 import DetailProduct from "../pages/HomePage/Section/DetailProduct/DetailProduct";
 import DetailCart from "../pages/HomePage/Section/DetailCart/DetailCart";
 import Profile from "../pages/HomePage/Section/Profile/Profile";
+import CheckOut from "../pages/HomePage/Section/CheckOut/CheckOut";
 
 function ClinetRoutes() {
   const { user } = useContext(UserContext);
@@ -35,6 +36,10 @@ function ClinetRoutes() {
             <Route
               path="/profile-user"
               element={<PrivateRoutes element={<Profile />} />}
+            />
+            <Route
+              path="/checkout/:productId"
+              element={<PrivateRoutes element={<CheckOut />} />}
             />
           </>
           <Route path="*" element={<NotFound />} />
