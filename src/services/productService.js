@@ -208,8 +208,15 @@ const orderConfirmationFailed = (userId, data) => {
     `/api/shipper/order_confirmation-failed?userId=${userId}`, data);
 };
 
+const orderSuccessByShipper = (page, limit, userId) => {
+  return axios.get(
+    `/api/product/order_success_byShipper?page=${page}&limit=${limit}&userId=${userId}`
+  );
+};
+
 export {
   getAllProductsByStore,
+  orderSuccessByShipper,
   createProduct,
   orderConfirmationFailed,
   updateProduct,

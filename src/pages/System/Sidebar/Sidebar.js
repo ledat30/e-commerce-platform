@@ -82,6 +82,7 @@ function Sidebar(props) {
     menuItems.push(
       { to: "/", label: "Dashboard", icon: "fa-home" },
       { to: '/shipper-order', label: "Order needs delivery", icon: "fa-truck" },
+      { to: '/application-has-been-shipped', label: "Shipping order", icon: "fa-ambulance" },
     );
   }
 
