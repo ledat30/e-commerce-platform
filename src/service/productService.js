@@ -635,6 +635,71 @@ const getRandomItemsFromArray = (array, numberOfItems) => {
   return shuffledArray.slice(0, numberOfItems);
 };
 
+const buyNowProduct = async (productColorSizeId, userId, storeId, body) => {
+  try {
+    let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId, createdAt: new Date() } });
+    let newOrder;
+    if (!order) {
+      newOrder = await db.Order.create({
+        total_amount: body.total,
+        order_date: new Date(),
+        status: 'Processing',
+        payment_methodID: body.payment_methodID,
+        userId: userId,
+        storeId: storeId,
+      });
+    } else {
+      newOrder = order;
+    }
+    let orderItem = await db.OrderItem.findOne({
+      where: { orderId: newOrder.id, productColorSizeId: productColorSizeId }
+    })
+    if (!orderItem) {
+      orderItem = await db.OrderItem.create({
+        orderId: newOrder.id,
+        productColorSizeId: productColorSizeId,
+        quantily: body.quantily,
+        price_per_item: body.price_item,
+      })
+    }
+
+    await db.Invoice.create({
+      orderId: newOrder.id,
+      invoice_date: new Date(),
+      total_amount: body.total,
+      payment_methodID: newOrder.payment_methodID,
+    })
+
+    const productColorSize = await db.Product_size_color.findByPk(orderItem.productColorSizeId);
+    if (!productColorSize) {
+      throw new Error('Product color size not found.');
+    }
+    const product = await productColorSize.getProduct();
+    if (!product) {
+      throw new Error('Product not found.');
+    }
+    const inventory = await db.Inventory.findOne({ where: { productId: product.id } });
+    if (!inventory) {
+      throw new Error('Inventory not found.');
+    }
+    const updatedCurrentNumber = inventory.currentNumber - body.quantily;
+    const updateQuantylyOrdered = inventory.quantyly - updatedCurrentNumber;
+    await inventory.update({ currentNumber: updatedCurrentNumber, quantyly_ordered: updateQuantylyOrdered });
+    return {
+      EM: "Buy now success!",
+      EC: 0,
+      DT: ''
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      EM: "Create error",
+      EC: -1,
+      DT: ""
+    };
+  }
+}
+
 const postAddToCart = async (productColorSizeId, userId, storeId, body) => {
   try {
     let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId, createdAt: new Date() } });
@@ -1283,4 +1348,5 @@ module.exports = {
   cancelOrder,
   readAllOrderByShipper,
   shipperConfirmOrder,
+  buyNowProduct,
 };

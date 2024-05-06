@@ -58,6 +58,7 @@ const handleUserLogin = async (rawData) => {
         let shipingUnitName = shippingUnit ? shippingUnit.shipping_unit_name : null;
         let payload = {
           email: user.email,
+          phonenumber: user.phonenumber,
           address: user.address,
           groupWithRoles,
           id: user.id,
@@ -75,6 +76,7 @@ const handleUserLogin = async (rawData) => {
             access_token: token,
             groupWithRoles,
             email: user.email,
+            phonenumber: user.phonenumber,
             address: user.address,
             id: user.id,
             username: user.username,

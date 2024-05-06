@@ -511,8 +511,27 @@ const orderSuccessByShipper = async (req, res) => {
   }
 }
 
+const buyNowProduct = async (req, res) => {
+  try {
+    let data = await productService.buyNowProduct(req.query.productColorSizeId, req.query.userId, req.query.storeId, req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Create error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
   readFunc,
+  buyNowProduct,
   createFunc,
   updateFunc,
   deleteFunc,
