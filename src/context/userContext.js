@@ -36,6 +36,7 @@ function UserProvider({ children }) {
     if (response && response.EC === 0) {
       let groupWithRoles = response.DT.groupWithRoles;
       let email = response.DT.email;
+      let phonenumber = response.DT.phonenumber;
       let username = response.DT.username;
       let address = response.DT.address;
       let id = response.DT.id;
@@ -47,7 +48,7 @@ function UserProvider({ children }) {
       let data = {
         isAuthenticated: true,
         token: token,
-        account: { groupWithRoles, email, username, address, id, storeId, nameStore, shipingUnitId, shipingUnitName },
+        account: { groupWithRoles, email, phonenumber, username, address, id, storeId, nameStore, shipingUnitId, shipingUnitName },
         isLoading: false,
       };
       setTimeout(() => {

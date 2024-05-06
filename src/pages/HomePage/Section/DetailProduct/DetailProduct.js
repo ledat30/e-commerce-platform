@@ -39,7 +39,19 @@ function DetailProduct() {
   let navigate = useNavigate();
 
   const handleBuyNow = () => {
-    navigate(`/checkout/${productId}`);
+    if (!selectedSize || !selectedColor) {
+      toast.error("Please select size and color");
+      return;
+    }
+
+    navigate(`/checkout/${productId}`, {
+      state: {
+        quantily: quantily,
+        size: selectedSize,
+        color: selectedColor,
+        product: dataDetailProduct,
+      }
+    });
   }
 
   const toggleContent = () => {

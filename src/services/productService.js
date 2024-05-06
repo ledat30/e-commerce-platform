@@ -154,6 +154,10 @@ const addToCart = (productColorSizeId, userId, storeId, data) => {
   return axios.post(`/api/product/add-to-cart?productColorSizeId=${productColorSizeId}&userId=${userId}&storeId=${storeId}`, { ...data });
 }
 
+const buyNowProduct = (productColorSizeId, userId, storeId, data) => {
+  return axios.post(`/api/product/buy-now?productColorSizeId=${productColorSizeId}&userId=${userId}&storeId=${storeId}`, { ...data });
+}
+
 const readProductCart = (userId) => {
   return axios.get(`/api/product/read-product-cart?userId=${userId}`);
 }
@@ -216,6 +220,7 @@ const orderSuccessByShipper = (page, limit, userId) => {
 
 export {
   getAllProductsByStore,
+  buyNowProduct,
   orderSuccessByShipper,
   createProduct,
   orderConfirmationFailed,

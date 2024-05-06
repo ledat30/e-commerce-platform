@@ -1,8 +1,142 @@
 import './CheckOut.scss';
+import { useLocation } from 'react-router-dom';
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../../../context/userContext";
+import React, { useState, useEffect } from "react";
 import HeaderHome from "../../HeaderHome/HeaderHome";
 import Footer from "../../Footer/Footer";
+import { getAllPaymentClient } from "../../../../services/paymentMethodService";
+import { buyNowProduct } from '../../../../services/productService';
+import { point, distance } from '@turf/turf';
+import axios from 'axios';
+import { toast } from "react-toastify";
+const { Buffer } = require("buffer");
 
 function CheckOut() {
+    const { user } = useContext(UserContext);
+    const location = useLocation();
+    const { quantily, size, color, product } = location.state || {};
+    const [previewImgURL, setPreviewImgURL] = useState("");
+    const [totalPriceProduct, setTotalPriceProduct] = useState(0);
+    const [shippingFee, setShippingFee] = useState(0);
+    const [totalPayment, setTotalPayment] = useState(0);
+    const [listPayMents, setListPayMents] = useState([]);
+    const [activeIndex, setActiveIndex] = useState(null);
+    const [total, setTotal] = useState(0);
+    let navigate = useNavigate();
+
+    useEffect(() => {
+        fetchAllPayMent();
+    }, []);
+
+    const fetchAllPayMent = async () => {
+        let response = await getAllPaymentClient();
+        if (response && response.EC === 0) {
+            setListPayMents(response.DT)
+        }
+    }
+
+    useEffect(() => {
+        if (shippingFee !== undefined) {
+            const total = product.price * quantily;
+            const formattedTotalAmount = (total * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+            const payment = total + parseFloat(shippingFee);
+            const formattedTotalPayment = (payment * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+            setTotal(payment);
+            setTotalPriceProduct(formattedTotalAmount);
+            setTotalPayment(formattedTotalPayment);
+        }
+    }, [product.price, quantily, shippingFee]);
+
+    useEffect(() => {
+        const calculateShippingFee = async () => {
+            try {
+                const address = user.account.address;
+                if (!address) {
+                    throw new Error('Địa chỉ người dùng không tồn tại.');
+                }
+                const destinationCoordinates = await geocodeAddress(address);
+
+                const storeCoordinates = { lat: 21.024813, lng: 105.988944 };
+
+                const distanceInKm = calculateDistance(destinationCoordinates, storeCoordinates);
+                const roundedDistance = distanceInKm.toFixed(1);
+
+                const shippingRatePerKm = 2000;
+
+                const shippingTotal = (roundedDistance / 1000) * shippingRatePerKm;
+                const ship = shippingTotal;
+                const formattedShip = (ship * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+                setShippingFee(formattedShip);
+
+            } catch (error) {
+                console.error('Lỗi khi tính phí vận chuyển:', error);
+            }
+        };
+        calculateShippingFee();
+    }, [user]);
+
+    const geocodeAddress = async (address) => {
+        try {
+            const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
+                params: {
+                    key: '06ba581ba3b34e7897f56d8f8683266c',
+                    q: address,
+                    limit: 1,
+                },
+            });
+            if (response.data && response.data.results.length > 0) {
+                const { lat, lng } = response.data.results[0].geometry;
+                return { lat, lng };
+            } else {
+                throw new Error('Không tìm thấy tọa độ cho địa chỉ này.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi geocode địa chỉ:', error);
+            throw error;
+        }
+    };
+
+    const calculateDistance = (source, destination) => {
+        const sourcePoint = point([source.lng, source.lat]);
+        const destinationPoint = point([destination.lng, destination.lat]);
+        const options = { units: 'kilometers' };
+        const distanceInKm = distance(sourcePoint, destinationPoint, options);
+        return distanceInKm;
+    };
+
+    useEffect(() => {
+        if (product.image) {
+            const imageBase64 = new Buffer.from(product.image, "base64").toString("binary");
+            setPreviewImgURL(imageBase64);
+        }
+    }, [product]);
+
+    const handlePaymentClick = (index) => {
+        setActiveIndex(index === activeIndex ? null : index);
+    };
+
+    const isPaymentActive = (index) => {
+        return index === activeIndex;
+    };
+
+    const handleBuyNow = async () => {
+        if (activeIndex === null) {
+            toast.info("Please select a payment method.");
+            return;
+        }
+        const response = await buyNowProduct(product.Product_size_colors[0].id, user.account.id, product.Store.id, { quantily: quantily, total: total, price_item: product.price, payment_methodID: listPayMents[activeIndex].id });
+
+        if (response && response.EC === 0) {
+            toast.success(response.EM);
+            navigate(`/profile-user`);
+        }
+    }
+
     return (
         <div className="container-checkout">
             <HeaderHome />
@@ -14,33 +148,35 @@ function CheckOut() {
                         </div>
                         <div className='info'>
                             <div className='name-user'>
-                                Lê Văn Đạt
+                                {user.account.username}
                             </div>
-                            <div className='sđt'>0386582177</div>
+                            <div className='sđt'>{user.account.phonenumber}</div>
                         </div>
                         <div className='address'>
-                            <span className='home'>Home</span> Gần trường mần non kim sơn, Xã kim sơn , Huyện gia lâm, Hà nội
+                            <span className='home'>Home</span> {user.account.address}
                         </div>
                         <div className='title-product'>Sản phẩm</div>
                         <div className='product'>
                             <div className='info_product'>
                                 <div className='img_prod'>
-                                    <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy7fbYGhskg-hnIcKP39a045twclUS7PWexQ&s' className='img' />
+                                    <div className='img' style={{ backgroundImage: `url(${previewImgURL})` }}>
+                                    </div>
                                 </div>
+
                                 <div className='detail-product'>
                                     <div className='name-prod'>
-                                        Sữa rửa mặt carave trai xanh lá dịu nhẹ phù hợp mọi loại da
+                                        {product.product_name}
                                     </div>
-                                    <div className='size_color'>Đen , XL</div>
+                                    <div className='size_color'>{size} , {color}</div>
                                 </div>
                                 <div className='price'>
                                     <div className='price_new'>
-                                        150.000 đ
+                                        {product.price} đ
                                     </div>
-                                    <div className='price_old'>200.000 đ</div>
-                                    <div className='sale'>10%</div>
+                                    <div className='price_old'>{product.old_price} đ</div>
+                                    <div className='sale'>{product.promotion}</div>
                                 </div>
-                                <div className='quantity'>Số lượng : x 1</div>
+                                <div className='quantity'>Số lượng : x {quantily}</div>
                             </div>
                         </div>
                     </div>
@@ -49,40 +185,36 @@ function CheckOut() {
                             <div className="title-order">Thanh toán đơn hàng</div>
                             <div className="items">
                                 <span className="total">Tổng tiền</span>
-                                <span className="pri">100.000đ</span>
+                                <span className="pri">{totalPriceProduct}</span>
                             </div>
                             <div className="ship">
                                 <span className="ship-unit">Phí vận chuyển</span>
-                                <span className="price_ship">29.000đ</span>
+                                <span className="price_ship">{shippingFee}</span>
                             </div>
                             <div className="total_payment">
                                 <div className="tong">
                                     Tổng tiền thanh toán
                                 </div>
                                 <div className="tien">
-                                    110.000đ
+                                    {totalPayment}
                                 </div>
                             </div>
                             <div className="payment_method">
-                                <div className="option" >
-                                    <div className="method">
-                                        Chuyển khoản
-                                    </div>
-                                    <div className="choose_method" >
-                                        <i className="fa fa-toggle-off" aria-hidden="true"></i>
-                                    </div>
-                                </div>
-                                <div className="option" >
-                                    <div className="method">
-                                        Thanh toán khi nhận hàng
-                                    </div>
-                                    <div className="choose_method" >
-                                        <i className="fa fa-toggle-off" aria-hidden="true"></i>
-                                    </div>
-                                </div>
+                                {listPayMents && listPayMents.length && listPayMents.map((item, index) => {
+                                    return (
+                                        <div className="option" key={index} onClick={() => handlePaymentClick(index)}>
+                                            <div className="method">
+                                                {item.method_name}
+                                            </div>
+                                            <div className="choose_method" >
+                                                <i className={"fa " + (isPaymentActive(index) ? "fa-toggle-on on" : "fa-toggle-off")} aria-hidden="true"></i>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
                             </div>
                             <div className="button-buy">
-                                <div className="buy" >Buy now</div>
+                                <div className="buy" onClick={handleBuyNow}>Buy now</div>
                             </div>
                         </div>
                     </div>

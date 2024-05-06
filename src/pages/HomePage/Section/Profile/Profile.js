@@ -22,7 +22,6 @@ function Profile() {
     const [activeTab, setActiveTab] = useState('orders');
     const contentRef = useRef(null);
     const [listProducts, setListProducts] = useState([]);
-    console.log(listProducts);
     const [currentPage, setCurrentPage] = useState(1);
     const [currentLimit] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
@@ -104,7 +103,6 @@ function Profile() {
     };
 
     const handleDeleteProduct = async (orderId) => {
-        console.log(orderId);
         try {
             await cancelOrder(orderId);
             toast.success("Product removed successfully");
