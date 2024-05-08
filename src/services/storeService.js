@@ -27,8 +27,15 @@ const searchStore = (key) => {
   return axios.get(`/api/search-store?q=${key}`);
 };
 
+const getAllProductByStoreId = (page, limit, storeId) => {
+  return axios.get(
+    `/api/store/all-product-by-store-id?page=${page}&limit=${limit}&storeId=${storeId}`
+  );
+}
+
 export {
   getAllStores,
+  getAllProductByStoreId,
   createStore,
   updateStore,
   deleteStore,
