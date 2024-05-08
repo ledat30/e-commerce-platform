@@ -63,6 +63,7 @@ const initApiRouter = (app) => {
   router.put("/store/update", storeController.updateFunc);
   router.delete("/store/delete", storeController.deleteFunc);
   router.get("/search-store", storeController.searchStore);
+  router.get("/store/all-product-by-store-id", storeController.getAllProductByStoreId);
 
   //shipping unit
   router.post("/shipping-unit/create", shippingUnitController.createFunc);

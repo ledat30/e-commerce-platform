@@ -235,8 +235,51 @@ const searchStore = async (keyword) => {
   }
 };
 
+const getAllProductByStoreId = async (page, limit, storeId) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Product.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      where: { storeId: storeId },
+      attributes: [
+        "id",
+        "product_name",
+        "price",
+        "old_price",
+        "promotion",
+        'storeId',
+        "image",
+      ],
+      include: [
+        { model: db.Store, attributes: ["name", "id"] },
+      ],
+      order: [["id", "DESC"]],
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      product: rows,
+    };
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
   getAllStores,
+  getAllProductByStoreId,
   getStoreWithPagination,
   createStore,
   updateStore,
