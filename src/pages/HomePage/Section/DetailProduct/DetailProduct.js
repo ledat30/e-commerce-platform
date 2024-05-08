@@ -54,6 +54,10 @@ function DetailProduct() {
     });
   }
 
+  const handToStore = (storeId) => {
+    navigate(`/store/${storeId}`)
+  }
+
   const toggleContent = () => {
     setIsExpanded(!isExpanded);
   };
@@ -266,7 +270,7 @@ function DetailProduct() {
                     {dataDetailProduct.product_name}
                   </div>
                   <div className="store">
-                    Store : <span className="store-name">{dataDetailProduct.Store.name}</span>
+                    Store : <span className="store-name" onClick={() => { handToStore(dataDetailProduct.Store.id) }}>{dataDetailProduct.Store.name}</span>
                     <span className="view_detail-product">View : {dataDetailProduct.view_count} lượt xem</span>
                   </div>
                   <div className="price">

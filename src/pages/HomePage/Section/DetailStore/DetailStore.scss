@@ -1,0 +1,222 @@
+.container-detail-store {
+    background-color: #f5f5f5;
+
+    .name-store {
+        margin             : 10px 0;
+        height             : 105px;
+        background-image   : url('https://demoda.vn/wp-content/uploads/2022/01/hinh-nen-cong-nghe-danh-cho-powerpoint.jpg');
+        background-repeat  : no-repeat;
+        background-size    : cover;
+        background-position: center;
+        border-radius      : 3px;
+        padding            : 10px 20px;
+        box-shadow         : 0 1px 1px 0 rgba(0, 0, 0, 0.05);
+
+        .name {
+            background-color: white;
+            max-width       : 200px;
+            height          : 50px;
+            border-radius   : 10px;
+            font-size       : 18px;
+            font-weight     : 600;
+            text-align      : center;
+            padding-top     : 10px;
+        }
+    }
+
+    .header-store {
+        margin       : 10px 0;
+        background   : #fff;
+        border-radius: 3px;
+        padding      : 10px 20px;
+        box-shadow   : 0 1px 1px 0 rgba(0, 0, 0, .05);
+
+        .container-header-store {
+            height         : 40px;
+            display        : flex;
+            justify-content: space-between;
+
+            .header-store-left {
+                .list-category {
+                    list-style-type: none;
+                    font-size      : 17px;
+                    padding-top    : 7px;
+                    margin-left    : -30px;
+                    border-radius  : 5px;
+                    cursor         : pointer;
+
+                    .list-item {
+                        position        : absolute;
+                        box-shadow      : 0 0 2px 0 rgba(0, 0, 0, .25);
+                        background-color: #fff;
+                        z-index         : 200;
+
+                        .item-category {
+                            padding  : 5px 15px;
+                            margin   : 0;
+                            font-size: 14px;
+                            color    : blue;
+                        }
+
+                        .item-category:hover {
+                            background-color: #f5f5f5
+                        }
+                    }
+                }
+            }
+        }
+
+        .header-store-right {
+
+            .box {
+
+                .sbox {
+                    position: relative;
+
+                    .stext {
+                        width                : 300px;
+                        height               : 40px;
+                        background           : white;
+                        font-size            : 10pt;
+                        float                : left;
+                        color                : black;
+                        padding-left         : 45px;
+                        border               : 1px solid rgb(204, 199, 199);
+                        -webkit-border-radius: 5px;
+                        -moz-border-radius   : 5px;
+                        border-radius        : 5px;
+                    }
+
+                    .stext:focus {
+                        outline: none;
+                        border : 1px solid rgb(204, 199, 199);
+                    }
+
+                    .fa-search {
+                        position   : absolute;
+                        top        : 0;
+                        left       : 0;
+                        margin-left: 16px;
+                        margin-top : 11px;
+                        z-index    : 1;
+                        color      : rgb(204, 199, 199);
+                    }
+                }
+            }
+        }
+    }
+
+    .content {
+        margin       : 10px 0;
+        background   : #fff;
+        border-radius: 3px;
+        padding      : 10px 0 10px 20px;
+        box-shadow   : 0 1px 1px 0 rgba(0, 0, 0, .05);
+
+        .title {
+            display         : inline-block;
+            position        : relative;
+            padding         : 0 12px 0 8px;
+            margin-left     : -20px;
+            height          : 30px;
+            line-height     : 30px;
+            color           : #fff;
+            font-size       : 14px;
+            background-color: #f57224;
+
+            .title-name {
+                display      : inline-block;
+                max-width    : 100%;
+                overflow     : hidden;
+                text-overflow: ellipsis;
+                white-space  : nowrap;
+            }
+
+            ::after {
+                position    : absolute;
+                top         : 0;
+                right       : -7px;
+                display     : inline-block;
+                content     : "";
+                border-color: #ff9800 transparent;
+                border-style: solid;
+                border-width: 15px 7px;
+            }
+        }
+
+        .product {
+            padding-top    : 10px;
+            display        : flex;
+            justify-content: flex-start;
+            flex-wrap      : wrap;
+
+            .product-item {
+                margin-right : 26px;
+                width        : 210px;
+                margin-top   : 10px;
+                cursor       : pointer;
+                margin-bottom: 10px;
+                border-radius: 3px;
+                box-shadow   : 3px 2px 10px 0 rgba(0, 0, 0, 0.5);
+
+                .img {
+                    .img_product {
+                        width              : 100%;
+                        height             : 200px;
+                        background-repeat  : no-repeat;
+                        background-size    : contain;
+                        background-position: center center;
+                        object-fit         : cover;
+                        border-radius      : 3px;
+                    }
+                }
+
+                .content-product {
+                    padding: 0 3px 4px 3px;
+
+                    .name-product {
+                        font-size  : 14px;
+                        padding-top: 5px;
+                        text-align : justify;
+
+                        .buy-now {
+                            font-size       : 12px;
+                            background-color: #ff9800;
+                            color           : white;
+                            margin-right    : 5px;
+                            padding         : 3px 5px;
+                            border-radius   : 3px;
+                        }
+                    }
+
+                    .name-product:hover {
+                        color: blue;
+                    }
+
+                    .price {
+                        padding-top: 5px;
+
+                        .price-new {
+                            color    : #f57224;
+                            font-size: 15px;
+                        }
+
+                        .price-bottom {
+                            display: flex;
+
+                            .price-old {
+                                font-size      : 14px;
+                                text-decoration: line-through;
+                            }
+
+                            .price-promotion {
+                                padding-left: 10px;
+                                font-size   : 14px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
