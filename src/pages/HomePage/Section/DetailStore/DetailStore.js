@@ -47,7 +47,7 @@ function DetailStore() {
             <div className="grid wide">
                 <div className='name-store'>
                     <div className='pt-3'>
-                        {/* <div className='name'>{listProducts[0].Store.name}</div> */}
+                        <div className='name'>{listProducts[0]?.Store?.name}</div>
                     </div>
                 </div>
                 <div className='header-store'>
