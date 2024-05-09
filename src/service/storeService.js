@@ -277,8 +277,37 @@ const getAllProductByStoreId = async (page, limit, storeId) => {
   }
 }
 
+const getCategoriesByStore = async (storeId) => {
+  try {
+    const category = await db.Category.findAll({
+      attributes: ['id', 'category_name'],
+      include: [
+        {
+          model: db.Product,
+          where: { storeId: storeId },
+          attributes: ['id', 'product_name', 'price', 'old_price', 'image', 'promotion'],
+        }
+      ],
+      order: [["id", "DESC"]],
+    })
+    return {
+      EM: "Get all category success!",
+      EC: 0,
+      DT: category,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
   getAllStores,
+  getCategoriesByStore,
   getAllProductByStoreId,
   getStoreWithPagination,
   createStore,

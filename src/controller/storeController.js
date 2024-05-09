@@ -133,8 +133,28 @@ const getAllProductByStoreId = async (req, res) => {
   }
 }
 
+const getCategoriesByStore = async (req, res) => {
+  try {
+    const storeId = req.query.storeId;
+    const data = await storeService.getCategoriesByStore(storeId);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
   readFunc,
+  getCategoriesByStore,
   createFunc,
   updateFunc,
   deleteFunc,
