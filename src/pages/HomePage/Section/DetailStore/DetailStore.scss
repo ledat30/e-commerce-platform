@@ -37,6 +37,8 @@
             justify-content: space-between;
 
             .header-store-left {
+                display: flex;
+
                 .list-category {
                     list-style-type: none;
                     font-size      : 17px;
@@ -58,9 +60,28 @@
                             color    : blue;
                         }
 
+                        .item-category.active {
+                            background-color: #fb6335;
+                            color           : white;
+                        }
+
                         .item-category:hover {
                             background-color: #f5f5f5
                         }
+                    }
+                }
+
+                .all_product {
+                    padding-left: 50px;
+                    padding-top : 6px;
+                    cursor      : pointer;
+
+                    .title {
+                        font-size: 15px;
+                    }
+
+                    .title.active {
+                        border-bottom: 3px solid #ff9800;
                     }
                 }
             }

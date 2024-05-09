@@ -33,10 +33,17 @@ const getAllProductByStoreId = (page, limit, storeId) => {
   );
 }
 
+const getCategoriesByStore = (storeId) => {
+  return axios.get(
+    `/api/store/category-by-store?storeId=${storeId}`
+  );
+}
+
 export {
   getAllStores,
   getAllProductByStoreId,
   createStore,
+  getCategoriesByStore,
   updateStore,
   deleteStore,
   searchStore,
