@@ -6,6 +6,7 @@ import {
   getDetailCategoryById,
 } from "../../../services/categoryService";
 import { getAllProducts } from "../../../services/productService";
+import Popular from "./Popular/Popular";
 import ReactPaginate from "react-paginate";
 
 function MainHomePage() {
@@ -18,6 +19,17 @@ function MainHomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
+  const [activeFilter, setActiveFilter] = useState('allProducts');
+
+  const showBestSelling = () => {
+    setActiveFilter('bestSelling');
+  };
+
+  const showAllProducts = () => {
+    setActiveFilter('allProducts');
+    setCurrentPage(1);
+    returnToNewProduct();
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -123,30 +135,30 @@ function MainHomePage() {
               {filteredCategories && filteredCategories.length > 0 ? (
                 <ul className="category-list">
                   <li
-                    className={`category-item ${
-                      selectedCategory === null
-                        ? "category-item__link-active"
-                        : ""
-                    }`}
+                    className={`category-item ${selectedCategory === null
+                      ? "category-item__link-active"
+                      : ""
+                      }`}
                     onClick={() => handleCategoryClick(null)}
                   >
                     <div className="category-item__link">Tất cả</div>
                   </li>
                   {filteredCategories.map((item, index) => {
                     return (
-                      <li
-                        className={`category-item ${
-                          selectedCategory === item.id
+                      <div key={index}>
+                        <li
+                          className={`category-item ${selectedCategory === item.id
                             ? "category-item__link-active"
                             : ""
-                        }`}
-                        onClick={() => handleCategoryClick(item.id)}
-                        key={item.id}
-                      >
-                        <div className="category-item__link">
-                          {item.category_name}
-                        </div>
-                      </li>
+                            }`}
+                          onClick={() => handleCategoryClick(item.id)}
+                          key={item.id}
+                        >
+                          <div className="category-item__link">
+                            {item.category_name}
+                          </div>
+                        </li>
+                      </div>
                     );
                   })}
                 </ul>
@@ -160,16 +172,22 @@ function MainHomePage() {
             <div className="home-filter hideOnMobile-tablet">
               <span className="home-filter__label">Sắp xếp theo</span>
               <button
-                className="home-filter_btn btn-container btn--primary"
-                onClick={returnToNewProduct}
+                className={`home-filter_btn btn-container ${activeFilter === 'allProducts' ? 'btn--primary' : ''}`}
+                onClick={showAllProducts}
               >
                 Mới nhất
               </button>
-              <button className="home-filter_btn btn-container">
-                Phổ biến
-              </button>
-              <button className="home-filter_btn btn-container">
+              <button
+                className={`home-filter_btn btn-container ${activeFilter === 'bestSelling' ? 'btn--primary' : ''}`}
+                onClick={showBestSelling}
+              >
                 Bán chạy
+              </button>
+              <button
+                className={`home-filter_btn btn-container ${activeFilter === 'store' ? 'btn--primary' : ''}`}
+                onClick={() => setActiveFilter('store')}
+              >
+                Cửa hàng
               </button>
 
               <div className="select-input">
@@ -192,83 +210,90 @@ function MainHomePage() {
             </div>
 
             <div className="home-product">
-              <div className="row sm-gutter">
-                {allProducts && allProducts.length > 0 ? (
-                  allProducts.map((item, index) => (
-                    <div className="col l-2-4 m-4 c-6 product-mr" key={index}>
-                      <Link
-                        to={`/product/${item.id}`}
-                        className="home-product-item"
-                      >
-                        <div
-                          className="home-product-item__img"
-                          style={{ backgroundImage: `url(${item.image})` }}
-                        ></div>
-                        <h4 className="home-product-item__name">
-                          {item.product_name}
-                        </h4>
-                        <div className="home-product-item__price">
-                          <span className="home-product-item__price-old">
-                            {item.old_price}đ
-                          </span>
-                          <span className="home-product-item__price-current">
-                            {item.price}đ
-                          </span>
+              {activeFilter === 'bestSelling' ? (
+                <Popular />
+              ) : (
+                <div>
+                  <div className="row sm-gutter">
+                    {allProducts && allProducts.length > 0 ? (
+                      allProducts.map((item, index) => (
+                        <div className="col l-2-4 m-4 c-6 product-mr" key={index}>
+                          <Link
+                            to={`/product/${item.id}`}
+                            className="home-product-item"
+                          >
+                            <div
+                              className="home-product-item__img"
+                              style={{ backgroundImage: `url(${item.image})` }}
+                            ></div>
+                            <h4 className="home-product-item__name">
+                              {item.product_name}
+                            </h4>
+                            <div className="home-product-item__price">
+                              <span className="home-product-item__price-old">
+                                {item.old_price}đ
+                              </span>
+                              <span className="home-product-item__price-current">
+                                {item.price}đ
+                              </span>
+                            </div>
+                            <div className="home-product-item__action">
+                              <span className="home-product-item__brand">
+                                {item.Store.name}
+                              </span>
+                              <span className="home-product-item__sold">
+                                {item.Inventories && item.Inventories[0] && item.Inventories[0].quantyly_ordered ? (
+                                  `${item.Inventories[0].quantyly_ordered} Đã bán`
+                                ) : null}
+                              </span>
+                            </div>
+                            <div className="home-product-item__new">
+                              <span className="pr">New</span>
+                            </div>
+                            <div className="home-product-item__sale-off">
+                              <span className="home-product-item__sale-off-percent">
+                                {item.promotion}
+                              </span>
+                              <span className="home-product-item__sale-off-lable">
+                                GIẢM
+                              </span>
+                            </div>
+                          </Link>
                         </div>
-                        <div className="home-product-item__action">
-                          <span className="home-product-item__brand">
-                            {item.Store.name}
-                          </span>
-                          <span className="home-product-item__sold">
-                            100 Đã bán
-                          </span>
-                        </div>
-                        <div className="home-product-item__new">
-                          <span className="pr">New</span>
-                        </div>
-                        <div className="home-product-item__sale-off">
-                          <span className="home-product-item__sale-off-percent">
-                            {item.promotion}
-                          </span>
-                          <span className="home-product-item__sale-off-lable">
-                            GIẢM
-                          </span>
-                        </div>
-                      </Link>
-                    </div>
-                  ))
-                ) : (
-                  <div className="no-products-message">
-                    <p>Không có sản phẩm nào.</p>
+                      ))
+                    ) : (
+                      <div className="no-products-message">
+                        <p>Không có sản phẩm nào.</p>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                  {selectedCategory === null && allProducts && allProducts.length > 0 && (
+                    <ul className="pagination home-product__pagination">
+                      <ReactPaginate
+                        nextLabel="next >"
+                        onPageChange={handlePageChange}
+                        pageRangeDisplayed={3}
+                        marginPagesDisplayed={2}
+                        pageCount={totalPages}
+                        previousLabel="< previous"
+                        pageClassName="page-item"
+                        pageLinkClassName="page-link"
+                        previousClassName="page-item"
+                        previousLinkClassName="page-link"
+                        nextClassName="page-item"
+                        nextLinkClassName="page-link"
+                        breakLabel="..."
+                        breakClassName="page-item"
+                        breakLinkClassName="page-link"
+                        containerClassName="pagination justify-content-center"
+                        activeClassName="active"
+                        renderOnZeroPageCount={null}
+                      />
+                    </ul>
+                  )}
+                </div>
+              )}
             </div>
-
-            {allProducts && allProducts.length > 0 && (
-              <ul className="pagination home-product__pagination">
-                <ReactPaginate
-                  nextLabel="next >"
-                  onPageChange={handlePageChange}
-                  pageRangeDisplayed={3}
-                  marginPagesDisplayed={2}
-                  pageCount={totalPages}
-                  previousLabel="< previous"
-                  pageClassName="page-item"
-                  pageLinkClassName="page-link"
-                  previousClassName="page-item"
-                  previousLinkClassName="page-link"
-                  nextClassName="page-item"
-                  nextLinkClassName="page-link"
-                  breakLabel="..."
-                  breakClassName="page-item"
-                  breakLinkClassName="page-link"
-                  containerClassName="pagination justify-content-center"
-                  activeClassName="active"
-                  renderOnZeroPageCount={null}
-                />
-              </ul>
-            )}
           </div>
         </div>
       </div>

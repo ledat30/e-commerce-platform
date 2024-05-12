@@ -19,6 +19,7 @@ function DetailStore() {
     const [listCategory, setListCategory] = useState([]);
     console.log(listCategory);
     const [selectedCategoryProducts, setSelectedCategoryProducts] = useState([]);
+    console.log(selectedCategoryProducts);
     const [showAllProducts, setShowAllProducts] = useState(true);
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
 
@@ -47,6 +48,10 @@ function DetailStore() {
     }
 
     const filteredData = listProducts.filter((item) =>
+        item.product_name.toLowerCase().includes(searchInput.toLowerCase())
+    );
+
+    const filteredData2 = selectedCategoryProducts.filter((item) =>
         item.product_name.toLowerCase().includes(searchInput.toLowerCase())
     );
 
@@ -131,7 +136,7 @@ function DetailStore() {
                                     let imageBase64 = '';
                                     imageBase64 = new Buffer.from(item.image, 'base64').toString('binary');
                                     return (
-                                        <div className='product-item' key={index}>
+                                        <Link className='product-item' key={index} to={`/product/${item.id}`}>
                                             <div className='img_product' style={{ backgroundImage: `url(${imageBase64})` }}></div>
                                             <div className='content-product'>
                                                 <div className='name-product'><span className='buy-now'>Buy now</span>{item.product_name}</div>
@@ -143,13 +148,13 @@ function DetailStore() {
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </Link>
                                     )
                                 })
                             )
                         ) : (
-                            selectedCategoryProducts.length > 0 ? (
-                                selectedCategoryProducts.map((item, index) => {
+                            filteredData2.length > 0 ? (
+                                filteredData2.map((item, index) => {
                                     let imageBase64 = '';
                                     imageBase64 = new Buffer.from(item.image, 'base64').toString('binary');
                                     return (

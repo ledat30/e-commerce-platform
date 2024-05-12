@@ -218,8 +218,15 @@ const orderSuccessByShipper = (page, limit, userId) => {
   );
 };
 
+const getSellingProductsWithPagination = (page, limit) => {
+  return axios.get(
+    `/api/product/selling-products?page=${page}&limit=${limit}`
+  );
+}
+
 export {
   getAllProductsByStore,
+  getSellingProductsWithPagination,
   buyNowProduct,
   orderSuccessByShipper,
   createProduct,
