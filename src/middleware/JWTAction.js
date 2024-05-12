@@ -31,6 +31,7 @@ const nonSecurePaths = [
   '/product/order_success_byShipper',
   "/store/all-product-by-store-id",
   '/store/category-by-store',
+  '/product/selling-products',
 ];
 
 const createJWT = (payload) => {

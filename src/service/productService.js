@@ -1,5 +1,5 @@
 import db from "../models";
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const { sequelize } = db;
 
 const getAllProductForStoreOwner = async () => {
@@ -358,7 +358,10 @@ const getAllProductWithPagination = async (page, limit) => {
         "promotion",
       ],
       order: [["id", "DESC"]],
-      include: [{ model: db.Store, attributes: ["name", "id"] }],
+      include: [
+        { model: db.Store, attributes: ["name", "id"] },
+        { model: db.Inventory, attributes: ['quantyly_ordered'] }
+      ],
     });
 
     if (rows && rows.length > 0) {
@@ -923,7 +926,9 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
 
     const updatedCurrentNumber = inventory.currentNumber - purchaseQuantity;
     const updateQuantylyOrdered = inventory.quantyly - updatedCurrentNumber;
-    await inventory.update({ currentNumber: updatedCurrentNumber, quantyly_ordered: updateQuantylyOrdered }, { transaction });
+    const updateQuantilyShipped = inventory.quantyly - updatedCurrentNumber;
+    const updateQuantilySold = updateQuantilyShipped;
+    await inventory.update({ currentNumber: updatedCurrentNumber, quantyly_ordered: updateQuantylyOrdered, quantyly_shipped: updateQuantilyShipped, quantity_sold: updateQuantilySold }, { transaction });
 
 
     //end
@@ -1319,6 +1324,45 @@ const orderSuccessByShipper = async (page, limit, userId) => {
   }
 }
 
+const getSellingProductsWithPagination = async (page, limit) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Inventory.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      attributes: [
+        "id",
+        "quantyly_ordered",
+      ],
+      include: [
+        { model: db.Store, attributes: ["name", "id"] },
+        {
+          model: db.Product, attributes: ['id', 'product_name', 'image', 'price', 'old_price', 'promotion']
+        }
+      ],
+      order: [["quantyly_ordered", "DESC"]],
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      product: rows,
+    };
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
   getAllProductForStoreOwner,
   orderSuccessByShipper,
@@ -1349,4 +1393,5 @@ module.exports = {
   readAllOrderByShipper,
   shipperConfirmOrder,
   buyNowProduct,
+  getSellingProductsWithPagination,
 };
