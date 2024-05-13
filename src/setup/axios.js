@@ -25,6 +25,8 @@ instance.interceptors.request.use(
   }
 );
 
+let errorToastDisplayed = false;
+
 // Add a response interceptor
 instance.interceptors.response.use(
   function (response) {
@@ -39,13 +41,19 @@ instance.interceptors.response.use(
     switch (status) {
       // authentication (token related issues)
       case 401: {
-        toast.error("Unauthorized the user.Please login ...");
+        if (!errorToastDisplayed) {
+          toast.error("Unauthorized the user. Please login ...");
+          errorToastDisplayed = true;
+        }
         return error.response.data;
       }
 
       // forbidden (permission related issues)
       case 403: {
-        toast.error(`You don't permission to access this resource`);
+        if (!errorToastDisplayed) {
+          toast.error(`You don't permission to access this resource`);
+          errorToastDisplayed = true;
+        }
         return Promise.reject(error);
       }
 

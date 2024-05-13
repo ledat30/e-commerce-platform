@@ -17,7 +17,6 @@ function MainHomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   let navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
-  console.log(allProducts);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
