@@ -6,6 +6,7 @@ import {
   getDetailCategoryById,
 } from "../../../services/categoryService";
 import { getAllProducts } from "../../../services/productService";
+import { useNavigate } from "react-router-dom";
 import Popular from "./Popular/Popular";
 import ReactPaginate from "react-paginate";
 
@@ -14,12 +15,16 @@ function MainHomePage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
+  let navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
   const [activeFilter, setActiveFilter] = useState('allProducts');
+
+  const handleToStore = () => {
+    navigate(`/store`);
+  }
 
   const showBestSelling = () => {
     setActiveFilter('bestSelling');
@@ -184,8 +189,8 @@ function MainHomePage() {
                 Bán chạy
               </button>
               <button
-                className={`home-filter_btn btn-container ${activeFilter === 'store' ? 'btn--primary' : ''}`}
-                onClick={() => setActiveFilter('store')}
+                className='home-filter_btn btn-container'
+                onClick={handleToStore}
               >
                 Cửa hàng
               </button>
@@ -297,7 +302,7 @@ function MainHomePage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 
