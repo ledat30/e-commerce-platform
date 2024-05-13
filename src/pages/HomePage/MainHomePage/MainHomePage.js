@@ -17,10 +17,29 @@ function MainHomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   let navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
+  console.log(allProducts);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
   const [activeFilter, setActiveFilter] = useState('allProducts');
+  const [sortOrder, setSortOrder] = useState('');
+
+  const handleSortChange = (sortType) => {
+    setSortOrder(sortType);
+    if (sortType === 'priceLowHigh') {
+      const sortedProducts = [...allProducts].sort((a, b) => parseFloat(a.price.replace(/\./g, '')) - parseFloat(b.price.replace(/\./g, '')));
+      setAllProducts(sortedProducts);
+    } else if (sortType === 'priceHighLow') {
+      const sortedProducts = [...allProducts].sort((a, b) => parseFloat(b.price.replace(/\./g, '')) - parseFloat(a.price.replace(/\./g, '')));
+      setAllProducts(sortedProducts);
+    }
+  };
+
+  useEffect(() => {
+    if (!sortOrder) {
+      fetchProducts();
+    }
+  }, [sortOrder]);
 
   const handleToStore = () => {
     navigate(`/store`);
@@ -201,14 +220,20 @@ function MainHomePage() {
 
                 <ul className="select-input__list">
                   <li className="select-input__item">
-                    <a href="/" className="select-input__link">
+                    <button
+                      onClick={() => handleSortChange('priceLowHigh')}
+                      className={`select-input__link ${sortOrder === 'priceLowHigh' ? 'active' : ''}`}
+                    >
                       Giá: Thấp đến cao
-                    </a>
+                    </button>
                   </li>
                   <li className="select-input__item">
-                    <a href="/" className="select-input__link">
+                    <button
+                      onClick={() => handleSortChange('priceHighLow')}
+                      className={`select-input__link ${sortOrder === 'priceHighLow' ? 'active' : ''}`}
+                    >
                       Giá: Cao đến thấp
-                    </a>
+                    </button>
                   </li>
                 </ul>
               </div>

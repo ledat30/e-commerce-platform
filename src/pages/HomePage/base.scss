@@ -190,11 +190,13 @@ html {
 }
 
 .select-input__link {
-    font-size      : 14px;
-    color          : var(--text-color);
-    text-decoration: none;
-    display        : block;
-    padding        : 4px 0;
+    font-size       : 14px;
+    color           : var(--text-color);
+    text-decoration : none;
+    display         : block;
+    background-color: var(--white-color);
+    padding         : 4px 0;
+    border          : none;
 }
 
 .select-input__link:hover {
