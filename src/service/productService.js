@@ -1006,7 +1006,16 @@ const ConfirmAllOrders = async (storeId, body) => {
     });
     const confirmedOrderIds = confirmedOrders.map(order => order.id);
 
-    const shippingUnitOrders = confirmedOrderIds.map(orderId => {
+    const existingShippingUnitOrders = await db.Shipping_Unit_Order.findAll({
+      where: {
+        orderId: confirmedOrderIds,
+        shippingUnitId: body.shippingUnitId
+      }
+    });
+
+    const existingOrderIds = new Set(existingShippingUnitOrders.map(order => order.orderId));
+
+    const shippingUnitOrders = confirmedOrderIds.filter(orderId => !existingOrderIds.has(orderId)).map(orderId => {
       return {
         orderId: orderId,
         shippingUnitId: body.shippingUnitId,
@@ -1014,7 +1023,9 @@ const ConfirmAllOrders = async (storeId, body) => {
       };
     });
 
-    await db.Shipping_Unit_Order.bulkCreate(shippingUnitOrders);
+    if (shippingUnitOrders.length > 0) {
+      await db.Shipping_Unit_Order.bulkCreate(shippingUnitOrders);
+    }
 
     return { EM: `All orders have been confirmed and orderId has been updated in ShippingUnit`, EC: 0, DT: '' };
   } catch (error) {
@@ -1022,6 +1033,7 @@ const ConfirmAllOrders = async (storeId, body) => {
     return { EM: 'Failed to confirm orders', EC: -1, DT: '' };
   }
 };
+
 
 const getreadStatusOrderWithPagination = async (page, limit, userId) => {
   try {
