@@ -152,12 +152,111 @@ const getCategoriesByStore = async (req, res) => {
   }
 }
 
+const storeDashboard = async (req, res) => {
+  const storeId = req.query.storeId;
+  try {
+    let data = await storeService.storeDashboard(storeId);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
+const storeDashboardOrder = async (req, res) => {
+  try {
+    const storeId = req.query.storeId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await storeService.storeDashboardOrder(+page, +limit, storeId);
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
+const storeDashboardRevenue = async (req, res) => {
+  try {
+    const storeId = req.query.storeId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await storeService.storeDashboardRevenue(+page, +limit, storeId);
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
+const storeDashboardRevenueByDate = async (req, res) => {
+  try {
+    const storeId = req.query.storeId;
+    const date = req.query.date;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await storeService.storeDashboardRevenueByDate(+page, +limit, storeId, date);
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
   readFunc,
+  storeDashboardRevenueByDate,
+  storeDashboardOrder,
+  storeDashboardRevenue,
   getCategoriesByStore,
   createFunc,
   updateFunc,
   deleteFunc,
   searchStore,
   getAllProductByStoreId,
+  storeDashboard,
 };

@@ -32,6 +32,10 @@ const nonSecurePaths = [
   "/store/all-product-by-store-id",
   '/store/category-by-store',
   '/product/selling-products',
+  '/store/dashboard-summary-by-store',
+  '/store/dashboard-order-by-store',
+  '/store/dashboard-revenue-by-store',
+  '/store/dashboard-revenue-by-date',
 ];
 
 const createJWT = (payload) => {
