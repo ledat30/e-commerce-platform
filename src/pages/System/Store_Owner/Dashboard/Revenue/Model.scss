@@ -1,0 +1,16 @@
+.modal-overlay {
+    margin-right: 45px;
+
+    .modal-content {
+
+
+        .close {
+            border-radius: 5px;
+            border       : 1px solid #a8a5a5;
+        }
+
+        .close:hover {
+            background-color: #7a9db1;
+        }
+    }
+}

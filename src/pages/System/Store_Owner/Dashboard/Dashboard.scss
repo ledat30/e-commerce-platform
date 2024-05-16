@@ -1,0 +1,85 @@
+.container {
+    .summary {
+        background-color: #e6e0e0;
+        display         : flex;
+        margin-right    : 45px;
+
+        .summary_item {
+            background-color: white;
+            margin          : 7px;
+            width           : 200px;
+            display         : flex;
+            justify-content : space-around;
+            cursor          : pointer;
+            border-radius   : 5px;
+
+            .summary_left {
+                padding-top: 5px;
+
+                .number {
+                    font-weight: 500;
+                    font-size  : 20px;
+                }
+
+                .text {
+                    font-size: 13px;
+                }
+            }
+
+            .summary_right {
+                background-color: #253d46;
+                width           : 50px;
+                height          : 50px;
+                margin          : 5px 0;
+                text-align      : center;
+                border-radius   : 3px;
+                padding-top     : 11px;
+                color           : white;
+            }
+        }
+
+        .summary_item.active {
+            background-color: #7a9db1;
+            color           : white;
+        }
+
+        .summary_item:hover {
+            background-color: #7a9db1;
+            color           : white;
+        }
+    }
+
+    .table {
+        padding-top: 3px;
+
+        tr {
+            border-bottom: none;
+        }
+
+        .table1 {
+            box-shadow: 1px 1px 5px 2px #2f303347;
+        }
+
+        .header_table {
+            display        : flex;
+            justify-content: space-between;
+
+            .table_manage {
+                padding-top: 18px;
+                font-size  : 18px;
+                font-weight: 500;
+            }
+
+            .search {
+                padding-bottom: 10px;
+                margin-right  : 37px;
+            }
+
+            .search1 {
+                padding-bottom: 10px;
+                margin-right  : -8px;
+            }
+        }
+
+    }
+}

@@ -1,0 +1,102 @@
+import { useEffect, useState } from 'react';
+import ReactPaginate from "react-paginate";
+
+function View({ dataSummary }) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [currentLimit] = useState(6);
+    const [totalPages, setTotalPages] = useState(1);
+    const [views, setViews] = useState([]);
+    const [searchInput, setSearchInput] = useState("");
+
+    useEffect(() => {
+        if (dataSummary && dataSummary.totalViewProduct) {
+            setViews(dataSummary.totalViewProduct);
+            setTotalPages(Math.ceil(dataSummary.totalViewProduct.length / currentLimit));
+        }
+    }, [dataSummary, currentLimit]);
+
+    const filteredData = views.filter((item) =>
+        item.product_name.toLowerCase().includes(searchInput.toLowerCase())
+    );
+
+    const renderViews = () => {
+        const startIndex = (currentPage - 1) * currentLimit;
+        const selectedViews = filteredData.slice(startIndex, startIndex + currentLimit);
+        if (selectedViews.length === 0) {
+            return (
+                <tr style={{ textAlign: "center", fontWeight: 600 }}>
+                    <td colSpan="4">Not Found...</td>
+                </tr>
+            );
+        }
+        return selectedViews.map((view, index) => (
+            <tr key={view.id}>
+                <td>{startIndex + index + 1}</td>
+                <td>{view.id}</td>
+                <td>{view.product_name}</td>
+                <td>{view.view_count} lượt xem</td>
+            </tr>
+        ));
+    };
+
+    const handlePageClick = async (event) => {
+        setCurrentPage(+event.selected + 1);
+    };
+    return (
+        <div className="table-category table">
+            <div className="header-table-category header_table">
+                <div className='table_manage'>Bảng quản lý lượt xem</div>
+                <div className="box search">
+                    <form className="sbox">
+                        <input
+                            className="stext"
+                            type=""
+                            placeholder="Tìm kiếm ..."
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                        />
+                    </form>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Id</th>
+                        <th>Product</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {renderViews()}
+                </tbody>
+            </table>
+            {totalPages > 0 && (
+                <div className="user-footer mt-3">
+                    <ReactPaginate
+                        nextLabel="sau >"
+                        onPageChange={handlePageClick}
+                        pageRangeDisplayed={3}
+                        marginPagesDisplayed={2}
+                        pageCount={totalPages}
+                        previousLabel="< Trước"
+                        pageClassName="page-item"
+                        pageLinkClassName="page-link"
+                        previousClassName="page-item"
+                        previousLinkClassName="page-link"
+                        nextClassName="page-item"
+                        nextLinkClassName="page-link"
+                        breakLabel="..."
+                        breakClassName="page-item"
+                        breakLinkClassName="page-link"
+                        containerClassName="pagination justify-content-center"
+                        activeclassname="active"
+                        renderOnZeroPageCount={null}
+                    />
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default View;

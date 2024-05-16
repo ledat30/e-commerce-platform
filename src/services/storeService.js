@@ -39,10 +39,38 @@ const getCategoriesByStore = (storeId) => {
   );
 }
 
+const storeDashboard = (storeId) => {
+  return axios.get(
+    `/api/store/dashboard-summary-by-store?storeId=${storeId}`
+  );
+}
+
+const storeDashboardOrder = (page, limit, storeId) => {
+  return axios.get(
+    `/api/store/dashboard-order-by-store?page=${page}&limit=${limit}&storeId=${storeId}`
+  );
+}
+
+const storeDashboardRevenue = (page, limit, storeId) => {
+  return axios.get(
+    `/api/store/dashboard-revenue-by-store?page=${page}&limit=${limit}&storeId=${storeId}`
+  );
+}
+
+const storeDashboardRevenueByDate = (page, limit, storeId, date) => {
+  return axios.get(
+    `/api/store/dashboard-revenue-by-date?page=${page}&limit=${limit}&storeId=${storeId}&date=${date}`
+  );
+}
+
 export {
   getAllStores,
   getAllProductByStoreId,
+  storeDashboardOrder,
+  storeDashboardRevenueByDate,
+  storeDashboardRevenue,
   createStore,
+  storeDashboard,
   getCategoriesByStore,
   updateStore,
   deleteStore,
