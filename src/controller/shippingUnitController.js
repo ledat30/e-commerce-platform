@@ -151,8 +151,54 @@ const confirmOrder = async (req, res) => {
   }
 }
 
+const shippingUnitDashboard = async (req, res) => {
+  const shipingUnitId = req.query.shipingUnitId;
+  try {
+    let data = await shippingUnitService.shippingUnitDashboard(shipingUnitId);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
+const shippingUnitDashboardOrder = async (req, res) => {
+  try {
+    const shipingUnitId = req.query.shipingUnitId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await shippingUnitService.shippingUnitDashboardOrder(+page, +limit, shipingUnitId);
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
   createFunc,
+  shippingUnitDashboard,
+  shippingUnitDashboardOrder,
   readFunc,
   deleteFunc,
   searchShippingUnit,

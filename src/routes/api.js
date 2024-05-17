@@ -81,6 +81,8 @@ const initApiRouter = (app) => {
   router.put("/shipping-unit/update", shippingUnitController.updateFunc);
   router.get("/shipping-unit/read_all-orderBy_shippingUnit", shippingUnitController.readAllOrderByShippingUnit);
   router.post("/shipping-unit/confirm", shippingUnitController.confirmOrder);
+  router.get("/shipping-unit/dashboard-summary-by-shippingUnit", shippingUnitController.shippingUnitDashboard);
+  router.get("/shipping-unit/dashboard-order-by-shippingUnit", shippingUnitController.shippingUnitDashboardOrder);
 
   //product
   router.get("/product/read", productController.readFunc);

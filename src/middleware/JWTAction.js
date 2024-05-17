@@ -36,6 +36,8 @@ const nonSecurePaths = [
   '/store/dashboard-order-by-store',
   '/store/dashboard-revenue-by-store',
   '/store/dashboard-revenue-by-date',
+  '/shipping-unit/dashboard-summary-by-shippingUnit',
+  '/shipping-unit/dashboard-order-by-shippingUnit',
 ];
 
 const createJWT = (payload) => {
