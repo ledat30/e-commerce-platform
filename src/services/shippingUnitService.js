@@ -34,9 +34,19 @@ const confirmOrders = (groupedOrders) => {
   return axios.post(`/api/shipping-unit/confirm`, groupedOrders);
 }
 
+const shippingUnitDashboard = (shipingUnitId) => {
+  return axios.get(`/api/shipping-unit/dashboard-summary-by-shippingUnit?shipingUnitId=${shipingUnitId}`);
+};
+
+const shippingUnitDashboardOrder = (page, limit, shipingUnitId) => {
+  return axios.get(`/api/shipping-unit/dashboard-order-by-shippingUnit?page=${page}&limit=${limit}&shipingUnitId=${shipingUnitId}`);
+};
+
 export {
   createShippingUnit,
   getAllShippingUnit,
+  shippingUnitDashboard,
+  shippingUnitDashboardOrder,
   deleteShippingUnit,
   searchShippingUnit,
   getAllShippingUnits,

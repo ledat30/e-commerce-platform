@@ -24,6 +24,7 @@ import ShippingUnit_Order from "../pages/System/ShippingUnit/ShippingUnit_Order/
 import OrderNeedsDelivery from '../pages/System/Shipper/OrderNeedsDelivery/OrderNeedsDelivery';
 import ShippingOrder from "../pages/System/Shipper/ShippingOrder/ShippingOrder";
 import DashboardStore from '../pages/System/Store_Owner/Dashboard/Dashboard';
+import DashboardShippingUnit from "../pages/System/ShippingUnit/Dashboard/Dashboard";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -114,7 +115,7 @@ function AppRoutes() {
           <>
             <Route
               path="/"
-              element={<PrivateRoutes element={<Dashboard />} />}
+              element={<PrivateRoutes element={<DashboardShippingUnit />} />}
             />
             <Route
               path="/shippingUnit_order"
