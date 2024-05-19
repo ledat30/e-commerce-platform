@@ -1,5 +1,5 @@
 import db from "../models/index";
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 
 const checkNameShippingUnit = async (nameShippingUnit) => {
   try {
@@ -333,6 +333,16 @@ const shippingUnitDashboard = async (shipingUnitId) => {
         shippingUnitId: shipingUnitId,
       }
     });
+    const totalOrderFails = await db.Shipping_Unit_Order_user.count({
+      where: {
+        status: 'Order delivery failed',
+      }
+    });
+    const totalOrderSuccess = await db.Shipping_Unit_Order_user.count({
+      where: {
+        status: 'Delivered',
+      }
+    });
     const totalShippers = await db.Shipping_Unit_Order_user.count({
       include: [{
         model: db.Shipping_Unit_Order,
@@ -359,13 +369,30 @@ const shippingUnitDashboard = async (shipingUnitId) => {
       ],
       group: ['User.id', 'User.username', 'User.email']
     });
+
+    const monthlyOrders = await db.Shipping_Unit_Order.findAll({
+      attributes: [
+        [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'month'],
+        [db.sequelize.fn('count', db.sequelize.col('orderId')), 'totalOrders'],
+      ],
+      where: {
+        shippingUnitId: shipingUnitId,
+      },
+      group: ['month'],
+      order: [[db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'ASC']]
+    });
+
+
     return {
       EM: "Ok!",
       EC: 0,
       DT: {
         totalOrders: totalOrders,
+        totalOrderFails: totalOrderFails,
+        totalOrderSuccess: totalOrderSuccess,
         totalShippers: totalShippers,
         users: users,
+        monthlyOrders: monthlyOrders,
       },
     };
   } catch (error) {
