@@ -5,12 +5,14 @@ import './Dashboard.scss';
 import { shippingUnitDashboard } from '../../../../services/shippingUnitService';
 import Order from './Order/Order';
 import User from './User/User';
+import { Barchart, PieChart } from './BarChart/BarChart';
 
 function Dashboard() {
     const { user } = useContext(UserContext);
     const [dataSummary, setDataSummary] = useState([]);
     const [activeItem, setActiveItem] = useState('orders');
-    
+    console.log(dataSummary);
+
     useEffect(() => {
         fetchDataSummary();
     }, [user.account.shipingUnitId]);
@@ -76,6 +78,12 @@ function Dashboard() {
             <div className='container-content'>
                 {activeItem === 'orders' && <Order />}
                 {activeItem === 'users' && <User dataSummary={dataSummary} />}
+                {activeItem === 'statistical' && (
+                    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                        <Barchart dataSummary={dataSummary} />
+                        <PieChart dataSummary={dataSummary} />
+                    </div>
+                )}
             </div>
         </div>
     );
