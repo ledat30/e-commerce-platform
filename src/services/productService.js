@@ -224,10 +224,30 @@ const getSellingProductsWithPagination = (page, limit) => {
   );
 }
 
+const shipperDashboardSummary = (userId) => {
+  return axios.get(`/api/shipper/dashboard-summary-by-shipper?userId=${userId}`);
+}
+
+const shipperDashboardOrder = (page, limit, userId) => {
+  return axios.get(`/api/shipper/dashboard-order-by-shipper?page=${page}&limit=${limit}&userId=${userId}`);
+}
+
+const shipperDashboardRevenue = (page, limit, userId) => {
+  return axios.get(`/api/shipper/dashboard-revenue-by-shipper?page=${page}&limit=${limit}&userId=${userId}`);
+}
+
+const shipperDashboardDetailRevenue = (page, limit, userId, date) => {
+  return axios.get(`/api/shipper/dashboard-detail-revenue-by-shipper?page=${page}&limit=${limit}&userId=${userId}&date=${date}`);
+}
+
 export {
   getAllProductsByStore,
   getSellingProductsWithPagination,
+  shipperDashboardOrder,
+  shipperDashboardDetailRevenue,
+  shipperDashboardRevenue,
   buyNowProduct,
+  shipperDashboardSummary,
   orderSuccessByShipper,
   createProduct,
   orderConfirmationFailed,
