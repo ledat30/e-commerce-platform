@@ -104,6 +104,10 @@ const initApiRouter = (app) => {
   router.get("/shipper/read_all-orderBy_shipper", productController.readAllOrderByShipper);
   router.post("/shipper/confirm-order", productController.shipperConfirmOrder);
   router.post("/shipper/order_confirmation-failed", productController.orderConfirmationFailed);
+  router.get("/shipper/dashboard-summary-by-shipper", productController.shipperDashboardSummary);
+  router.get("/shipper/dashboard-order-by-shipper", productController.shipperDashboardOrder);
+  router.get("/shipper/dashboard-revenue-by-shipper", productController.shipperDashboardRevenue);
+  router.get("/shipper/dashboard-detail-revenue-by-shipper", productController.shipperDashboardDetailRevenue);
   router.get("/product/order_success_byShipper", productController.orderSuccessByShipper);
   router.post("/product/buy-now", productController.buyNowProduct);
   router.get("/product/selling-products", productController.sellingProducts);

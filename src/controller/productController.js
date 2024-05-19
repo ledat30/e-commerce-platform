@@ -556,7 +556,106 @@ const sellingProducts = async (req, res) => {
   }
 }
 
+const shipperDashboardSummary = async (req, res) => {
+  const userId = req.query.userId;
+  try {
+    let data = await productService.shipperDashboardSummary(userId);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
+const shipperDashboardOrder = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await productService.shipperDashboardOrder(+page, +limit, userId);
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
+const shipperDashboardRevenue = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await productService.shipperDashboardRevenue(+page, +limit, userId);
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
+const shipperDashboardDetailRevenue = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    const date = req.query.date;
+    if (req.query.page && req.query.limit) {
+      let page = req.query.page;
+      let limit = req.query.limit;
+
+      let data = await productService.shipperDashboardDetailRevenue(+page, +limit, userId, date);
+
+      return res.status(200).json({
+        EM: data.EM,
+        EC: data.EC,
+        DT: data.DT,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
+  shipperDashboardSummary,
+  shipperDashboardOrder,
+  shipperDashboardDetailRevenue,
+  shipperDashboardRevenue,
   readFunc,
   sellingProducts,
   buyNowProduct,

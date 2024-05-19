@@ -1,5 +1,5 @@
 import db from "../models";
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const { sequelize } = db;
 
 const getAllProductForStoreOwner = async () => {
@@ -1375,8 +1375,278 @@ const getSellingProductsWithPagination = async (page, limit) => {
   }
 }
 
+const shipperDashboardSummary = async (userId) => {
+  try {
+    const totalOrders = await db.Shipping_Unit_Order_user.count({
+      where: {
+        userId: userId,
+      }
+    });
+
+    const totalRevenue = totalOrders * 10000;
+
+    const totalOrderFails = await db.Shipping_Unit_Order_user.count({
+      where: {
+        status: 'Order delivery failed',
+      }
+    });
+    const totalOrderSuccess = await db.Shipping_Unit_Order_user.count({
+      where: {
+        status: 'Delivered',
+      }
+    });
+
+    const monthlyOrders = await db.Shipping_Unit_Order_user.findAll({
+      attributes: [
+        [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'month'],
+        [db.sequelize.fn('count', db.sequelize.col('shipping_unit_orderId')), 'totalOrders'],
+      ],
+      where: {
+        userId: userId,
+      },
+      group: ['month'],
+      order: [[db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'ASC']]
+    });
+
+    return {
+      EM: "Ok!",
+      EC: 0,
+      DT: {
+        totalOrders: totalOrders,
+        totalRevenue: totalRevenue,
+        monthlyOrders: monthlyOrders,
+        totalOrderFails: totalOrderFails,
+        totalOrderSuccess: totalOrderSuccess,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
+const shipperDashboardOrder = async (page, limit, userId) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Shipping_Unit_Order_user.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      where: {
+        userId: userId,
+      },
+      attributes: [],
+      order: [['id', 'DESC']],
+      include: [
+        {
+          model: db.Shipping_Unit_Order,
+          attributes: ['id'],
+          include: [
+            {
+              model: db.Order,
+              attributes: ['id', 'total_amount', 'order_date', 'payment_methodID'],
+              include: [
+                {
+                  model: db.PaymentMethod,
+                  attributes: ['method_name']
+                },
+                {
+                  model: db.User,
+                  attributes: ['username']
+                },
+                {
+                  model: db.OrderItem,
+                  attributes: ['id', 'quantily'],
+                  include: [
+                    {
+                      model: db.Product_size_color,
+                      attributes: ['id'],
+                      include: [
+                        {
+                          model: db.Product,
+                          attributes: ['product_name', 'id']
+                        },
+                        {
+                          model: db.Size,
+                          attributes: ['size_value']
+                        },
+                        {
+                          model: db.Color,
+                          attributes: ['name'],
+                        },
+                      ],
+                    }
+                  ]
+                }
+              ]
+            },
+          ]
+        }
+      ]
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      orders: rows,
+    }
+    return {
+      EM: 'OK',
+      EC: 0,
+      DT: data,
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
+const shipperDashboardRevenue = async (page, limit, userId) => {
+  try {
+    let offset = (page - 1) * limit;
+
+    const dailyRevenue = await db.Shipping_Unit_Order_user.findAll({
+      where: {
+        userId: userId,
+      },
+      attributes: [
+        [db.Sequelize.fn('DATE', db.Sequelize.col('createdAt')), 'order_date'],
+        [db.Sequelize.fn('COUNT', db.Sequelize.col('id')), 'order_count'],
+        [db.Sequelize.literal('COUNT(id) * 10000'), 'total_revenue']
+      ],
+      group: [db.Sequelize.fn('DATE', db.Sequelize.col('createdAt'))],
+      order: [[db.Sequelize.fn('DATE', db.Sequelize.col('createdAt')), 'DESC']],
+      limit: limit,
+      offset: offset,
+    });
+
+    const countResult = await db.Shipping_Unit_Order_user.findAll({
+      where: {
+        userId: userId,
+      },
+      attributes: [
+        [db.Sequelize.fn('DISTINCT', db.Sequelize.fn('DATE', db.Sequelize.col('createdAt'))), 'distinct_dates']
+      ],
+    });
+
+    const totalDistinctDates = countResult.length;
+    const totalPages = Math.ceil(totalDistinctDates / limit);
+
+    let data = {
+      totalPages: totalPages,
+      totalRow: totalDistinctDates,
+      dailyRevenue: dailyRevenue,
+    };
+
+    return {
+      EM: 'OK',
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Something wrong with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+};
+
+const shipperDashboardDetailRevenue = async (page, limit, userId, date) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.Shipping_Unit_Order_user.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      where: {
+        userId: userId,
+        createdAt: {
+          [db.Sequelize.Op.between]: [
+            `${date} 00:00:00`,
+            `${date} 23:59:59`
+          ]
+        },
+      },
+      attributes: ['id'],
+      order: [['id', 'DESC']],
+      include: [
+        {
+          model: db.Shipping_Unit_Order,
+          attributes: ['id'],
+          include: [
+            {
+              model: db.Order,
+              attributes: ['total_amount', 'id'],
+              include: [
+                {
+                  model: db.User,
+                  attributes: ['username', 'id']
+                },
+                {
+                  model: db.OrderItem,
+                  attributes: ['quantily', 'id'],
+                  include: [
+                    {
+                      model: db.Product_size_color,
+                      attributes: ['id'],
+                      include: [
+                        {
+                          model: db.Product,
+                          attributes: ['product_name', 'id']
+                        },
+                        {
+                          model: db.Size,
+                          attributes: ['size_value']
+                        },
+                        {
+                          model: db.Color,
+                          attributes: ['name'],
+                        },
+                      ],
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalPages: totalPages,
+      totalRow: count,
+      orders: rows,
+    }
+    return {
+      EM: 'OK',
+      EC: 0,
+      DT: data,
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
   getAllProductForStoreOwner,
+  shipperDashboardOrder,
+  shipperDashboardSummary,
+  shipperDashboardRevenue,
+  shipperDashboardDetailRevenue,
   orderSuccessByShipper,
   getProductWithPagination,
   createProduct,
