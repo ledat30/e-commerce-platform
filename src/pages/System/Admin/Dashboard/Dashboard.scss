@@ -1,0 +1,38 @@
+.header_table_prd {
+    margin-bottom: -15px;
+
+    .refresh {
+        height      : 45px;
+        margin-top  : 10px;
+        padding-top : 2px;
+        padding-left: 1px;
+        margin-left : -80px;
+
+        .fa-refresh {
+            background-color: #198754;
+            color           : white;
+        }
+    }
+
+    .select {
+        width      : 240px;
+        margin-left: -50px;
+        margin-top : 6px;
+    }
+}
+
+.header_table {
+    .close {
+        margin          : 10px 0 10px -300px;
+        background-color: #253d46;
+        color           : white;
+    }
+
+    .search2 {
+        margin-right: 37px;
+    }
+
+    .search3 {
+        margin-right: 37px;
+    }
+}

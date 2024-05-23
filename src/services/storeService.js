@@ -63,7 +63,42 @@ const storeDashboardRevenueByDate = (page, limit, storeId, date) => {
   );
 }
 
+const adminDashboardSummary = () => {
+  return axios.get(`/api/admin/dashboard-summary`);
+}
+
+const adminDashboardOrder = (page, limit) => {
+  return axios.get(`/api/admin/dashboard-order?page=${page}&limit=${limit}`);
+}
+
+const adminDashboardProduct = (page, limit) => {
+  return axios.get(`/api/admin/dashboard-product?page=${page}&limit=${limit}`);
+}
+
+const adminDashboardUser = (page, limit) => {
+  return axios.get(`/api/admin/dashboard-user?page=${page}&limit=${limit}`);
+}
+
+const adminDashboardRevenueByStore = (page, limit) => {
+  return axios.get(`/api/admin/dashboard-revenue-by-store?page=${page}&limit=${limit}`);
+}
+
+const adminDashboardRevenueStoreByDate = (page, limit, storeId) => {
+  return axios.get(`/api/admin/dashboard-revenue-store-by-date?page=${page}&limit=${limit}&storeId=${storeId}`);
+}
+
+const adminDashboardRevenueStoreDetailByDate = (page, limit, storeId, date) => {
+  return axios.get(`/api/admin/dashboard-revenue-store-detail-by-date?page=${page}&limit=${limit}&storeId=${storeId}&date=${date}`);
+}
+
 export {
+  adminDashboardSummary,
+  adminDashboardOrder,
+  adminDashboardRevenueStoreByDate,
+  adminDashboardRevenueStoreDetailByDate,
+  adminDashboardRevenueByStore,
+  adminDashboardUser,
+  adminDashboardProduct,
   getAllStores,
   getAllProductByStoreId,
   storeDashboardOrder,
