@@ -12,6 +12,7 @@ import paymentMethodController from "../controller/paymentMethodController";
 import colorController from "../controller/colorController";
 import sizeController from "../controller/sizeController";
 import commentController from "../controller/commentController";
+import dashboardController from '../controller/dashboardAdminController';
 
 const router = express.Router();
 
@@ -145,6 +146,15 @@ const initApiRouter = (app) => {
   router.delete("/size/delete", sizeController.deleteFunc);
   router.put("/size/update", sizeController.updateFunc);
   router.get("/size/readByStore", sizeController.readSizeByStore);
+
+  //dashboard admin
+  router.get("/admin/dashboard-summary", dashboardController.adminDashboardSummary);
+  router.get("/admin/dashboard-order", dashboardController.adminDashboardOrder);
+  router.get("/admin/dashboard-product", dashboardController.adminDashboardProduct);
+  router.get("/admin/dashboard-user", dashboardController.adminDashboardUser);
+  router.get("/admin/dashboard-revenue-by-store", dashboardController.adminDashboardRevenueByStore);
+  router.get("/admin/dashboard-revenue-store-by-date", dashboardController.adminDashboardRevenueStoreByDate);
+  router.get("/admin/dashboard-revenue-store-detail-by-date", dashboardController.adminDashboardRevenueStoreDetailByDate);
 
   return app.use("/api", router);
 };
