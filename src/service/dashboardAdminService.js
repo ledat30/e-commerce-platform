@@ -14,6 +14,17 @@ const adminDashboardSummary = async () => {
         const totalUsers = await db.User.count();
 
         const totalRevenue = await db.Order.sum('total_amount', {
+            include: [{
+                model: db.Shipping_Unit_Order,
+                required: true,
+                include: [{
+                    model: db.Shipping_Unit_Order_user,
+                    required: true,
+                    where: {
+                        status: 'Delivered'
+                    }
+                }]
+            }],
             where: {
                 status: 'confirmed'
             }
@@ -229,6 +240,24 @@ const adminDashboardRevenueByStore = async (page, limit) => {
         let offset = (page - 1) * limit;
 
         const stores = await db.Store.findAll({
+            include: [
+                {
+                    model: db.Order,
+                    required: true,
+                    include: [
+                        {
+                            model: db.Shipping_Unit_Order,
+                            required: true,
+                            include: [{
+                                model: db.Shipping_Unit_Order_user,
+                                required: true,
+                                where: {
+                                    status: 'Delivered'
+                                }
+                            }]
+                        }
+                    ]
+                }],
             offset: offset,
             limit: limit,
             attributes: [
@@ -237,16 +266,22 @@ const adminDashboardRevenueByStore = async (page, limit) => {
                 [db.Sequelize.literal(`(
                     SELECT COUNT(*)
                     FROM Orders AS o
+                    JOIN Shipping_Unit_Orders AS suo ON suo.orderId = o.id
+                    JOIN Shipping_Unit_Order_users AS suou ON suou.shipping_unit_orderId = suo.id
                     WHERE
                         o.storeId = Store.id AND
-                        o.status = 'confirmed'
+                        o.status = 'confirmed' AND
+                        suou.status = 'Delivered'
                 )`), 'confirmedOrdersCount'],
                 [db.Sequelize.literal(`(
                     SELECT SUM(o.total_amount)
                     FROM Orders AS o
+                    JOIN Shipping_Unit_Orders AS suo ON suo.orderId = o.id
+                    JOIN Shipping_Unit_Order_users AS suou ON suou.shipping_unit_orderId = suo.id
                     WHERE
                         o.storeId = Store.id AND
-                        o.status = 'confirmed'
+                        o.status = 'confirmed' AND
+                        suou.status = 'Delivered'
                 )`), 'totalAmount']
             ],
             order: [['id', 'DESC']]
@@ -277,10 +312,22 @@ const adminDashboardRevenueByStore = async (page, limit) => {
     }
 };
 
+
 const adminDashboardRevenueStoreByDate = async (page, limit, storeId) => {
     try {
         let offset = (page - 1) * limit;
         const dailyRevenue = await db.Order.findAll({
+            include: [{
+                model: db.Shipping_Unit_Order,
+                required: true,
+                include: [{
+                    model: db.Shipping_Unit_Order_user,
+                    required: true,
+                    where: {
+                        status: 'Delivered'
+                    }
+                }]
+            }],
             where: {
                 storeId: storeId,
                 status: 'confirmed'
@@ -345,6 +392,17 @@ const adminDashboardRevenueStoreDetailByDate = async (page, limit, storeId, date
             attributes: ['total_amount', 'id'],
             order: [['id', 'DESC']],
             include: [
+                {
+                    model: db.Shipping_Unit_Order,
+                    required: true,
+                    include: [{
+                        model: db.Shipping_Unit_Order_user,
+                        required: true,
+                        where: {
+                            status: 'Delivered'
+                        }
+                    }]
+                },
                 {
                     model: db.User,
                     attributes: ['username', 'id']

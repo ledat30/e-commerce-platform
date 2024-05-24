@@ -327,11 +327,22 @@ const storeDashboard = async (storeId) => {
       }
     });
     const totalRevenue = await db.Order.sum('total_amount', {
+      include: [{
+        model: db.Shipping_Unit_Order,
+        required: true,
+        include: [{
+          model: db.Shipping_Unit_Order_user,
+          required: true,
+          where: {
+            status: 'Delivered'
+          }
+        }]
+      }],
       where: {
         storeId: storeId,
         status: 'confirmed'
       }
-    })
+    });
     const totalComments = await db.Comment.count({
       include: [
         {
@@ -399,6 +410,14 @@ const storeDashboardOrder = async (page, limit, storeId) => {
       order: [['id', 'DESC']],
       include: [
         {
+          model: db.Shipping_Unit_Order,
+          attributes: ['id'],
+          include: [{
+            model: db.Shipping_Unit_Order_user,
+            attributes: ['status']
+          }]
+        },
+        {
           model: db.User,
           attributes: ['username', 'id'],
         },
@@ -459,6 +478,17 @@ const storeDashboardRevenue = async (page, limit, storeId) => {
   try {
     let offset = (page - 1) * limit;
     const dailyRevenue = await db.Order.findAll({
+      include: [{
+        model: db.Shipping_Unit_Order,
+        required: true,
+        include: [{
+          model: db.Shipping_Unit_Order_user,
+          required: true,
+          where: {
+            status: 'Delivered'
+          }
+        }]
+      }],
       where: {
         storeId: storeId,
         status: 'confirmed'
@@ -524,6 +554,17 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
       order: [['id', 'DESC']],
       include: [
         {
+          model: db.Shipping_Unit_Order,
+          required: true,
+          include: [{
+            model: db.Shipping_Unit_Order_user,
+            required: true,
+            where: {
+              status: 'Delivered'
+            }
+          }]
+        },
+        {
           model: db.User,
           attributes: ['username', 'id']
         },
@@ -549,9 +590,9 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
                 },
               ],
               where: {
-                [Op.and]: [
-                  { sizeId: { [Op.not]: null } },
-                  { colorId: { [Op.not]: null } },
+                [db.Sequelize.Op.and]: [
+                  { sizeId: { [db.Sequelize.Op.not]: null } },
+                  { colorId: { [db.Sequelize.Op.not]: null } },
                 ],
               },
             }
@@ -559,12 +600,14 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
         }
       ]
     });
+
     let totalPages = Math.ceil(count / limit);
     let data = {
       totalPages: totalPages,
       totalRow: count,
       orders: rows,
     }
+
     return {
       EM: 'OK',
       EC: 0,
@@ -573,12 +616,13 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
   } catch (error) {
     console.log(error);
     return {
-      EM: "Somnething wrongs with services",
+      EM: "Something wrong with services",
       EC: -1,
       DT: [],
     };
   }
 }
+
 
 module.exports = {
   storeDashboardOrder,
