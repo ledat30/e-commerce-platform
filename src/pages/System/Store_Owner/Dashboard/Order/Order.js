@@ -11,10 +11,14 @@ function Order() {
     const [listOrders, setListOrders] = useState([]);
     const { user } = useContext(UserContext);
     const [searchInput, setSearchInput] = useState("");
+    const [filterStatus, setFilterStatus] = useState("");
+    const [selectedFilter, setSelectedFilter] = useState("");
 
-    const filteredData = listOrders?.orders?.filter((item) =>
-        item.User.username.toLowerCase().includes(searchInput.toLowerCase())
-    );
+    const filteredData = listOrders?.orders?.filter((item) => {
+        const usernameMatch = item.User.username.toLowerCase().includes(searchInput.toLowerCase());
+        const statusMatch = filterStatus ? item.Shipping_Unit_Orders[0].Shipping_Unit_Order_users[0].status === filterStatus : true;
+        return usernameMatch && statusMatch;
+    });
 
     useEffect(() => {
         fetchAllOrders();
@@ -33,10 +37,44 @@ function Order() {
         setCurrentPage(+event.selected + 1);
     };
 
+    const handleFailClick = () => {
+        if (selectedFilter === "danger") {
+            setFilterStatus("");
+            setSelectedFilter("");
+        } else {
+            setFilterStatus("Order delivery failed");
+            setSelectedFilter("danger");
+        }
+        setCurrentPage(1);
+    };
+
+    const handleSuccessClick = () => {
+        if (selectedFilter === "success") {
+            setFilterStatus("");
+            setSelectedFilter("");
+        } else {
+            setFilterStatus("Delivered");
+            setSelectedFilter("success");
+        }
+        setCurrentPage(1);
+    };
+
     return (
         <div className="table-category table">
             <div className="header-table-category header_table">
                 <div className='table_manage'>Bảng quản lý đơn hàng</div>
+                <div className='buttton'>
+                    <button
+                        className={`btn btn-danger ${selectedFilter === "danger" ? "active" : ""}`}
+                        onClick={handleFailClick}
+                    > Fail
+                    </button>
+                    <button
+                        className={`btn btn-success ${selectedFilter === "success" ? "active" : ""}`}
+                        onClick={handleSuccessClick}
+                    > Success
+                    </button>
+                </div>
                 <div className="box search">
                     <form className="sbox">
                         <input
@@ -59,6 +97,7 @@ function Order() {
                         <th>Quantity</th>
                         <th>Order date</th>
                         <th>Total</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,6 +122,7 @@ function Order() {
                                         <td>{item.OrderItems[0]?.quantily}</td>
                                         <td>{formattedDate}</td>
                                         <td>{formattedPrice}</td>
+                                        <td>{item.Shipping_Unit_Orders[0].Shipping_Unit_Order_users[0].status}</td>
                                     </tr>
                                 )
                             })}
@@ -91,7 +131,7 @@ function Order() {
                     ) : (
                         <>
                             <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                                <td colSpan={7}>Not found ...</td>
+                                <td colSpan={8}>Not found ...</td>
                             </tr>
                         </>
                     )}

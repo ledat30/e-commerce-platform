@@ -12,6 +12,7 @@ function Revenue() {
     const [listOrdersByDate, setListOrdersByDate] = useState([]);
     const { user } = useContext(UserContext);
     const [searchInput, setSearchInput] = useState("");
+    const [searchInputDetail, setSearchInputDetail] = useState("");
     const [listDetailOrder, setListDetailOrder] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -27,12 +28,20 @@ function Revenue() {
             setTotalPages(response.DT.totalPages);
         }
     }
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
     const filteredData = listOrdersByDate?.dailyRevenue?.filter((item) =>
-        item.order_date.toLowerCase().includes(searchInput.toLowerCase())
+        formatDate(item.order_date).includes(searchInput)
     );
 
     const filteredData2 = listDetailOrder?.orders?.filter((item) =>
-        item.User.username.toLowerCase().includes(searchInput.toLowerCase())
+        item.User.username.toLowerCase().includes(searchInputDetail.toLowerCase())
     );
 
     const handlePageClick = async (event) => {
@@ -45,6 +54,7 @@ function Revenue() {
         if (response && response.EC === 0) {
             setListDetailOrder(response.DT);
             setTotalPages(response.DT.totalPages);
+            setSearchInput("");
             setIsModalOpen(true);
         }
     }
@@ -64,7 +74,7 @@ function Revenue() {
                                     type=""
                                     placeholder="Tìm kiếm ..."
                                     value={searchInput}
-                                    onChange={(e) => setSearchInput(e.target.value)}
+                                    onChange={(e) => setSearchInputDetail(e.target.value)}
                                 />
                             </form>
                         </div>

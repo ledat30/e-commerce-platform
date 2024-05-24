@@ -82,4 +82,34 @@
         }
 
     }
+
+    .buttton {
+        margin-top : 1px;
+        margin-left: -250px;
+
+        .danger {
+            margin: 10px;
+        }
+
+        .danger.active {
+            background-color: red;
+        }
+
+        .btn-danger {
+            margin : 10px;
+            padding: 10px 27px;
+        }
+
+        .btn-success {
+            padding: 10px;
+        }
+
+        .success {
+            margin: 5px;
+        }
+
+        .success.active {
+            background-color: green;
+        }
+    }
 }
