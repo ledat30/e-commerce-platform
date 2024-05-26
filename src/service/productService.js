@@ -998,7 +998,7 @@ const ConfirmAllOrders = async (storeId, body) => {
   try {
     await db.Order.update(
       { status: 'confirmed' },
-      { where: { status: "Processing", storeId: storeId }, returning: true }
+      { where: { status: "Processing", storeId: storeId, payment_methodID: 1 }, returning: true }
     );
 
     const confirmedOrders = await db.Order.findAll({
@@ -1034,6 +1034,94 @@ const ConfirmAllOrders = async (storeId, body) => {
   }
 };
 
+const ConfirmOrdersByTransfer = async (storeId, body) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    await db.Order.update(
+      { status: 'confirmed' },
+      {
+        where: { status: "Processing", storeId: storeId, id: body.id },
+        returning: true,
+        transaction
+      }
+    );
+
+    const confirmedOrder = await db.Order.findOne({
+      where: { status: "confirmed", storeId: storeId, id: body.id },
+      transaction
+    });
+
+    if (!confirmedOrder) {
+      throw new Error('Order not found or not confirmed');
+    }
+
+    const existingShippingUnitOrder = await db.Shipping_Unit_Order.findOne({
+      where: {
+        orderId: confirmedOrder.id,
+        shippingUnitId: body.shippingUnitId
+      },
+      transaction
+    });
+
+    if (!existingShippingUnitOrder) {
+      await db.Shipping_Unit_Order.create({
+        orderId: confirmedOrder.id,
+        shippingUnitId: body.shippingUnitId,
+        status: 'Received from store'
+      }, { transaction });
+    }
+
+    await transaction.commit();
+    return { EM: 'Order confirmed successfully', EC: 0, DT: '' };
+  } catch (error) {
+    await transaction.rollback();
+    console.error('Error confirming order:', error);
+    return { EM: 'Failed to confirm order', EC: -1, DT: '' };
+  }
+};
+
+const DeleteOrdersTransfer = async (id) => {
+  try {
+    try {
+      await db.OrderItem.destroy({
+        where: { orderId: id }
+      });
+
+      await db.Invoice.destroy({
+        where: { orderId: id }
+      });
+
+      const deletedOrderCount = await db.Order.destroy({
+        where: { id: id }
+      });
+
+      if (deletedOrderCount > 0) {
+        return {
+          EM: "Order and related records deleted successfully!",
+          EC: 0,
+          DT: null,
+        };
+      } else {
+        return {
+          EM: "No order found with the provided ID!",
+          EC: -1,
+          DT: null,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      return {
+        EM: "Error occurred while canceling the order",
+        EC: -1,
+        DT: null,
+      };
+    }
+  } catch (error) {
+    console.error('Error confirming order:', error);
+    return { EM: 'Failed to confirm order', EC: -1, DT: '' };
+  }
+}
 
 const getreadStatusOrderWithPagination = async (page, limit, userId) => {
   try {
@@ -1670,6 +1758,8 @@ module.exports = {
   createBuyProduct,
   orderByUser,
   ConfirmAllOrders,
+  ConfirmOrdersByTransfer,
+  DeleteOrdersTransfer,
   getreadStatusOrderWithPagination,
   cancelOrder,
   readAllOrderByShipper,

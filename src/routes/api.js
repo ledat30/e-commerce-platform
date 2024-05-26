@@ -100,6 +100,8 @@ const initApiRouter = (app) => {
   router.post("/product/buy", productController.createBuyProduct);
   router.get("/product/orderByUser", productController.orderByUser);
   router.post("/product/confirm-all-order", productController.ConfirmAllOrders);
+  router.post("/product/confirm-order-by-transfer", productController.ConfirmOrdersByTransfer);
+  router.delete("/product/delete-order-transfer", productController.DeleteOrdersTransfer);
   router.get("/product/read_status-order", productController.readStatusOrderByUser);
   router.delete("/product/cancel-order", productController.cancelOrder);
   router.get("/shipper/read_all-orderBy_shipper", productController.readAllOrderByShipper);

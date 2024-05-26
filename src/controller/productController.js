@@ -378,6 +378,43 @@ const ConfirmAllOrders = async (req, res) => {
   }
 }
 
+const ConfirmOrdersByTransfer = async (req, res) => {
+  let storeId = req.query.storeId;
+  try {
+    let data = await productService.ConfirmOrdersByTransfer(storeId, req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error service",
+      EC: -1,
+      DT: "",
+    })
+  }
+}
+
+const DeleteOrdersTransfer = async (req, res) => {
+  try {
+    let data = await productService.DeleteOrdersTransfer(req.body.id);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
 const readStatusOrderByUser = async (req, res) => {
   try {
     const userId = req.query.userId;
@@ -676,6 +713,8 @@ module.exports = {
   createBuyProduct,
   orderByUser,
   ConfirmAllOrders,
+  ConfirmOrdersByTransfer,
+  DeleteOrdersTransfer,
   readStatusOrderByUser,
   cancelOrder,
   readAllOrderByShipper,

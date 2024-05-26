@@ -49,6 +49,8 @@ const nonSecurePaths = [
   '/admin/dashboard-revenue-by-store',
   '/admin/dashboard-revenue-store-by-date',
   '/admin/dashboard-revenue-store-detail-by-date',
+  '/product/confirm-order-by-transfer',
+  '/product/delete-order-transfer',
 ];
 
 const createJWT = (payload) => {
