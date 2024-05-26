@@ -174,6 +174,12 @@ const cancelOrder = (orderId) => {
   });
 }
 
+const DeleteOrdersTransfer = (orderId) => {
+  return axios.delete(`/api/product/delete-order-transfer`, {
+    data: { id: orderId },
+  });
+}
+
 const buyProduct = (productColorSizeId, orderId, storeId, data) => {
   return axios.post(`/api/product/buy?productColorSizeId=${productColorSizeId}&orderId=${orderId}&storeId=${storeId}`, { ...data });
 }
@@ -189,6 +195,12 @@ const ConfirmAllOrders = (storeId, data) => {
     `/api/product/confirm-all-order?storeId=${storeId}`, data
   );
 };
+
+const ConfirmOrdersByTransfer = (storeId, data) => {
+  return axios.post(
+    `/api/product/confirm-order-by-transfer?storeId=${storeId}`, data
+  );
+}
 
 const getreadStatusOrderWithPagination = (page, limit, userId) => {
   return axios.get(
@@ -283,7 +295,9 @@ export {
   buyProduct,
   getAllOrderByStore,
   ConfirmAllOrders,
+  ConfirmOrdersByTransfer,
   getreadStatusOrderWithPagination,
+  DeleteOrdersTransfer,
   cancelOrder,
   readAllOrderByShipper,
 };

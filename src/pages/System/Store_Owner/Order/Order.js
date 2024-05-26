@@ -4,7 +4,7 @@ import { UserContext } from "../../../../context/userContext";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import {
-    getAllOrderByStore, ConfirmAllOrders
+    getAllOrderByStore, ConfirmAllOrders, ConfirmOrdersByTransfer, DeleteOrdersTransfer
 } from "../../../../services/productService";
 import { getAllShippingUnits } from "../../../../services/shippingUnitService";
 import ReactPaginate from "react-paginate";
@@ -81,7 +81,6 @@ function Order() {
                 console.log(error);
             }
         }
-
     }
 
     const handleRefresh = async () => {
@@ -100,6 +99,35 @@ function Order() {
         );
         setListShippingUnit(updatedShippingUnit);
     };
+
+    const handleConfirm = async (id) => {
+        if (checkValidInput()) {
+            try {
+                let response = await ConfirmOrdersByTransfer(user.account.storeId, { id, shippingUnitId: selectedOption.value });
+
+                if (response && response.EC === 0) {
+                    toast.success(response.EM);
+                    await fetchAllOrders();
+                } else {
+                    toast.error(response.EM);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
+
+    const handleDeleteOrder = async (orderId) => {
+        try {
+            await DeleteOrdersTransfer(orderId);
+            toast.success("Product removed successfully");
+            fetchAllOrders();
+
+        } catch (error) {
+            console.error("Error deleting product from cart:", error);
+            toast.error("Failed to remove product from cart");
+        }
+    }
 
     return (
         <>
@@ -164,13 +192,12 @@ function Order() {
                                 <tr>
                                     <th>No</th>
                                     <th>Product name</th>
-                                    <th>Color</th>
-                                    <th>Size</th>
                                     <th>User</th>
                                     <th>Quantity</th>
                                     <th>Total amount</th>
                                     <th>Payment method</th>
                                     <th>Order date</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -189,11 +216,7 @@ function Order() {
                                                     <td>
                                                         {(currentPage - 1) * currentLimit + index + 1}
                                                     </td>
-                                                    <td>{item.OrderItems[0].Product_size_color.Product.product_name}
-                                                    </td>
-                                                    <td>{item.OrderItems[0].Product_size_color.Color.name}
-                                                    </td>
-                                                    <td>{item.OrderItems[0].Product_size_color.Size.size_value}
+                                                    <td style={{ width: '250px' }}>{item.OrderItems[0].Product_size_color.Product.product_name}
                                                     </td>
                                                     <td>
                                                         {item.User.username}
@@ -209,6 +232,28 @@ function Order() {
                                                     </td>
                                                     <td>
                                                         {formattedDate}
+                                                    </td>
+                                                    <td>
+                                                        <td>
+                                                            {item.PaymentMethod.method_name === "Chuyển khoản" && (
+                                                                <>
+                                                                    <button
+                                                                        title="Edit"
+                                                                        className="btn btn-warning mx-2"
+                                                                        onClick={() => handleConfirm(item.id)}
+                                                                    >
+                                                                        <i className="fa fa-check-circle-o"></i>
+                                                                    </button>
+                                                                    <button
+                                                                        title="Delete"
+                                                                        className="btn btn-danger"
+                                                                        onClick={() => handleDeleteOrder(item.id)}
+                                                                    >
+                                                                        <i className="fa fa-trash-o"></i>
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </td>
                                                     </td>
                                                 </tr>
                                             );

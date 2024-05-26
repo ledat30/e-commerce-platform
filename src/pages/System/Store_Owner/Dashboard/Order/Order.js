@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import ReactPaginate from "react-paginate";
-import { useContext } from "react";
 import { UserContext } from "../../../../../context/userContext";
 import { storeDashboardOrder } from '../../../../../services/storeService';
 
@@ -16,8 +15,9 @@ function Order() {
 
     const filteredData = listOrders?.orders?.filter((item) => {
         const usernameMatch = item.User.username.toLowerCase().includes(searchInput.toLowerCase());
-        const statusMatch = filterStatus ? item.Shipping_Unit_Orders[0].Shipping_Unit_Order_users[0].status === filterStatus : true;
-        return usernameMatch && statusMatch;
+        const statusMatch = filterStatus ? item.Shipping_Unit_Orders[0]?.Shipping_Unit_Order_users[0]?.status === filterStatus : true;
+        const excludeBeingTransported = item.Shipping_Unit_Orders[0]?.Shipping_Unit_Order_users[0]?.status !== 'Being transported';
+        return usernameMatch && statusMatch && (!selectedFilter || excludeBeingTransported);
     });
 
     useEffect(() => {
@@ -122,11 +122,11 @@ function Order() {
                                         <td>{item.OrderItems[0]?.quantily}</td>
                                         <td>{formattedDate}</td>
                                         <td>{formattedPrice}</td>
-                                        <td>{item.Shipping_Unit_Orders[0].Shipping_Unit_Order_users[0].status}</td>
+                                        <td>{item.Shipping_Unit_Orders[0]?.Shipping_Unit_Order_users[0]?.status || 'Being transported'}
+                                        </td>
                                     </tr>
                                 )
                             })}
-
                         </>
                     ) : (
                         <>

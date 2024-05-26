@@ -11,7 +11,6 @@ function Dashboard() {
     const { user } = useContext(UserContext);
     const [dataSummary, setDataSummary] = useState([]);
     const [activeItem, setActiveItem] = useState('orders');
-    console.log(dataSummary);
 
     useEffect(() => {
         fetchDataSummary();
