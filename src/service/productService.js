@@ -1476,11 +1476,13 @@ const shipperDashboardSummary = async (userId) => {
     const totalOrderFails = await db.Shipping_Unit_Order_user.count({
       where: {
         status: 'Order delivery failed',
+        userId: userId,
       }
     });
     const totalOrderSuccess = await db.Shipping_Unit_Order_user.count({
       where: {
         status: 'Delivered',
+        userId: userId,
       }
     });
 

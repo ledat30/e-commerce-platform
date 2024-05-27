@@ -286,9 +286,12 @@ const readAllOrderByShippingUnit = async (page, limit, shipingUnitId) => {
 const confirmOrder = async (body) => {
   try {
     for (const citySuffix in body) {
-      const { shipperId, orders } = body[citySuffix];
-      for (const order of orders) {
-        await createShippingUnitUser(shipperId, order.shipping_unit_orderId, order.orderId);
+      const shipperGroups = body[citySuffix];
+      for (const group of shipperGroups) {
+        const { shipperId, orders } = group;
+        for (const order of orders) {
+          await createShippingUnitUser(shipperId, order.shipping_unit_orderId, order.orderId);
+        }
       }
     }
     return { EC: 0, EM: "Successfully confirmed orders", DT: {} };
@@ -296,7 +299,7 @@ const confirmOrder = async (body) => {
     console.error("Error processing confirmation:", error);
     return { EC: -1, EM: "Failed to confirm orders", DT: {} };
   }
-}
+};
 
 const createShippingUnitUser = async (shipperId, shipping_unit_orderId, orderId) => {
   const t = await db.sequelize.transaction();
