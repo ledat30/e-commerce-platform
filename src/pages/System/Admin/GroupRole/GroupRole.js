@@ -7,12 +7,13 @@ import {
 } from "../../../../services/roleService";
 import _ from "lodash";
 import { toast } from "react-toastify";
+import { NavLink } from "react-router-dom";
 
 function GroupRole() {
   const [userGroup, setUserGroup] = useState([]);
   const [listRoles, setListRole] = useState([]);
   const [selectGroup, setSelectGroup] = useState("");
-
+  const [searchInput, setSearchInput] = useState("");
   const [assignRoleByGroup, setAssignRoleByGroup] = useState([]);
 
   useEffect(() => {
@@ -20,9 +21,12 @@ function GroupRole() {
     fetchAllRoles();
   }, []);
 
+  const filteredData = assignRoleByGroup.filter((item) =>
+    item.description.toLowerCase().includes(searchInput.toLowerCase())
+  );
+
   const getGroups = async () => {
     let response = await fetchGroups();
-    console.log("response", response);
 
     if (response && response.EC === 0) {
       setUserGroup(response.DT);
@@ -113,22 +117,50 @@ function GroupRole() {
           <div className="container mt-3">
             <h4>Group role</h4>
             <div className="assign-group-role">
-              <div className="col-12 col-sm-3 from-group">
-                <label>Select Group</label>
-                <select
-                  className="form-select"
-                  onChange={(e) => handleOnchangeGroup(e.target.value)}
-                >
-                  <option value="">Please select your group</option>
-                  {userGroup.length > 0 &&
-                    userGroup.map((item, index) => {
-                      return (
-                        <option key={`group-${index}`} value={item.id}>
-                          {item.name}
-                        </option>
-                      );
-                    })}
-                </select>
+              <div style={{ display: 'flex', justifyContent: "space-between" }}>
+                <div className="col-12 col-sm-3 from-group">
+                  <label>Select Group</label>
+                  <select
+                    className="form-select"
+                    onChange={(e) => handleOnchangeGroup(e.target.value)}
+                  >
+                    <option value="">Please select your group</option>
+                    {userGroup.length > 0 &&
+                      userGroup.map((item, index) => {
+                        return (
+                          <option key={`group-${index}`} value={item.id}>
+                            {item.name}
+                          </option>
+                        );
+                      })}
+                  </select>
+                </div>
+                {selectGroup && (
+                  <>
+                    <div className="box mt-3">
+                      <form className="sbox">
+                        <input
+                          className="stext"
+                          type=""
+                          placeholder="Tìm kiếm role..."
+                          value={searchInput}
+                          onChange={(e) => setSearchInput(e.target.value)}
+                        />
+                        <NavLink className="sbutton" type="submit" to="">
+                          <i className="fa fa-search"></i>
+                        </NavLink>
+                      </form>
+                    </div>
+                    <div className="mt-4">
+                      <button
+                        className="btn btn-warning"
+                        onClick={() => handleSave()}
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
               <hr />
               {selectGroup && (
@@ -136,9 +168,9 @@ function GroupRole() {
                   <div className="roles">
                     <h5>Assign Roles:</h5>
                     <div className="roles-container">
-                      {assignRoleByGroup &&
-                        assignRoleByGroup.length > 0 &&
-                        assignRoleByGroup.map((item, index) => {
+                      {filteredData &&
+                        filteredData.length > 0 &&
+                        filteredData.map((item, index) => {
                           return (
                             <div
                               className="form-check role-item"
@@ -164,14 +196,6 @@ function GroupRole() {
                           );
                         })}
                     </div>
-                  </div>
-                  <div className="mt-3">
-                    <button
-                      className="btn btn-warning"
-                      onClick={() => handleSave()}
-                    >
-                      Save
-                    </button>
                   </div>
                 </>
               )}
