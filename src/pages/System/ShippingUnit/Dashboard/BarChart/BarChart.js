@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Bar } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+import Select from 'react-select';
 
 Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
@@ -62,30 +63,52 @@ const Barchart = ({ dataSummary }) => {
 
 
 const PieChart = ({ dataSummary }) => {
-    console.log(dataSummary);
     const [listOrderMonth, setListOrderMonth] = useState([]);
     const [monthlyTotals, setMonthlyTotals] = useState([]);
+    const [selectedMonth, setSelectedMonth] = useState(null);
+    const [months, setMonths] = useState([]);
 
     useEffect(() => {
         if (dataSummary && Array.isArray(dataSummary.monthlyOrders)) {
-            const months = dataSummary.monthlyOrders.map(order => order.month);
+            const months = dataSummary.monthlyOrders.map(order => ({
+                value: order.month,
+                label: order.month,
+            }));
+            const monthsList = dataSummary.monthlyOrders.map(order => order.month);
             const totals = dataSummary.monthlyOrders.map(order => order.totalOrders);
-            setListOrderMonth(months);
+            setMonths(months);
+            setListOrderMonth(monthsList);
             setMonthlyTotals(totals);
         } else {
             console.warn('dataSummary or dataSummary.monthlyOrders is not correctly defined');
         }
     }, [dataSummary]);
 
-    const data1 = {
-        labels: listOrderMonth,
-        datasets: [
-            {
-                label: 'Total Orders per Month',
-                data: monthlyTotals,
-                backgroundColor: 'rgba(75,192,192,0.6)',
-            },
-        ],
+    const filteredData = () => {
+        if (selectedMonth) {
+            const index = listOrderMonth.indexOf(selectedMonth.value);
+            return {
+                labels: [selectedMonth.label],
+                datasets: [
+                    {
+                        label: 'Total Orders per Month',
+                        data: [monthlyTotals[index]],
+                        backgroundColor: 'rgba(75,192,192,0.6)',
+                    },
+                ],
+            };
+        } else {
+            return {
+                labels: listOrderMonth,
+                datasets: [
+                    {
+                        label: 'Total Orders per Month',
+                        data: monthlyTotals,
+                        backgroundColor: 'rgba(75,192,192,0.6)',
+                    },
+                ],
+            };
+        }
     };
 
     const options = {
@@ -97,9 +120,18 @@ const PieChart = ({ dataSummary }) => {
     };
 
     return (
-        <div style={{ width: '400px', height: '400px', paddingTop: '20px' }}>
-            <Bar data={data1} options={options} width={400} height={400} />
-            <div style={{ fontSize: '15px', paddingLeft: '22px', paddingTop: '15px' }}>Biểu đồ cột  </div>
+        <div style={{ width: '400px', height: '360px', paddingTop: '20px' }}>
+            <Select
+                options={months}
+                value={selectedMonth}
+                onChange={setSelectedMonth}
+                isClearable={true}
+                placeholder="Select month"
+            />
+            <Bar data={filteredData()} options={options} width={400} height={360} />
+            <div style={{ fontSize: '15px', paddingLeft: '22px', paddingTop: '15px' }}>
+                Biểu đồ cột thống kê tần suất đơn theo tháng
+            </div>
         </div>
     )
 };

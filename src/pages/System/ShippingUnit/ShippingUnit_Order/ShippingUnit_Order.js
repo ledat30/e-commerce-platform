@@ -64,24 +64,41 @@ function ShippingUnitOrder() {
 
     const groupOrdersByCitySuffix = (orders, shippers) => {
         const groupedOrders = {};
+        const shipperIndexes = {};
+
         orders.forEach(order => {
             const orderCitySuffix = order.Order.User.address.split(', ').map(s => s.trim()).pop().toLowerCase();
-            shippers.forEach(shipper => {
-                const addressParts = shipper.address.split(', ');
-                const shipperCitySuffix = addressParts[addressParts.length - 1].trim().toLowerCase();
-                if (orderCitySuffix === shipperCitySuffix) {
-                    if (!groupedOrders[shipperCitySuffix]) {
-                        groupedOrders[shipperCitySuffix] = {
-                            shipperId: shipper.id,
-                            orders: []
-                        };
-                    }
-                    groupedOrders[shipperCitySuffix].orders.push({
-                        shipping_unit_orderId: order.id,
-                        orderId: order.orderId
-                    });
-                }
+
+            const cityShippers = shippers.filter(shipper => {
+                const shipperCitySuffix = shipper.address.split(', ').map(s => s.trim()).pop().toLowerCase();
+                return orderCitySuffix === shipperCitySuffix;
             });
+
+            if (cityShippers.length > 0) {
+                if (!groupedOrders[orderCitySuffix]) {
+                    groupedOrders[orderCitySuffix] = [];
+                    shipperIndexes[orderCitySuffix] = 0;
+                }
+
+                const currentShipperIndex = shipperIndexes[orderCitySuffix];
+                const currentShipper = cityShippers[currentShipperIndex];
+
+                let shipperGroup = groupedOrders[orderCitySuffix].find(group => group.shipperId === currentShipper.id);
+                if (!shipperGroup) {
+                    shipperGroup = {
+                        shipperId: currentShipper.id,
+                        orders: []
+                    };
+                    groupedOrders[orderCitySuffix].push(shipperGroup);
+                }
+
+                shipperGroup.orders.push({
+                    shipping_unit_orderId: order.id,
+                    orderId: order.orderId
+                });
+
+                shipperIndexes[orderCitySuffix] = (currentShipperIndex + 1) % cityShippers.length;
+            }
         });
         return groupedOrders;
     };
