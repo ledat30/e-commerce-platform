@@ -390,52 +390,6 @@ const getAllProductWithPagination = async (page, limit) => {
   }
 };
 
-const getAllProductInStockForStoreOwner = async () => {
-  try {
-    let product = await db.Inventory.findAll({
-      attributes: [
-        "id",
-        "quantyly",
-        "currentNumber",
-        "quantyly_ordered",
-        "quantyly_shipped",
-        "quantity_sold",
-      ],
-      include: [
-        {
-          model: db.Product_size_color, attributes: ["id"],
-          include: [
-            { model: db.Product, attributes: ['product_name'] },
-            { model: db.Color, attributes: ['name'] },
-            { model: db.Size, attributes: ['size_value'] }
-          ]
-        }],
-      raw: false,
-      order: [["id", "DESC"]],
-    });
-    if (product && product.length > 0) {
-      return {
-        EM: "Get all product success!",
-        EC: 0,
-        DT: product,
-      };
-    } else {
-      return {
-        EM: "Get all product error!",
-        EC: 0,
-        DT: [],
-      };
-    }
-  } catch (error) {
-    console.log(error);
-    return {
-      EM: "Somnething wrongs with services",
-      EC: -1,
-      DT: [],
-    };
-  }
-};
-
 const getProductInStockWithPagination = async (page, limit, storeId) => {
   try {
     let offset = (page - 1) * limit;
@@ -1751,7 +1705,6 @@ module.exports = {
   updateProduct,
   deleteProduct,
   getAllProductWithPagination,
-  getAllProductInStockForStoreOwner,
   getProductInStockWithPagination,
   deleteProductInStock,
   updateProductInStock,
