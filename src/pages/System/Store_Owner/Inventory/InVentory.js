@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import {
-  getAllProductsInStockByStore,
+  getProductInStockWithPagination,
   deleteProductInStock,
 } from "../../../../services/productService";
 import { useEffect, useState } from "react";
@@ -13,12 +13,12 @@ import ModalUpdate from "./ModalUpdate";
 
 function InVentory(ropps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [dataProductInStockByStore, setDataProductInStockByStore] = useState(
     []
   );
   const { user } = useContext(UserContext);
-  const [currentLimit] = useState(5);
+  const [currentLimit] = useState(6);
   const [isShowModelDelete, setIsShowModelDelete] = useState(false);
   const [dataModel, setDataModel] = useState({});
   const [searchInput, setSearchInput] = useState("");
@@ -30,13 +30,15 @@ function InVentory(ropps) {
   }, [currentPage]);
 
   const getDataProductInStockByStore = async () => {
-    let response = await getAllProductsInStockByStore({
-      storeId: user.account.storeId,
+    let response = await getProductInStockWithPagination({
       page: currentPage,
       limit: currentLimit,
+      storeId: user.account.storeId,
     });
+    console.log(`response`, response);
     if (response && response.EC === 0) {
       setDataProductInStockByStore(response.DT.product);
+      setTotalPages(response.DT.totalPages);
     } else {
       console.error(
         "Error fetching products. Check the response for more details."

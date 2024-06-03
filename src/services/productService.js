@@ -50,7 +50,8 @@ const searchProduct = (key) => {
   return axios.get(`/api/search-product?q=${key}`);
 };
 
-const getAllProductsInStockByStore = (data) => {
+const getProductInStockWithPagination = (data) => {
+  console.log(`data`, data);
   return axios.get(
     `/api/inventory/read?page=${data.page}&limit=${data.limit}&storeId=${data.storeId}`
   );
@@ -272,7 +273,7 @@ export {
   searchProduct,
   shipperConfirmOrder,
   getAllProducts,
-  getAllProductsInStockByStore,
+  getProductInStockWithPagination,
   deleteProductInStock,
   updateProductInStockByStore,
   createColorProduct,
