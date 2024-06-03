@@ -100,7 +100,7 @@ function DetailCart() {
                         productColorSizeId: orderItem.Product_size_color.id,
                         orderId: item.id,
                         storeId: orderItem.Product_size_color.Product.Store.id,
-                        quantily: quantities[orderItem.Product_size_color.Product.Inventories[0].id],
+                        quantily: quantities[orderItem.Product_size_color.Inventories[0].id],
                         price: orderItem.Product_size_color.Product.price
                     });
                 }
@@ -155,7 +155,7 @@ function DetailCart() {
         const initialQuantities = {};
         cartItems.forEach(item => {
             item.OrderItems.forEach(orderItem => {
-                const inventory = orderItem.Product_size_color?.Product?.Inventories?.[0];
+                const inventory = orderItem.Product_size_color?.Inventories?.[0];
                 if (inventory && inventory.id) {
                     initialQuantities[inventory.id] = 1;
                 }
@@ -174,7 +174,7 @@ function DetailCart() {
             return total + item.OrderItems.reduce((itemTotal, orderItem) => {
                 if (selectedItems[orderItem.id]) {
                     const price = orderItem.Product_size_color.Product.price;
-                    const quantity = quantities[orderItem.Product_size_color.Product.Inventories[0].id];
+                    const quantity = quantities[orderItem.Product_size_color.Inventories[0].id];
                     return itemTotal + price * quantity;
                 }
                 return itemTotal;
@@ -234,11 +234,11 @@ function DetailCart() {
         setQuantities(prev => {
             const maxQuantity = cartItems.find(item =>
                 item.OrderItems.some(orderItem =>
-                    orderItem.Product_size_color?.Product?.Inventories?.[0]?.id === inventoryId
+                    orderItem.Product_size_color?.Inventories?.[0]?.id === inventoryId
                 )
             )?.OrderItems.find(orderItem =>
-                orderItem.Product_size_color?.Product?.Inventories?.[0]?.id === inventoryId
-            )?.Product_size_color?.Product?.Inventories?.[0]?.currentNumber;
+                orderItem.Product_size_color?.Inventories?.[0]?.id === inventoryId
+            )?.Product_size_color?.Inventories?.[0]?.currentNumber;
 
             if (prev[inventoryId] < maxQuantity) {
                 return { ...prev, [inventoryId]: prev[inventoryId] + 1 };
@@ -295,7 +295,7 @@ function DetailCart() {
                                             if (orderItem.Product_size_color.Product.image) {
                                                 imageBase64 = new Buffer.from(orderItem.Product_size_color.Product.image, 'base64').toString('binary');
                                             }
-                                            const inventory = orderItem.Product_size_color?.Product?.Inventories?.[0];
+                                            const inventory = orderItem.Product_size_color?.Inventories?.[0];
                                             if (!inventory) return null;
                                             return (
                                                 <div className="item_product" key={orderIndex}>

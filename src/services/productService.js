@@ -13,10 +13,12 @@ const getAllProducts = (data) => {
 };
 
 const createProduct = (productData, storeId, selectedColors, selectedSizes) => {
-  const colorsAndSizes = selectedColors.map((color) => ({
-    colorId: color,
-    selectedSizes: selectedSizes,
-  }));
+  const colorsAndSizes = selectedColors.flatMap((color) =>
+    selectedSizes.map((size) => ({
+      colorId: color,
+      sizeId: size,
+    }))
+  );
 
   return axios.post(`/api/product/create?storeId=${storeId}`, {
     ...productData,
@@ -25,10 +27,12 @@ const createProduct = (productData, storeId, selectedColors, selectedSizes) => {
 };
 
 const updateProduct = (productData, storeId, selectedColors, selectedSizes) => {
-  const colorsAndSizes = selectedColors.map((color) => ({
-    colorId: color,
-    sizeIds: selectedSizes,
-  }));
+  const colorsAndSizes = selectedColors.flatMap((color) =>
+    selectedSizes.map((size) => ({
+      colorId: color,
+      sizeId: size,
+    }))
+  );
 
   return axios.put(`/api/product/update?storeId=${storeId}`, {
     ...productData,

@@ -5,14 +5,12 @@ import { useEffect, useState } from "react";
 import {
   getAllProductsByStore,
   deleteProduct,
-  searchProduct,
 } from "../../../../services/productService";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
 import ModalProduct from "./ModalProduct";
 import { toast } from "react-toastify";
 import ModelDelete from "./ModelDelete";
-import { debounce } from "lodash";
 
 function Product(ropps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,6 +18,7 @@ function Product(ropps) {
   const { user } = useContext(UserContext);
   const [totalPages, setTotalPages] = useState(1);
   const [currentLimit] = useState(5);
+  const [searchInput, setSearchInput] = useState("");
 
   const [isShowModalProduct, setIsShowModalProduct] = useState(false);
   const [actionModalProduct, setActionModalProduct] = useState("CREATE");
@@ -97,25 +96,9 @@ function Product(ropps) {
     }
   };
 
-  const searchHandle = debounce(async (e) => {
-    let key = e.target.value;
-    if (key) {
-      try {
-        let response = await searchProduct(key);
-        if (response.EC === 0) {
-          setDataProductByStore(response.DT);
-          setCurrentPage(1);
-        } else {
-          setDataProductByStore([]);
-          setCurrentPage(1);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      await getDataProductByStore();
-    }
-  }, 300);
+  const filteredData = dataProductByStore.filter((item) =>
+    item.product_name.toLowerCase().includes(searchInput.toLowerCase())
+  );
 
   return (
     <>
@@ -149,7 +132,8 @@ function Product(ropps) {
                     type="text"
                     name="q"
                     placeholder="Tìm kiếm product..."
-                    onChange={(e) => searchHandle(e)}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                   />
                   <NavLink className="sbutton" type="submit" to="">
                     <i className="fa fa-search"></i>
@@ -173,9 +157,9 @@ function Product(ropps) {
                 </tr>
               </thead>
               <tbody>
-                {dataProductByStore && dataProductByStore.length > 0 ? (
+                {filteredData && filteredData.length > 0 ? (
                   <>
-                    {dataProductByStore.map((item, index) => {
+                    {filteredData.map((item, index) => {
                       return (
                         <tr key={`row-${index}`}>
                           <td>

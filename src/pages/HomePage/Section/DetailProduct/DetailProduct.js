@@ -249,6 +249,28 @@ function DetailProduct() {
     }
   }
 
+  const getInventory = (size, color) => {
+    const selectedColorSize = dataDetailProduct.Product_size_colors.find(item =>
+      item.Color.name === color &&
+      item.Size.size_value === size
+    );
+    return selectedColorSize?.Inventories?.[0]?.currentNumber || 0;
+  }
+
+  const isSizeAvailable = (size) => {
+    return dataDetailProduct.Product_size_colors.some(item =>
+      item.Size.size_value === size &&
+      item.Inventories.some(inventory => inventory.currentNumber > 0)
+    );
+  };
+
+  const isColorAvailable = (color) => {
+    return dataDetailProduct.Product_size_colors.some(item =>
+      item.Color.name === color &&
+      item.Inventories.some(inventory => inventory.currentNumber > 0)
+    );
+  };
+
   return (
     <div className="container-detail">
       <HeaderHome />
@@ -282,12 +304,13 @@ function DetailProduct() {
                       Chọn size
                       <div className="choose-size-color">
                         {Array.from(new Set(dataDetailProduct?.Product_size_colors?.map(item => item.Size.size_value))).map((size_value, index) => {
-                          const isActive = size_value === selectedSize && dataDetailProduct.Inventories[0].currentNumber > 0;
-                          const isNoHover = dataDetailProduct.Inventories[0].currentNumber === 0;
+                          const isActive = size_value === selectedSize;
+                          const isAvailable = isSizeAvailable(size_value);
+                          const isNoHover = !isAvailable;
                           return (
                             <div key={index}
                               className={`choose ${isActive ? 'active' : ''} ${isNoHover ? 'no-hover' : ''}`}
-                              onClick={() => dataDetailProduct.Inventories[0].currentNumber > 0 && handleSizeClick(size_value)}
+                              onClick={() => isAvailable && handleSizeClick(size_value)}
                             >
                               {size_value}
                             </div>
@@ -299,12 +322,13 @@ function DetailProduct() {
                       Chọn màu
                       <div className="choose-size-color">
                         {Array.from(new Set(dataDetailProduct?.Product_size_colors?.map(item => item.Color.name))).map((name, index) => {
-                          const isActive = name === selectedColor && dataDetailProduct.Inventories[0].currentNumber > 0;
-                          const isNoHover = dataDetailProduct.Inventories[0].currentNumber === 0;
+                          const isActive = name === selectedColor;
+                          const isAvailable = isColorAvailable(name);
+                          const isNoHover = !isAvailable;
                           return (
                             <div key={index}
                               className={`choose ${isActive ? 'active' : ''} ${isNoHover ? 'no-hover' : ''}`}
-                              onClick={() => dataDetailProduct.Inventories[0].currentNumber > 0 && handleColorClick(name)}
+                              onClick={() => isAvailable && handleColorClick(name)}
                             >
                               {name}
                             </div>
@@ -337,7 +361,7 @@ function DetailProduct() {
                         <button
                           className="button-quantily"
                           onClick={incrementQuantity}
-                          disabled={quantily >= dataDetailProduct.Inventories[0].currentNumber}
+                          disabled={quantily >= getInventory(selectedSize, selectedColor)}
                         >
                           +
                         </button>
@@ -345,13 +369,13 @@ function DetailProduct() {
                     </div>
                     <div className="button-buy-add_cart">
                       {
-                        dataDetailProduct.Inventories[0].currentNumber > 0 ? (
+                        selectedSize && selectedColor && getInventory(selectedSize, selectedColor) === 0 ? (
+                          <div className="out_of_stock">Hết hàng</div>
+                        ) : (
                           <>
                             <div className="buy" onClick={handleBuyNow}>Buy now</div>
                             <div className="add_cart" onClick={handleAddToCart}>Add to cart</div>
                           </>
-                        ) : (
-                          <div className="out_of_stock">Hết hàng</div>
                         )
                       }
                     </div>

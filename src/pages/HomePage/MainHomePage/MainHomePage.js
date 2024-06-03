@@ -270,11 +270,6 @@ function MainHomePage() {
                               <span className="home-product-item__brand">
                                 {item.Store.name}
                               </span>
-                              <span className="home-product-item__sold">
-                                {item.Inventories && item.Inventories[0] && item.Inventories[0].quantyly_ordered ? (
-                                  `${item.Inventories[0].quantyly_ordered} Đã bán`
-                                ) : null}
-                              </span>
                             </div>
                             <div className="home-product-item__new">
                               <span className="pr">New</span>

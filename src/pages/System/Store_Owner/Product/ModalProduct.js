@@ -72,6 +72,12 @@ const ModalProduct = (props) => {
 
   useEffect(() => {
     if (action === "UPDATE") {
+      const selectedColorIds = dataModalProduct?.Product_size_colors?.map(item => item.Color.id);
+      const selectedSizeIds = dataModalProduct?.Product_size_colors?.map(item => item.Size.id);
+
+      setSelectedColors(selectedColorIds);
+      setSelectedSizes(selectedSizeIds);
+
       setProductData({
         ...dataModalProduct,
         category: dataModalProduct.Category ? dataModalProduct.Category.id : "",
@@ -224,24 +230,24 @@ const ModalProduct = (props) => {
       let response =
         action === "CREATE"
           ? await createProduct(
-              {
-                ...productData,
-                categoryId: productData["category"],
-                quantyly: productData.quantyly,
-              },
-              user.account.storeId,
-              selectedColors,
-              selectedSizes
-            )
+            {
+              ...productData,
+              categoryId: productData["category"],
+              quantyly: productData.quantyly,
+            },
+            user.account.storeId,
+            selectedColors,
+            selectedSizes
+          )
           : await updateProduct(
-              {
-                ...productData,
-                categoryId: productData["category"],
-              },
-              user.account.storeId,
-              selectedColors,
-              selectedSizes
-            );
+            {
+              ...productData,
+              categoryId: productData["category"],
+            },
+            user.account.storeId,
+            selectedColors,
+            selectedSizes
+          );
 
       if (response && response.EC === 0) {
         // Fetch the updated list of products
@@ -290,7 +296,10 @@ const ModalProduct = (props) => {
   const handleCloseModalProduct = () => {
     props.onHide();
     setProductData(defaultProductData);
-    setValidInputs(validInputsDefault);
+    setSelectedColors([]);
+    setSelectedSizes([]);
+    setPreviewImgURL("");
+    setEditorVisible(false);
   };
 
   return (
@@ -355,13 +364,10 @@ const ModalProduct = (props) => {
                 Choose color(<span style={{ color: "red" }}>*</span>)
               </label>
               <div className="input-fake">
-                {listcolor &&
-                  listcolor.length > 0 &&
+                {selectedColors && Array.isArray(listcolor) && listcolor.length > 0 &&
                   listcolor.map((color, index) => {
                     const isSelected = selectedColors.includes(color.id);
-                    const buttonClass = isSelected
-                      ? "button-fake active-button-fake"
-                      : "button-fake";
+                    const buttonClass = isSelected ? "button-fake active-button-fake" : "button-fake";
                     return (
                       <div
                         className={buttonClass}
@@ -371,7 +377,8 @@ const ModalProduct = (props) => {
                         {color.name}
                       </div>
                     );
-                  })}
+                  })
+                }
               </div>
             </div>
             <div className="col-12 col-sm-6 from-group mt-2">
@@ -379,8 +386,7 @@ const ModalProduct = (props) => {
                 Choose size(<span style={{ color: "red" }}>*</span>)
               </label>
               <div className="input-fake">
-                {listSize &&
-                  listSize.length > 0 &&
+                {selectedColors && Array.isArray(listcolor) && listcolor.length > 0 &&
                   listSize.map((size, index) => {
                     const isSelected = selectedSizes.includes(size.id);
                     const buttonClass = isSelected
@@ -398,6 +404,7 @@ const ModalProduct = (props) => {
                   })}
               </div>
             </div>
+
             <div className="col-12 col-sm-12 from-group mt-2">
               <label>
                 Description(<span style={{ color: "red" }}>*</span>)

@@ -74,7 +74,7 @@ function InVentory(ropps) {
 
   //search
   const filteredData = dataProductInStockByStore.filter((item) =>
-    item.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
+    item.Product_size_color.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
   );
 
   const onHideModalProduct = async () => {
@@ -128,11 +128,12 @@ function InVentory(ropps) {
                 <tr>
                   <th>No</th>
                   <th>Product</th>
+                  <th>Color & Size</th>
                   <th>Quantity</th>
-                  <th>Current number</th>
-                  <th>Ordered quantity</th>
-                  <th>Shipping quantity</th>
-                  <th>Quantity sold</th>
+                  <th style={{ width: '110px' }}>Current number</th>
+                  <th style={{ width: '110px' }}>Ordered quantity</th>
+                  <th style={{ width: '110px' }}>Shipping quantity</th>
+                  <th style={{ width: '110px' }}>Quantity sold</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -152,8 +153,9 @@ function InVentory(ropps) {
                               textOverflow: "ellipsis",
                             }}
                           >
-                            {item.Product.product_name}
+                            {item.Product_size_color.Product.product_name}
                           </td>
+                          <td>{item.Product_size_color.Color.name} , {item.Product_size_color.Size.size_value}</td>
                           <td>{item.quantyly}</td>
                           <td>{item.currentNumber}</td>
                           <td>{item.quantyly_ordered || 0}</td>
@@ -182,7 +184,7 @@ function InVentory(ropps) {
                 ) : (
                   <>
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={8}>Not found product...</td>
+                      <td colSpan={9}>Not found product...</td>
                     </tr>
                   </>
                 )}

@@ -6,9 +6,7 @@ import { toast } from "react-toastify";
 
 function ModalUpdate(props) {
   const { dataModalProduct } = props;
-  console.log(dataModalProduct);
   const [quantyly, setQuantity] = useState("");
-  console.log("Initial quantyly:", quantyly);
 
   useEffect(() => {
     setQuantity(dataModalProduct.quantyly || "");
@@ -77,9 +75,9 @@ function ModalUpdate(props) {
                 className={"form-control mt-1"}
                 type="text"
                 value={
-                  dataModalProduct.Product &&
-                  dataModalProduct.Product.product_name
-                    ? dataModalProduct.Product.product_name
+                  dataModalProduct.Product_size_color && dataModalProduct.Product_size_color.Product &&
+                    dataModalProduct.Product_size_color.Product.product_name
+                    ? dataModalProduct.Product_size_color.Product.product_name
                     : ""
                 }
                 disabled
