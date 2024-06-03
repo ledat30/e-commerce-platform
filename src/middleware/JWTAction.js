@@ -12,7 +12,6 @@ const nonSecurePaths = [
   "/search-role",
   "/search-user",
   "/search/shipping-unit",
-  "/search-product",
   "/search-payment",
   "/all-product/read",
   "/get-all-detail-category-by-id",

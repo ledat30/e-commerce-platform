@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Product.hasMany(models.Comment, { foreignKey: "productId" });
       Product.belongsTo(models.Category, { foreignKey: "categoryId" });
-      Product.hasMany(models.Inventory, { foreignKey: "productId" });
       Product.belongsTo(models.Store, { foreignKey: "storeId" });
       Product.hasMany(models.Product_size_color, { foreignKey: "productId" });
     }

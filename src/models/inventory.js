@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Inventory.belongsTo(models.Product, { foreignKey: "productId" });
+      Inventory.belongsTo(models.Product_size_color, { foreignKey: "productColorSizeId" });
       Inventory.belongsTo(models.Store, { foreignKey: "storeId" });
     }
   }
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       quantyly_ordered: DataTypes.BIGINT,
       quantyly_shipped: DataTypes.BIGINT,
       quantity_sold: DataTypes.BIGINT,
-      productId: DataTypes.INTEGER,
+      productColorSizeId: DataTypes.INTEGER,
       storeId: DataTypes.INTEGER,
     },
     {

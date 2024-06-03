@@ -1,9 +1,9 @@
 import db from "../models/index";
 
-const checkNameColor = async (nameColor) => {
+const checkNameColor = async (nameColor, storeId) => {
   try {
     let color = await db.Color.findOne({
-      where: { name: nameColor },
+      where: { name: nameColor, storeId: storeId },
     });
     if (color) {
       return true;
@@ -17,7 +17,7 @@ const checkNameColor = async (nameColor) => {
 
 const createColor = async (data, storeId) => {
   try {
-    let check = await checkNameColor(data.name);
+    let check = await checkNameColor(data.name, storeId);
     if (check === true) {
       return {
         EM: "The color name is already exists",

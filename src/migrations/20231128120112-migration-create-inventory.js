@@ -24,11 +24,11 @@ module.exports = {
       quantity_sold: {
         type: Sequelize.BIGINT,
       },
-      productId: {
+      productColorSizeId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Products",
+          model: "Product_size_colors",
           key: "id",
         },
       },

@@ -36,6 +36,7 @@ const getProductWithPagination = async (page, limit, storeId) => {
   try {
     let offset = (page - 1) * limit;
     const { count, rows } = await db.Product.findAndCountAll({
+      distinct: true,
       offset: offset,
       limit: limit,
       where: { storeId: storeId },
@@ -53,7 +54,13 @@ const getProductWithPagination = async (page, limit, storeId) => {
       include: [
         { model: db.Category, attributes: ["category_name", "id"] },
         { model: db.Store, attributes: ["name", "id"] },
-        { model: db.Inventory, attributes: ["quantyly", "id"] },
+        {
+          model: db.Product_size_color, attributes: ['id'],
+          include: [
+            { model: db.Color, attributes: ['id', 'name'] },
+            { model: db.Size, attributes: ['id', 'size_value'] }
+          ]
+        }
       ],
       order: [["id", "DESC"]],
     });
@@ -105,13 +112,6 @@ const createProduct = async (data, storeId) => {
     }
     const newProduct = await db.Product.create({ ...data, storeId });
 
-    const productInfo = {
-      productId: newProduct.id,
-      quantyly: data.quantyly,
-    };
-
-    await updateInventory(newProduct.id, data.quantyly, storeId);
-
     if (
       data.colorsAndSizes &&
       Array.isArray(data.colorsAndSizes) &&
@@ -119,7 +119,8 @@ const createProduct = async (data, storeId) => {
     ) {
       const saveColorAndSizePromises = data.colorsAndSizes.map(
         async ({ colorId, sizeId }) => {
-          await saveProductColorAndSize(newProduct.id, colorId, sizeId);
+          const product_size_color = await saveProductColorAndSize(newProduct.id, colorId, sizeId);
+          await updateInventory(product_size_color.id, data.quantyly, storeId);
         }
       );
       await Promise.all(saveColorAndSizePromises);
@@ -128,7 +129,9 @@ const createProduct = async (data, storeId) => {
     return {
       EM: "Create product successful",
       EC: 0,
-      DT: productInfo,
+      DT: {
+        productId: newProduct.id,
+      },
     };
   } catch (error) {
     console.log(error);
@@ -139,11 +142,13 @@ const createProduct = async (data, storeId) => {
     };
   }
 };
-const updateInventory = async (productId, quantyly, storeId) => {
+
+const updateInventory = async (productColorSizeId, quantyly, storeId) => {
   try {
     let inventoryItem = await db.Inventory.findOne({
       where: {
-        productId,
+        productColorSizeId,
+        storeId,
       },
     });
 
@@ -153,7 +158,7 @@ const updateInventory = async (productId, quantyly, storeId) => {
       });
     } else {
       await db.Inventory.create({
-        productId,
+        productColorSizeId,
         quantyly: quantyly,
         currentNumber: quantyly,
         storeId: storeId,
@@ -174,19 +179,16 @@ const updateInventory = async (productId, quantyly, storeId) => {
     };
   }
 };
+
 const saveProductColorAndSize = async (productId, colorId, sizeId) => {
   try {
-    await db.Product_size_color.create({
+    const product_size_color = await db.Product_size_color.create({
       productId,
       colorId,
       sizeId,
     });
 
-    return {
-      EM: "Save product color and size successful",
-      EC: 0,
-      DT: [],
-    };
+    return product_size_color;
   } catch (error) {
     console.log(error);
     return {
@@ -225,16 +227,58 @@ const updateProduct = async (data, storeId, colorsAndSizes) => {
       });
 
       if (colorsAndSizes && colorsAndSizes.length > 0) {
-        await db.Product_size_color.destroy({
-          where: { productId: data.id },
-        });
-
         for (let colorAndSize of colorsAndSizes) {
-          for (let sizeId of colorAndSize.sizeIds) {
+          let existingProductSizeColor = await db.Product_size_color.findOne({
+            where: {
+              productId: data.id,
+              colorId: colorAndSize.colorId,
+              sizeId: colorAndSize.sizeId,
+            },
+          });
+
+          if (existingProductSizeColor) {
+            if (existingProductSizeColor.colorId !== colorAndSize.colorId || existingProductSizeColor.sizeId !== colorAndSize.sizeId) {
+              await existingProductSizeColor.update({
+                colorId: colorAndSize.colorId,
+                sizeId: colorAndSize.sizeId,
+              });
+            }
+          } else {
             await db.Product_size_color.create({
               productId: data.id,
               colorId: colorAndSize.colorId,
-              sizeId: sizeId,
+              sizeId: colorAndSize.sizeId,
+            });
+          }
+        }
+      }
+
+      for (let colorAndSize of colorsAndSizes) {
+        let productSizeColor = await db.Product_size_color.findOne({
+          where: {
+            productId: data.id,
+            colorId: colorAndSize.colorId,
+            sizeId: colorAndSize.sizeId,
+          },
+        });
+
+        if (productSizeColor) {
+          let inventory = await db.Inventory.findOne({
+            where: {
+              productColorSizeId: productSizeColor.id,
+              storeId: storeId,
+            },
+          });
+
+          if (!inventory) {
+            await db.Inventory.create({
+              productColorSizeId: productSizeColor.id,
+              storeId: storeId,
+              quantyly: 0,
+              currentNumber: 0,
+              quantyly_ordered: 0,
+              quantyly_shipped: 0,
+              quantity_sold: 0,
             });
           }
         }
@@ -261,6 +305,8 @@ const updateProduct = async (data, storeId, colorsAndSizes) => {
     };
   }
 };
+
+
 
 const deleteProduct = async (id) => {
   try {
@@ -295,52 +341,6 @@ const deleteProduct = async (id) => {
   }
 };
 
-const searchProduct = async (keyword) => {
-  try {
-    const results = await db.Product.findAll({
-      where: {
-        [db.Sequelize.Op.or]: [
-          {
-            product_name: {
-              [db.Sequelize.Op.like]: `%${keyword}%`,
-            },
-          },
-          {
-            price: {
-              [db.Sequelize.Op.like]: `%${keyword}%`,
-            },
-          },
-        ],
-      },
-      attributes: ["product_name", "price", "categoryId", "id"],
-      include: [
-        {
-          model: db.Category,
-          attributes: ["category_name"],
-        },
-      ],
-    });
-    const transformedResults = results.map((result) => ({
-      product_name: result.product_name,
-      price: result.price,
-      categoryId: result?.Category?.category_name || "",
-      id: result.id,
-    }));
-    return {
-      EM: "Ok",
-      EC: 0,
-      DT: transformedResults,
-    };
-  } catch (error) {
-    console.log(error);
-    return {
-      EM: `Error from server: ${error.message}`,
-      EC: 1,
-      DT: [],
-    };
-  }
-};
-
 const getAllProductWithPagination = async (page, limit) => {
   try {
     let offset = (page - 1) * limit;
@@ -360,7 +360,6 @@ const getAllProductWithPagination = async (page, limit) => {
       order: [["id", "DESC"]],
       include: [
         { model: db.Store, attributes: ["name", "id"] },
-        { model: db.Inventory, attributes: ['quantyly_ordered'] }
       ],
     });
 
@@ -402,8 +401,17 @@ const getAllProductInStockForStoreOwner = async () => {
         "quantyly_shipped",
         "quantity_sold",
       ],
-      include: [{ model: db.Product, attributes: ["product_name"] }],
+      include: [
+        {
+          model: db.Product_size_color, attributes: ["id"],
+          include: [
+            { model: db.Product, attributes: ['product_name'] },
+            { model: db.Color, attributes: ['name'] },
+            { model: db.Size, attributes: ['size_value'] }
+          ]
+        }],
       raw: false,
+      order: [["id", "DESC"]],
     });
     if (product && product.length > 0) {
       return {
@@ -444,7 +452,14 @@ const getProductInStockWithPagination = async (page, limit, storeId) => {
         "quantity_sold",
       ],
       include: [
-        { model: db.Product, attributes: ["product_name", "id"] },
+        {
+          model: db.Product_size_color, attributes: ["id"],
+          include: [
+            { model: db.Product, attributes: ['product_name'] },
+            { model: db.Color, attributes: ['name'] },
+            { model: db.Size, attributes: ['size_value'] }
+          ]
+        },
         { model: db.Store, attributes: ["name", "id"] },
       ],
       order: [["id", "DESC"]],
@@ -583,7 +598,8 @@ const getDetailProductById = (inputId) => {
                 {
                   model: db.Size,
                   attributes: ['size_value']
-                }
+                },
+                { model: db.Inventory, attributes: ['currentNumber'] }
               ],
               where: {
                 [Op.and]: [
@@ -593,7 +609,6 @@ const getDetailProductById = (inputId) => {
               },
             },
             { model: db.Store, attributes: ['name', 'id'] },
-            { model: db.Inventory, attributes: ['currentNumber'] }
           ],
         })
         if (!data) {
@@ -677,11 +692,7 @@ const buyNowProduct = async (productColorSizeId, userId, storeId, body) => {
     if (!productColorSize) {
       throw new Error('Product color size not found.');
     }
-    const product = await productColorSize.getProduct();
-    if (!product) {
-      throw new Error('Product not found.');
-    }
-    const inventory = await db.Inventory.findOne({ where: { productId: product.id } });
+    const inventory = await db.Inventory.findOne({ where: { productColorSizeId: productColorSize.id } });
     if (!inventory) {
       throw new Error('Inventory not found.');
     }
@@ -777,12 +788,12 @@ const getAllProductAddToCart = async (userId) => {
                 model: db.Product,
                 attributes: ["product_name", "price", "description", 'image'],
                 include: [
-                  {
-                    model: db.Inventory,
-                    attributes: ['currentNumber', `id`],
-                  },
                   { model: db.Store, attributes: ['name', 'id'] },
                 ],
+              },
+              {
+                model: db.Inventory,
+                attributes: ['currentNumber', `id`],
               },
               {
                 model: db.Size,
@@ -914,12 +925,7 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
       throw new Error('Product color size not found.');
     }
 
-    const product = await productColorSize.getProduct();
-    if (!product) {
-      throw new Error('Product not found.');
-    }
-
-    const inventory = await db.Inventory.findOne({ where: { productId: product.id } });
+    const inventory = await db.Inventory.findOne({ where: { productColorSizeId: productColorSize.id } });
     if (!inventory) {
       throw new Error('Inventory not found.');
     }
@@ -929,7 +935,6 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
     const updateQuantilyShipped = inventory.quantyly - updatedCurrentNumber;
     const updateQuantilySold = updateQuantilyShipped;
     await inventory.update({ currentNumber: updatedCurrentNumber, quantyly_ordered: updateQuantylyOrdered, quantyly_shipped: updateQuantilyShipped, quantity_sold: updateQuantilySold }, { transaction });
-
 
     //end
     await transaction.commit();
@@ -1745,7 +1750,6 @@ module.exports = {
   saveProductColorAndSize,
   updateProduct,
   deleteProduct,
-  searchProduct,
   getAllProductWithPagination,
   getAllProductInStockForStoreOwner,
   getProductInStockWithPagination,

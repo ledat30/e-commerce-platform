@@ -1,9 +1,9 @@
 import db from "../models/index";
 
-const checkNameSize = async (nameSize) => {
+const checkNameSize = async (nameSize, storeId) => {
   try {
     let size = await db.Size.findOne({
-      where: { size_value: nameSize },
+      where: { size_value: nameSize, storeId: storeId },
     });
     if (size) {
       return true;
@@ -17,7 +17,7 @@ const checkNameSize = async (nameSize) => {
 
 const createSizeProduct = async (data, storeId) => {
   try {
-    let check = await checkNameSize(data.size_value);
+    let check = await checkNameSize(data.size_value, storeId);
     if (check === true) {
       return {
         EM: "The size name is already exists",

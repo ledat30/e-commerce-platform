@@ -40,25 +40,6 @@ const readFunc = async (req, res) => {
 const createFunc = async (req, res) => {
   try {
     let data = await productService.createProduct(req.body, req.query.storeId);
-    if (data.EC === 0) {
-      await productService.updateInventory(data.DT.productId, data.DT.quantyly);
-
-      if (req.body.colorsAndSizes && req.body.colorsAndSizes.length > 0) {
-        const saveColorAndSizePromises = req.body.colorsAndSizes.map(
-          async ({ colorId, selectedSizes }) => {
-            const sizePromises = selectedSizes.map(async (sizeId) => {
-              await productService.saveProductColorAndSize(
-                data.DT.productId,
-                colorId,
-                sizeId
-              );
-            });
-            await Promise.all(sizePromises);
-          }
-        );
-        await Promise.all(saveColorAndSizePromises);
-      }
-    }
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
@@ -110,25 +91,6 @@ const deleteFunc = async (req, res) => {
     return res.status(500).json({
       EM: "Error",
       EC: "-1",
-      DT: "",
-    });
-  }
-};
-
-const searchProduct = async (req, res) => {
-  try {
-    const keyword = req.query.q;
-    const data = await productService.searchProduct(keyword);
-    return res.status(200).json({
-      EM: data.EM,
-      EC: data.EC,
-      DT: data.DT,
-    });
-  } catch (e) {
-    console.log(e);
-    return res.status(500).json({
-      EM: "Error from the server",
-      EC: -1,
       DT: "",
     });
   }
@@ -699,7 +661,6 @@ module.exports = {
   createFunc,
   updateFunc,
   deleteFunc,
-  searchProduct,
   readAllFunc,
   readInventory,
   deleteProductInStock,
