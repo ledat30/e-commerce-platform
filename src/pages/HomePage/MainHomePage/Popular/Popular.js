@@ -37,7 +37,7 @@ function Popular() {
                 {listSellingProduct && listSellingProduct.length > 0 ? (
                     listSellingProduct.map((item, index) => {
                         let imageBase64 = '';
-                        imageBase64 = new Buffer.from(item.Product.image, 'base64').toString('binary');
+                        imageBase64 = new Buffer.from(item.image, 'base64').toString('binary');
                         return (
                             <div className="col l-2-4 m-4 c-6 product-mr" key={index}>
                                 <Link
@@ -49,14 +49,14 @@ function Popular() {
                                         style={{ backgroundImage: `url(${imageBase64})` }}
                                     ></div>
                                     <h4 className="home-product-item__name">
-                                        {item.Product.product_name}
+                                        {item.product_name}
                                     </h4>
                                     <div className="home-product-item__price">
                                         <span className="home-product-item__price-old">
-                                            {item.Product.old_price}đ
+                                            {item.old_price}đ
                                         </span>
                                         <span className="home-product-item__price-current">
-                                            {item.Product.price}đ
+                                            {item.price}đ
                                         </span>
                                     </div>
                                     <div className="home-product-item__action">
@@ -64,7 +64,7 @@ function Popular() {
                                             {item.Store.name}
                                         </span>
                                         <span className="home-product-item__sold">
-                                            {item.quantyly_ordered} Đã bán
+                                            {item.total_quantity_ordered} Đã bán
                                         </span>
                                     </div>
                                     <div className="home-product-item__new">
@@ -72,7 +72,7 @@ function Popular() {
                                     </div>
                                     <div className="home-product-item__sale-off">
                                         <span className="home-product-item__sale-off-percent">
-                                            {item.Product.promotion}
+                                            {item.promotion}
                                         </span>
                                         <span className="home-product-item__sale-off-lable">
                                             GIẢM

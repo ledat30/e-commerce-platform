@@ -35,7 +35,6 @@ function InVentory(ropps) {
       limit: currentLimit,
       storeId: user.account.storeId,
     });
-    console.log(`response`, response);
     if (response && response.EC === 0) {
       setDataProductInStockByStore(response.DT.product);
       setTotalPages(response.DT.totalPages);

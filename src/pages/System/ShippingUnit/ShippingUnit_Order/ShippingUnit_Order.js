@@ -168,10 +168,9 @@ function ShippingUnitOrder() {
                                 <tr>
                                     <th>No</th>
                                     <th>Product</th>
-                                    <th>Color</th>
-                                    <th>Size</th>
+                                    <th>Color&Size</th>
                                     <th>User</th>
-                                    <th>Address</th>
+                                    <th style={{ width: '290px' }}>Address</th>
                                     <th>Quantity</th>
                                     <th>Total</th>
                                     <th>Date</th>
@@ -195,9 +194,7 @@ function ShippingUnitOrder() {
                                                     </td>
                                                     <td>{item.Order.OrderItems[0].Product_size_color.Product.product_name}
                                                     </td>
-                                                    <td>{item.Order.OrderItems[0].Product_size_color.Color.name}
-                                                    </td>
-                                                    <td>{item.Order.OrderItems[0].Product_size_color.Size.size_value}
+                                                    <td>{item.Order.OrderItems[0].Product_size_color.Color.name} , {item.Order.OrderItems[0].Product_size_color.Size.size_value}
                                                     </td>
                                                     <td>
                                                         {item.Order.User.username}

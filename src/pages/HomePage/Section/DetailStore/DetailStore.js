@@ -17,9 +17,7 @@ function DetailStore() {
     const [totalPages, setTotalPages] = useState(0);
     const [searchInput, setSearchInput] = useState("");
     const [listCategory, setListCategory] = useState([]);
-    console.log(listCategory);
     const [selectedCategoryProducts, setSelectedCategoryProducts] = useState([]);
-    console.log(selectedCategoryProducts);
     const [showAllProducts, setShowAllProducts] = useState(true);
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
 

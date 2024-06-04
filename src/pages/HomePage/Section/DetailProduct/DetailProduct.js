@@ -271,6 +271,12 @@ function DetailProduct() {
     );
   };
 
+  const isAllOutOfStock = () => {
+    return dataDetailProduct.Product_size_colors.every(item =>
+      item.Inventories.every(inventory => inventory.currentNumber === 0)
+    );
+  };
+
   return (
     <div className="container-detail">
       <HeaderHome />
@@ -369,13 +375,17 @@ function DetailProduct() {
                     </div>
                     <div className="button-buy-add_cart">
                       {
-                        selectedSize && selectedColor && getInventory(selectedSize, selectedColor) === 0 ? (
+                        isAllOutOfStock() ? (
                           <div className="out_of_stock">Hết hàng</div>
                         ) : (
-                          <>
-                            <div className="buy" onClick={handleBuyNow}>Buy now</div>
-                            <div className="add_cart" onClick={handleAddToCart}>Add to cart</div>
-                          </>
+                          dataDetailProduct && selectedColor && getInventory(selectedSize, selectedColor) === 0 ? (
+                            <div className="out_of_stock">Hết hàng</div>
+                          ) : (
+                            <>
+                              <div className="buy" onClick={handleBuyNow}>Buy now</div>
+                              <div className="add_cart" onClick={handleAddToCart}>Add to cart</div>
+                            </>
+                          )
                         )
                       }
                     </div>

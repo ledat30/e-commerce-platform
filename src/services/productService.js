@@ -51,7 +51,6 @@ const searchProduct = (key) => {
 };
 
 const getProductInStockWithPagination = (data) => {
-  console.log(`data`, data);
   return axios.get(
     `/api/inventory/read?page=${data.page}&limit=${data.limit}&storeId=${data.storeId}`
   );

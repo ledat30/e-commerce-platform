@@ -244,15 +244,15 @@ function Order() {
                                                                     >
                                                                         <i className="fa fa-check-circle-o"></i>
                                                                     </button>
-                                                                    <button
-                                                                        title="Delete"
-                                                                        className="btn btn-danger"
-                                                                        onClick={() => handleDeleteOrder(item.id)}
-                                                                    >
-                                                                        <i className="fa fa-trash-o"></i>
-                                                                    </button>
                                                                 </>
                                                             )}
+                                                            <button
+                                                                title="Delete"
+                                                                className="btn btn-danger"
+                                                                onClick={() => handleDeleteOrder(item.id)}
+                                                            >
+                                                                <i className="fa fa-trash-o"></i>
+                                                            </button>
                                                         </td>
                                                     </td>
                                                 </tr>
