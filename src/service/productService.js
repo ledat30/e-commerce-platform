@@ -1390,21 +1390,32 @@ const getSellingProductsWithPagination = async (page, limit) => {
       offset: offset,
       limit: limit,
       attributes: [
-        "id",
-        "quantyly_ordered",
+        [db.sequelize.col('Product_size_color.Product.id'), 'id'],
+        [db.sequelize.col('Product_size_color.Product.product_name'), 'product_name'],
+        [db.sequelize.col('Product_size_color.Product.image'), 'image'],
+        [db.sequelize.col('Product_size_color.Product.price'), 'price'],
+        [db.sequelize.col('Product_size_color.Product.old_price'), 'old_price'],
+        [db.sequelize.col('Product_size_color.Product.promotion'), 'promotion'],
+        [db.sequelize.fn('SUM', db.sequelize.col('quantyly_ordered')), 'total_quantity_ordered'],
       ],
       include: [
-        { model: db.Store, attributes: ["name", "id"] },
+        { model: db.Store, attributes: ['id', `name`] },
         {
-          model: db.Product, attributes: ['id', 'product_name', 'image', 'price', 'old_price', 'promotion']
-        }
+          model: db.Product_size_color, attributes: [],
+          include: [
+            {
+              model: db.Product, attributes: []
+            }
+          ]
+        },
       ],
-      order: [["quantyly_ordered", "DESC"]],
+      group: ['Product_size_color.Product.id'],
+      order: [[db.sequelize.literal('total_quantity_ordered'), 'DESC']],
     });
-    let totalPages = Math.ceil(count / limit);
+    let totalPages = Math.ceil(count.length / limit);
     let data = {
       totalPages: totalPages,
-      totalRow: count,
+      totalRow: count.length,
       product: rows,
     };
     return {
