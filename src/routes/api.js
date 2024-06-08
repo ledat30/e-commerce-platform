@@ -13,6 +13,7 @@ import colorController from "../controller/colorController";
 import sizeController from "../controller/sizeController";
 import commentController from "../controller/commentController";
 import dashboardController from '../controller/dashboardAdminController';
+import contactController from '../controller/contactController';
 
 const router = express.Router();
 
@@ -156,6 +157,11 @@ const initApiRouter = (app) => {
   router.get("/admin/dashboard-revenue-by-store", dashboardController.adminDashboardRevenueByStore);
   router.get("/admin/dashboard-revenue-store-by-date", dashboardController.adminDashboardRevenueStoreByDate);
   router.get("/admin/dashboard-revenue-store-detail-by-date", dashboardController.adminDashboardRevenueStoreDetailByDate);
+
+  //contact
+  router.post("/contact/create", contactController.createFunc);
+  router.get("/contact/read", contactController.readFunc);
+  router.delete("/contact/delete", contactController.deleteFunc);
 
   return app.use("/api", router);
 };
