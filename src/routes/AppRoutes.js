@@ -26,6 +26,7 @@ import ShippingOrder from "../pages/System/Shipper/ShippingOrder/ShippingOrder";
 import DashboardStore from '../pages/System/Store_Owner/Dashboard/Dashboard';
 import DashboardShippingUnit from "../pages/System/ShippingUnit/Dashboard/Dashboard";
 import DashboardShipper from "../pages/System/Shipper/Dashboard/Dashboard";
+import Contact from "../pages/System/Admin/Contact/Contact";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -67,6 +68,10 @@ function AppRoutes() {
             <Route
               path="/admin/payment-method"
               element={<PrivateRoutes element={<PaymentMethod />} />}
+            />
+            <Route
+              path="/admin/contact"
+              element={<PrivateRoutes element={<Contact />} />}
             />
           </>
           <Route path="*" element={<NotFound />} />

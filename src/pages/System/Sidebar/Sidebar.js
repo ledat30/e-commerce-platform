@@ -44,6 +44,7 @@ function Sidebar(props) {
       { to: "/admin/store", label: "Store", icon: "fa-building" },
       { to: "/admin/shipping-unit", label: "Shipping Unit", icon: "fa-truck" },
       { to: "/admin/payment-method", label: "Payment method", icon: "fa-credit-card " },
+      { to: "/admin/contact", label: "Contact", icon: "fa-commenting" },
     );
   }
 

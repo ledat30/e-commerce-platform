@@ -13,6 +13,7 @@ import Profile from "../pages/HomePage/Section/Profile/Profile";
 import CheckOut from "../pages/HomePage/Section/CheckOut/CheckOut";
 import DetailStore from "../pages/HomePage/Section/DetailStore/DetailStore";
 import AllStore from "../pages/HomePage/Section/AllStore/AllStore";
+import Contact from "../pages/HomePage/Section/Contact/Contact";
 
 function ClinetRoutes() {
   const { user } = useContext(UserContext);
@@ -50,6 +51,10 @@ function ClinetRoutes() {
             <Route
               path="/store"
               element={<PrivateRoutes element={<AllStore />} />}
+            />
+            <Route
+              path="/contact"
+              element={<PrivateRoutes element={<Contact />} />}
             />
           </>
           <Route path="*" element={<NotFound />} />

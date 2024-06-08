@@ -135,11 +135,11 @@ function HeaderHome() {
                     </footer>
                   </div>
                 </li>
-                <li className="header__navbar-item">
-                  <a href="/" className="header__navbar-item-link">
+                <li className="header__navbar-item" >
+                  <Link to={'/contact'} className="header__navbar-item-link">
                     <i className="header__navbar-icon fa fa-question-circle-o"></i>{" "}
                     Trợ giúp
-                  </a>
+                  </Link>
                 </li>
 
                 {user && user.isAuthenticated === true && (
