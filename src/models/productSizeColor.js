@@ -9,11 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Product_size_color.belongsTo(models.Product, { foreignKey: "productId" });
+      // Product_size_color.belongsTo(models.Product, { foreignKey: "productId" });
       Product_size_color.belongsTo(models.Size, { foreignKey: "sizeId" });
       Product_size_color.belongsTo(models.Color, { foreignKey: "colorId" });
-      Product_size_color.hasMany(models.OrderItem, { foreignKey: "productColorSizeId" });
-      Product_size_color.hasMany(models.Inventory, { foreignKey: "productColorSizeId" });
+      // Product_size_color.hasMany(models.OrderItem, { foreignKey: "productColorSizeId" });
+      // Product_size_color.hasMany(models.Inventory, { foreignKey: "productColorSizeId" });
     }
   }
   //object relational mapping

@@ -243,12 +243,26 @@ const readAllOrderByShippingUnit = async (page, limit, shipingUnitId) => {
               attributes: [`quantily`],
               include: [
                 {
-                  model: db.Product_size_color,
+                  model: db.ProductAttribute,
                   attributes: ['id'],
                   include: [
                     { model: db.Product, attributes: [`product_name`] },
-                    { model: db.Color, attributes: [`name`] },
-                    { model: db.Size, attributes: [`size_value`] }
+                    {
+                      model: db.AttributeValue,
+                      as: 'AttributeValue1',
+                      attributes: ['id', 'name'],
+                      include: [
+                        { model: db.Attribute, attributes: ['id', 'name'] }
+                      ]
+                    },
+                    {
+                      model: db.AttributeValue,
+                      as: 'AttributeValue2',
+                      attributes: ['id', 'name'],
+                      include: [
+                        { model: db.Attribute, attributes: ['id', 'name'] }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -437,7 +451,7 @@ const shippingUnitDashboardOrder = async (page, limit, shipingUnitId) => {
               attributes: ['id', 'quantily'],
               include: [
                 {
-                  model: db.Product_size_color,
+                  model: db.ProductAttribute,
                   attributes: ['id'],
                   include: [
                     {
@@ -445,20 +459,22 @@ const shippingUnitDashboardOrder = async (page, limit, shipingUnitId) => {
                       attributes: ['product_name', 'id']
                     },
                     {
-                      model: db.Size,
-                      attributes: ['size_value']
+                      model: db.AttributeValue,
+                      as: 'AttributeValue1',
+                      attributes: ['id', 'name'],
+                      include: [
+                        { model: db.Attribute, attributes: ['id', 'name'] }
+                      ]
                     },
                     {
-                      model: db.Color,
-                      attributes: ['name'],
-                    },
+                      model: db.AttributeValue,
+                      as: 'AttributeValue2',
+                      attributes: ['id', 'name'],
+                      include: [
+                        { model: db.Attribute, attributes: ['id', 'name'] }
+                      ]
+                    }
                   ],
-                  where: {
-                    [Op.and]: [
-                      { sizeId: { [Op.not]: null } },
-                      { colorId: { [Op.not]: null } },
-                    ],
-                  },
                 }
               ]
             }

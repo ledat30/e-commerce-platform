@@ -57,11 +57,9 @@ const createFunc = async (req, res) => {
 
 const updateFunc = async (req, res) => {
   try {
-    const colorsAndSizes = req.body.colorsAndSizes;
     let data = await productService.updateProduct(
       req.body,
-      req.query.storeId,
-      colorsAndSizes
+      req.query.storeId
     );
     return res.status(200).json({
       EM: data.EM,
@@ -199,7 +197,7 @@ const getRandomProducts = async (req, res) => {
 
 const postAddToCart = async (req, res) => {
   try {
-    let data = await productService.postAddToCart(req.query.productColorSizeId, req.query.userId, req.query.storeId, req.body);
+    let data = await productService.postAddToCart(req.query.product_attribute_value_Id, req.query.userId, req.query.storeId, req.body);
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
@@ -272,8 +270,8 @@ const deleteProductCart = async (req, res) => {
 
 const createBuyProduct = async (req, res) => {
   try {
-    const { orderId, productColorSizeId, storeId } = req.query;
-    let data = await productService.createBuyProduct(orderId, productColorSizeId, storeId, req.body);
+    const { orderId, product_attribute_value_Id, storeId } = req.query;
+    let data = await productService.createBuyProduct(orderId, product_attribute_value_Id, storeId, req.body);
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
@@ -504,7 +502,7 @@ const orderSuccessByShipper = async (req, res) => {
 
 const buyNowProduct = async (req, res) => {
   try {
-    let data = await productService.buyNowProduct(req.query.productColorSizeId, req.query.userId, req.query.storeId, req.body);
+    let data = await productService.buyNowProduct(req.query.product_attribute_value_Id, req.query.userId, req.query.storeId, req.body);
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,

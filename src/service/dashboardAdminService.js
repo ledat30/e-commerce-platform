@@ -121,7 +121,7 @@ const adminDashboardOrder = async (page, limit) => {
                     attributes: ['id', 'quantily'],
                     include: [
                         {
-                            model: db.Product_size_color,
+                            model: db.ProductAttribute,
                             attributes: ['id'],
                             include: [
                                 {
@@ -129,13 +129,21 @@ const adminDashboardOrder = async (page, limit) => {
                                     attributes: ['product_name', 'id']
                                 },
                                 {
-                                    model: db.Size,
-                                    attributes: ['size_value']
+                                    model: db.AttributeValue,
+                                    as: 'AttributeValue1',
+                                    attributes: ['id', 'name'],
+                                    include: [
+                                        { model: db.Attribute, attributes: ['id', 'name'] }
+                                    ]
                                 },
                                 {
-                                    model: db.Color,
-                                    attributes: ['name'],
-                                },
+                                    model: db.AttributeValue,
+                                    as: 'AttributeValue2',
+                                    attributes: ['id', 'name'],
+                                    include: [
+                                        { model: db.Attribute, attributes: ['id', 'name'] }
+                                    ]
+                                }
                             ],
                         }
                     ]
@@ -412,7 +420,7 @@ const adminDashboardRevenueStoreDetailByDate = async (page, limit, storeId, date
                     attributes: ['quantily', 'id'],
                     include: [
                         {
-                            model: db.Product_size_color,
+                            model: db.ProductAttribute,
                             attributes: ['id'],
                             include: [
                                 {
@@ -420,13 +428,21 @@ const adminDashboardRevenueStoreDetailByDate = async (page, limit, storeId, date
                                     attributes: ['product_name', 'id']
                                 },
                                 {
-                                    model: db.Size,
-                                    attributes: ['size_value']
+                                    model: db.AttributeValue,
+                                    as: 'AttributeValue1',
+                                    attributes: ['id', 'name'],
+                                    include: [
+                                        { model: db.Attribute, attributes: ['id', 'name'] }
+                                    ]
                                 },
                                 {
-                                    model: db.Color,
-                                    attributes: ['name'],
-                                },
+                                    model: db.AttributeValue,
+                                    as: 'AttributeValue2',
+                                    attributes: ['id', 'name'],
+                                    include: [
+                                        { model: db.Attribute, attributes: ['id', 'name'] }
+                                    ]
+                                }
                             ]
                         }
                     ]

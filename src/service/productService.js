@@ -55,10 +55,25 @@ const getProductWithPagination = async (page, limit, storeId) => {
         { model: db.Category, attributes: ["category_name", "id"] },
         { model: db.Store, attributes: ["name", "id"] },
         {
-          model: db.Product_size_color, attributes: ['id'],
+          model: db.ProductAttribute,
+          attributes: ['id'],
           include: [
-            { model: db.Color, attributes: ['id', 'name'] },
-            { model: db.Size, attributes: ['id', 'size_value'] }
+            {
+              model: db.AttributeValue,
+              as: 'AttributeValue1',
+              attributes: ['id', 'name'],
+              include: [
+                { model: db.Attribute, attributes: ['id', 'name'] }
+              ]
+            },
+            {
+              model: db.AttributeValue,
+              as: 'AttributeValue2',
+              attributes: ['id', 'name'],
+              include: [
+                { model: db.Attribute, attributes: ['id', 'name'] }
+              ]
+            }
           ]
         }
       ],
@@ -112,19 +127,51 @@ const createProduct = async (data, storeId) => {
     }
     const newProduct = await db.Product.create({ ...data, storeId });
 
-    if (
-      data.colorsAndSizes &&
-      Array.isArray(data.colorsAndSizes) &&
-      data.colorsAndSizes.length > 0
-    ) {
-      const saveColorAndSizePromises = data.colorsAndSizes.map(
-        async ({ colorId, sizeId }) => {
-          const product_size_color = await saveProductColorAndSize(newProduct.id, colorId, sizeId);
-          await updateInventory(product_size_color.id, data.quantyly, storeId);
-        }
-      );
-      await Promise.all(saveColorAndSizePromises);
+    const attributeValueMap = {};
+    for (let variantId of data.selectedVariants) {
+      const attributeValue = await db.AttributeValue.findByPk(variantId);
+      if (!attributeValue) {
+        throw new Error(`AttributeValue with ID ${variantId} does not exist`);
+      }
+      const attributeId = attributeValue.attributeId;
+
+      if (!attributeValueMap[attributeId]) {
+        attributeValueMap[attributeId] = [];
+      }
+      attributeValueMap[attributeId].push(variantId);
     }
+
+    if (Object.keys(attributeValueMap).length < 2) {
+      return {
+        EM: "You must select values from at least two different attributes",
+        EC: 1,
+        DT: [],
+      };
+    }
+
+    const attributeIds = Object.keys(attributeValueMap);
+    const combinations = [];
+
+    const combine = (values, currentCombo = [], index = 0) => {
+      if (index === values.length) {
+        combinations.push(currentCombo);
+        return;
+      }
+      for (let value of values[index]) {
+        combine(values, [...currentCombo, value], index + 1);
+      }
+    };
+
+    combine(attributeIds.map(id => attributeValueMap[id]));
+
+    // Save combinations in the product_attribute_value table
+    const saveCombinationsPromises = combinations.map(async (combination) => {
+      const [value1Id, value2Id] = combination;
+      const productAttributeValue = await saveProductAttributeValue(newProduct.id, value1Id, value2Id);
+      await updateInventory(productAttributeValue.id, data.quantyly, storeId);
+    });
+
+    await Promise.all(saveCombinationsPromises);
 
     return {
       EM: "Create product successful",
@@ -143,11 +190,11 @@ const createProduct = async (data, storeId) => {
   }
 };
 
-const updateInventory = async (productColorSizeId, quantyly, storeId) => {
+const updateInventory = async (productAttributeValueId, quantyly, storeId) => {
   try {
     let inventoryItem = await db.Inventory.findOne({
       where: {
-        productColorSizeId,
+        product_AttributeId: productAttributeValueId,
         storeId,
       },
     });
@@ -158,7 +205,7 @@ const updateInventory = async (productColorSizeId, quantyly, storeId) => {
       });
     } else {
       await db.Inventory.create({
-        productColorSizeId,
+        product_AttributeId: productAttributeValueId,
         quantyly: quantyly,
         currentNumber: quantyly,
         storeId: storeId,
@@ -173,33 +220,32 @@ const updateInventory = async (productColorSizeId, quantyly, storeId) => {
   } catch (error) {
     console.log(error);
     return {
-      EM: "Something wrongs with inventory update",
+      EM: "Something went wrong with inventory update",
       EC: -1,
       DT: [],
     };
   }
 };
 
-const saveProductColorAndSize = async (productId, colorId, sizeId) => {
+const saveProductAttributeValue = async (productId, value1Id, value2Id) => {
   try {
-    const product_size_color = await db.Product_size_color.create({
+    const productAttributeValue = await db.ProductAttribute.create({
       productId,
-      colorId,
-      sizeId,
+      attributeValue1Id: value1Id,
+      attributeValue2Id: value2Id,
     });
-
-    return product_size_color;
+    return productAttributeValue;
   } catch (error) {
-    console.log(error);
+    console.log('Error saving product attribute value:', error);
     return {
-      EM: "Error saving product color and size",
+      EM: 'Error saving product attribute value',
       EC: -1,
       DT: [],
     };
   }
 };
 
-const updateProduct = async (data, storeId, colorsAndSizes) => {
+const updateProduct = async (data, storeId) => {
   try {
     let check = await checkNameProduct(data.product_name);
     if (check === true) {
@@ -226,61 +272,66 @@ const updateProduct = async (data, storeId, colorsAndSizes) => {
         ...(data.image && { image: data.image }),
       });
 
-      if (colorsAndSizes && colorsAndSizes.length > 0) {
-        for (let colorAndSize of colorsAndSizes) {
-          let existingProductSizeColor = await db.Product_size_color.findOne({
-            where: {
-              productId: data.id,
-              colorId: colorAndSize.colorId,
-              sizeId: colorAndSize.sizeId,
-            },
-          });
-
-          if (existingProductSizeColor) {
-            if (existingProductSizeColor.colorId !== colorAndSize.colorId || existingProductSizeColor.sizeId !== colorAndSize.sizeId) {
-              await existingProductSizeColor.update({
-                colorId: colorAndSize.colorId,
-                sizeId: colorAndSize.sizeId,
-              });
-            }
-          } else {
-            await db.Product_size_color.create({
-              productId: data.id,
-              colorId: colorAndSize.colorId,
-              sizeId: colorAndSize.sizeId,
-            });
-          }
+      const attributeValueMap = {};
+      for (let variantId of data.selectedVariants) {
+        const attributeValue = await db.AttributeValue.findByPk(variantId);
+        if (!attributeValue) {
+          throw new Error(`AttributeValue with ID ${variantId} does not exist`);
         }
+        const attributeId = attributeValue.attributeId;
+
+        if (!attributeValueMap[attributeId]) {
+          attributeValueMap[attributeId] = [];
+        }
+        attributeValueMap[attributeId].push(variantId);
       }
 
-      for (let colorAndSize of colorsAndSizes) {
-        let productSizeColor = await db.Product_size_color.findOne({
+      if (Object.keys(attributeValueMap).length < 2) {
+        return {
+          EM: "You must select values from at least two different attributes",
+          EC: 1,
+          DT: [],
+        };
+      }
+
+      const attributeIds = Object.keys(attributeValueMap);
+      const combinations = [];
+      const combine = (values, currentCombo = [], index = 0) => {
+        if (index === values.length) {
+          combinations.push(currentCombo);
+          return;
+        }
+        for (let value of values[index]) {
+          combine(values, [...currentCombo, value], index + 1);
+        }
+      };
+      combine(attributeIds.map(id => attributeValueMap[id]));
+
+      for (const combination of combinations) {
+        const existingProductAttribute = await db.ProductAttribute.findOne({
           where: {
             productId: data.id,
-            colorId: colorAndSize.colorId,
-            sizeId: colorAndSize.sizeId,
+            attributeValue1Id: combination[0],
+            attributeValue2Id: combination[1],
           },
         });
 
-        if (productSizeColor) {
-          let inventory = await db.Inventory.findOne({
-            where: {
-              productColorSizeId: productSizeColor.id,
-              storeId: storeId,
-            },
+        if (!existingProductAttribute) {
+          const newProductAttribute = await db.ProductAttribute.create({
+            productId: data.id,
+            attributeValue1Id: combination[0],
+            attributeValue2Id: combination[1],
           });
 
-          if (!inventory) {
-            await db.Inventory.create({
-              productColorSizeId: productSizeColor.id,
-              storeId: storeId,
-              quantyly: 0,
-              currentNumber: 0,
-              quantyly_ordered: 0,
-              quantyly_shipped: 0,
-              quantity_sold: 0,
-            });
-          }
+          await db.Inventory.create({
+            product_AttributeId: newProductAttribute.id,
+            storeId: storeId,
+            quantity: 0,
+            currentNumber: 0,
+            quantity_ordered: 0,
+            quantity_shipped: 0,
+            quantity_sold: 0,
+          });
         }
       }
 
@@ -306,11 +357,9 @@ const updateProduct = async (data, storeId, colorsAndSizes) => {
   }
 };
 
-
-
 const deleteProduct = async (id) => {
   try {
-    await db.Product_size_color.destroy({
+    await db.ProductAttribute.destroy({
       where: { productId: id },
     });
 
@@ -407,11 +456,25 @@ const getProductInStockWithPagination = async (page, limit, storeId) => {
       ],
       include: [
         {
-          model: db.Product_size_color, attributes: ["id"],
+          model: db.ProductAttribute, attributes: ["id"],
           include: [
             { model: db.Product, attributes: ['product_name'] },
-            { model: db.Color, attributes: ['name'] },
-            { model: db.Size, attributes: ['size_value'] }
+            {
+              model: db.AttributeValue,
+              as: 'AttributeValue1',
+              attributes: ['id', 'name'],
+              include: [
+                { model: db.Attribute, attributes: ['id', 'name'] }
+              ]
+            },
+            {
+              model: db.AttributeValue,
+              as: 'AttributeValue2',
+              attributes: ['id', 'name'],
+              include: [
+                { model: db.Attribute, attributes: ['id', 'name'] }
+              ]
+            }
           ]
         },
         { model: db.Store, attributes: ["name", "id"] },
@@ -542,25 +605,27 @@ const getDetailProductById = (inputId) => {
             'promotion', 'view_count', 'storeId', 'contentHtml', 'contentMarkdown'],
           include: [
             {
-              model: db.Product_size_color,
-              attributes: ["id"],
+              model: db.ProductAttribute,
+              attributes: ['id'],
               include: [
                 {
-                  model: db.Color,
-                  attributes: ['name']
+                  model: db.AttributeValue,
+                  as: 'AttributeValue1',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
                 },
                 {
-                  model: db.Size,
-                  attributes: ['size_value']
+                  model: db.AttributeValue,
+                  as: 'AttributeValue2',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
                 },
                 { model: db.Inventory, attributes: ['currentNumber'] }
-              ],
-              where: {
-                [Op.and]: [
-                  { sizeId: { [Op.not]: null } },
-                  { colorId: { [Op.not]: null } },
-                ],
-              },
+              ]
             },
             { model: db.Store, attributes: ['name', 'id'] },
           ],
@@ -607,7 +672,7 @@ const getRandomItemsFromArray = (array, numberOfItems) => {
   return shuffledArray.slice(0, numberOfItems);
 };
 
-const buyNowProduct = async (productColorSizeId, userId, storeId, body) => {
+const buyNowProduct = async (product_attribute_value_Id, userId, storeId, body) => {
   try {
     let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId, createdAt: new Date() } });
     let newOrder;
@@ -624,12 +689,12 @@ const buyNowProduct = async (productColorSizeId, userId, storeId, body) => {
       newOrder = order;
     }
     let orderItem = await db.OrderItem.findOne({
-      where: { orderId: newOrder.id, productColorSizeId: productColorSizeId }
+      where: { orderId: newOrder.id, product_AttributeId: product_attribute_value_Id }
     })
     if (!orderItem) {
       orderItem = await db.OrderItem.create({
         orderId: newOrder.id,
-        productColorSizeId: productColorSizeId,
+        product_AttributeId: product_attribute_value_Id,
         quantily: body.quantily,
         price_per_item: body.price_item,
       })
@@ -642,11 +707,11 @@ const buyNowProduct = async (productColorSizeId, userId, storeId, body) => {
       payment_methodID: newOrder.payment_methodID,
     })
 
-    const productColorSize = await db.Product_size_color.findByPk(orderItem.productColorSizeId);
+    const productColorSize = await db.ProductAttribute.findByPk(orderItem.product_AttributeId);
     if (!productColorSize) {
       throw new Error('Product color size not found.');
     }
-    const inventory = await db.Inventory.findOne({ where: { productColorSizeId: productColorSize.id } });
+    const inventory = await db.Inventory.findOne({ where: { product_AttributeId: productColorSize.id } });
     if (!inventory) {
       throw new Error('Inventory not found.');
     }
@@ -668,7 +733,7 @@ const buyNowProduct = async (productColorSizeId, userId, storeId, body) => {
   }
 }
 
-const postAddToCart = async (productColorSizeId, userId, storeId, body) => {
+const postAddToCart = async (product_attribute_value_Id, userId, storeId, body) => {
   try {
     let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId, createdAt: new Date() } });
     if (!order) {
@@ -688,14 +753,14 @@ const postAddToCart = async (productColorSizeId, userId, storeId, body) => {
       };
     }
 
-    let orderItem = await db.OrderItem.findOne({ where: { orderId: order.id, productColorSizeId: productColorSizeId } });
+    let orderItem = await db.OrderItem.findOne({ where: { orderId: order.id, product_AttributeId: product_attribute_value_Id } });
     if (orderItem) {
       orderItem.quantily = body.quantily;
       await orderItem.save();
     } else {
       orderItem = await db.OrderItem.create({
         orderId: order.id,
-        productColorSizeId: productColorSizeId,
+        product_AttributeId: product_attribute_value_Id,
         quantily: body.quantily,
         price_per_item: body.price_per_item,
       });
@@ -735,7 +800,7 @@ const getAllProductAddToCart = async (userId) => {
         order: [["id", "DESC"]],
         include: [
           {
-            model: db.Product_size_color,
+            model: db.ProductAttribute,
             attributes: ['id'],
             include: [
               {
@@ -750,20 +815,22 @@ const getAllProductAddToCart = async (userId) => {
                 attributes: ['currentNumber', `id`],
               },
               {
-                model: db.Size,
-                attributes: ["size_value"],
+                model: db.AttributeValue,
+                as: 'AttributeValue1',
+                attributes: ['id', 'name'],
+                include: [
+                  { model: db.Attribute, attributes: ['id', 'name'] }
+                ]
               },
               {
-                model: db.Color,
-                attributes: ["name"],
-              },
+                model: db.AttributeValue,
+                as: 'AttributeValue2',
+                attributes: ['id', 'name'],
+                include: [
+                  { model: db.Attribute, attributes: ['id', 'name'] }
+                ]
+              }
             ],
-            where: {
-              [Op.and]: [
-                { sizeId: { [Op.not]: null } },
-                { colorId: { [Op.not]: null } },
-              ],
-            },
           },
         ],
       }],
@@ -821,8 +888,7 @@ const deleteProductCart = async (id) => {
   }
 }
 
-const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
-
+const createBuyProduct = async (orderId, product_attribute_value_Id, storeId, body) => {
   const purchaseQuantity = parseInt(body.quantily);
   const payment_methodID = body.payment_methodID;
   const pricePerItem = parseFloat(body.price_per_item);
@@ -836,7 +902,7 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
     }
 
     const item = await db.OrderItem.findOne({
-      where: { orderId: orderId, productColorSizeId: productColorSizeId },
+      where: { orderId: orderId, product_AttributeId: product_attribute_value_Id },
       transaction
     });
 
@@ -874,12 +940,12 @@ const createBuyProduct = async (orderId, productColorSizeId, storeId, body) => {
     }
 
     // Update Inventory
-    const productColorSize = await db.Product_size_color.findByPk(item.productColorSizeId);
+    const productColorSize = await db.ProductAttribute.findByPk(item.product_AttributeId);
     if (!productColorSize) {
       throw new Error('Product color size not found.');
     }
 
-    const inventory = await db.Inventory.findOne({ where: { productColorSizeId: productColorSize.id } });
+    const inventory = await db.Inventory.findOne({ where: { product_AttributeId: productColorSize.id } });
     if (!inventory) {
       throw new Error('Inventory not found.');
     }
@@ -920,12 +986,26 @@ const orderByUser = async (page, limit, storeId) => {
           attributes: ['quantily'],
           include: [
             {
-              model: db.Product_size_color,
+              model: db.ProductAttribute,
               attributes: ['id'],
               include: [
                 { model: db.Product, attributes: [`product_name`] },
-                { model: db.Color, attributes: [`name`] },
-                { model: db.Size, attributes: [`size_value`] }
+                {
+                  model: db.AttributeValue,
+                  as: 'AttributeValue1',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
+                },
+                {
+                  model: db.AttributeValue,
+                  as: 'AttributeValue2',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
+                }
               ]
             }
           ]
@@ -1102,7 +1182,7 @@ const getreadStatusOrderWithPagination = async (page, limit, userId) => {
           attributes: ['id', 'quantily'],
           include: [
             {
-              model: db.Product_size_color,
+              model: db.ProductAttribute,
               attributes: ['id'],
               include: [
                 {
@@ -1113,20 +1193,22 @@ const getreadStatusOrderWithPagination = async (page, limit, userId) => {
                   ]
                 },
                 {
-                  model: db.Size,
-                  attributes: ["size_value"],
+                  model: db.AttributeValue,
+                  as: 'AttributeValue1',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
                 },
                 {
-                  model: db.Color,
-                  attributes: ["name"],
-                },
+                  model: db.AttributeValue,
+                  as: 'AttributeValue2',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
+                }
               ],
-              where: {
-                [Op.and]: [
-                  { sizeId: { [Op.not]: null } },
-                  { colorId: { [Op.not]: null } },
-                ],
-              },
             }
           ]
         },
@@ -1222,12 +1304,26 @@ const readAllOrderByShipper = async (page, limit, userId) => {
                   attributes: [`quantily`],
                   include: [
                     {
-                      model: db.Product_size_color,
+                      model: db.ProductAttribute,
                       attributes: ['id'],
                       include: [
                         { model: db.Product, attributes: [`product_name`] },
-                        { model: db.Color, attributes: [`name`] },
-                        { model: db.Size, attributes: [`size_value`] }
+                        {
+                          model: db.AttributeValue,
+                          as: 'AttributeValue1',
+                          attributes: ['id', 'name'],
+                          include: [
+                            { model: db.Attribute, attributes: ['id', 'name'] }
+                          ]
+                        },
+                        {
+                          model: db.AttributeValue,
+                          as: 'AttributeValue2',
+                          attributes: ['id', 'name'],
+                          include: [
+                            { model: db.Attribute, attributes: ['id', 'name'] }
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -1337,12 +1433,26 @@ const orderSuccessByShipper = async (page, limit, userId) => {
                   attributes: [`quantily`],
                   include: [
                     {
-                      model: db.Product_size_color,
+                      model: db.ProductAttribute,
                       attributes: ['id'],
                       include: [
                         { model: db.Product, attributes: [`product_name`] },
-                        { model: db.Color, attributes: [`name`] },
-                        { model: db.Size, attributes: [`size_value`] }
+                        {
+                          model: db.AttributeValue,
+                          as: 'AttributeValue1',
+                          attributes: ['id', 'name'],
+                          include: [
+                            { model: db.Attribute, attributes: ['id', 'name'] }
+                          ]
+                        },
+                        {
+                          model: db.AttributeValue,
+                          as: 'AttributeValue2',
+                          attributes: ['id', 'name'],
+                          include: [
+                            { model: db.Attribute, attributes: ['id', 'name'] }
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -1390,18 +1500,18 @@ const getSellingProductsWithPagination = async (page, limit) => {
       offset: offset,
       limit: limit,
       attributes: [
-        [db.sequelize.col('Product_size_color.Product.id'), 'id'],
-        [db.sequelize.col('Product_size_color.Product.product_name'), 'product_name'],
-        [db.sequelize.col('Product_size_color.Product.image'), 'image'],
-        [db.sequelize.col('Product_size_color.Product.price'), 'price'],
-        [db.sequelize.col('Product_size_color.Product.old_price'), 'old_price'],
-        [db.sequelize.col('Product_size_color.Product.promotion'), 'promotion'],
+        [db.sequelize.col('ProductAttribute.Product.id'), 'id'],
+        [db.sequelize.col('ProductAttribute.Product.product_name'), 'product_name'],
+        [db.sequelize.col('ProductAttribute.Product.image'), 'image'],
+        [db.sequelize.col('ProductAttribute.Product.price'), 'price'],
+        [db.sequelize.col('ProductAttribute.Product.old_price'), 'old_price'],
+        [db.sequelize.col('ProductAttribute.Product.promotion'), 'promotion'],
         [db.sequelize.fn('SUM', db.sequelize.col('quantyly_ordered')), 'total_quantity_ordered'],
       ],
       include: [
         { model: db.Store, attributes: ['id', `name`] },
         {
-          model: db.Product_size_color, attributes: [],
+          model: db.ProductAttribute, attributes: [],
           include: [
             {
               model: db.Product, attributes: []
@@ -1409,7 +1519,7 @@ const getSellingProductsWithPagination = async (page, limit) => {
           ]
         },
       ],
-      group: ['Product_size_color.Product.id'],
+      group: ['ProductAttribute.Product.id'],
       order: [[db.sequelize.literal('total_quantity_ordered'), 'DESC']],
     });
     let totalPages = Math.ceil(count.length / limit);
@@ -1522,7 +1632,7 @@ const shipperDashboardOrder = async (page, limit, userId) => {
                   attributes: ['id', 'quantily'],
                   include: [
                     {
-                      model: db.Product_size_color,
+                      model: db.ProductAttribute,
                       attributes: ['id'],
                       include: [
                         {
@@ -1530,13 +1640,21 @@ const shipperDashboardOrder = async (page, limit, userId) => {
                           attributes: ['product_name', 'id']
                         },
                         {
-                          model: db.Size,
-                          attributes: ['size_value']
+                          model: db.AttributeValue,
+                          as: 'AttributeValue1',
+                          attributes: ['id', 'name'],
+                          include: [
+                            { model: db.Attribute, attributes: ['id', 'name'] }
+                          ]
                         },
                         {
-                          model: db.Color,
-                          attributes: ['name'],
-                        },
+                          model: db.AttributeValue,
+                          as: 'AttributeValue2',
+                          attributes: ['id', 'name'],
+                          include: [
+                            { model: db.Attribute, attributes: ['id', 'name'] }
+                          ]
+                        }
                       ],
                     }
                   ]
@@ -1655,7 +1773,7 @@ const shipperDashboardDetailRevenue = async (page, limit, userId, date) => {
                   attributes: ['quantily', 'id'],
                   include: [
                     {
-                      model: db.Product_size_color,
+                      model: db.ProductAttribute,
                       attributes: ['id'],
                       include: [
                         {
@@ -1663,13 +1781,21 @@ const shipperDashboardDetailRevenue = async (page, limit, userId, date) => {
                           attributes: ['product_name', 'id']
                         },
                         {
-                          model: db.Size,
-                          attributes: ['size_value']
+                          model: db.AttributeValue,
+                          as: 'AttributeValue1',
+                          attributes: ['id', 'name'],
+                          include: [
+                            { model: db.Attribute, attributes: ['id', 'name'] }
+                          ]
                         },
                         {
-                          model: db.Color,
-                          attributes: ['name'],
-                        },
+                          model: db.AttributeValue,
+                          as: 'AttributeValue2',
+                          attributes: ['id', 'name'],
+                          include: [
+                            { model: db.Attribute, attributes: ['id', 'name'] }
+                          ]
+                        }
                       ],
                     }
                   ]
@@ -1712,7 +1838,7 @@ module.exports = {
   createProduct,
   orderConfirmationFailed,
   updateInventory,
-  saveProductColorAndSize,
+  saveProductAttributeValue,
   updateProduct,
   deleteProduct,
   getAllProductWithPagination,

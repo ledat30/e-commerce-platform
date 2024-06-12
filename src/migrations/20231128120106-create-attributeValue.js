@@ -2,33 +2,21 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Inventories", {
+    await queryInterface.createTable("AttributeValues", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      quantyly: {
-        type: Sequelize.BIGINT,
+      name: {
+        type: Sequelize.STRING,
       },
-      currentNumber: {
-        type: Sequelize.BIGINT,
-      },
-      quantyly_ordered: {
-        type: Sequelize.BIGINT,
-      },
-      quantyly_shipped: {
-        type: Sequelize.BIGINT,
-      },
-      quantity_sold: {
-        type: Sequelize.BIGINT,
-      },
-      productColorSizeId: {
+      attributeId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Product_size_colors",
+          model: "Attributes",
           key: "id",
         },
       },
@@ -51,6 +39,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Inventories");
+    await queryInterface.dropTable("AttributeValues");
   },
 };

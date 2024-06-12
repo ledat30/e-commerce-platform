@@ -50,6 +50,19 @@ const nonSecurePaths = [
   '/admin/dashboard-revenue-store-detail-by-date',
   '/product/confirm-order-by-transfer',
   '/product/delete-order-transfer',
+
+
+  ///
+  '/attribute/create',
+  '/attribute/read',
+  '/attribute/update',
+  '/attribute/delete',
+  '/variant/create',
+  '/variant/read',
+  '/variant/update',
+  '/variant/delete',
+  '/attribute/readByStore',
+  '/variant/readByStore',
 ];
 
 const createJWT = (payload) => {

@@ -426,7 +426,7 @@ const storeDashboardOrder = async (page, limit, storeId) => {
           attributes: ['id', 'quantily'],
           include: [
             {
-              model: db.Product_size_color,
+              model: db.ProductAttribute,
               attributes: ['id'],
               include: [
                 {
@@ -434,20 +434,22 @@ const storeDashboardOrder = async (page, limit, storeId) => {
                   attributes: ['product_name', 'id']
                 },
                 {
-                  model: db.Size,
-                  attributes: ['size_value']
+                  model: db.AttributeValue,
+                  as: 'AttributeValue1',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
                 },
                 {
-                  model: db.Color,
-                  attributes: ['name'],
-                },
+                  model: db.AttributeValue,
+                  as: 'AttributeValue2',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
+                }
               ],
-              where: {
-                [Op.and]: [
-                  { sizeId: { [Op.not]: null } },
-                  { colorId: { [Op.not]: null } },
-                ],
-              },
             }
           ]
         }
@@ -573,7 +575,7 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
           attributes: ['quantily', 'id'],
           include: [
             {
-              model: db.Product_size_color,
+              model: db.ProductAttribute,
               attributes: ['id'],
               include: [
                 {
@@ -581,20 +583,22 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
                   attributes: ['product_name', 'id']
                 },
                 {
-                  model: db.Size,
-                  attributes: ['size_value']
+                  model: db.AttributeValue,
+                  as: 'AttributeValue1',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
                 },
                 {
-                  model: db.Color,
-                  attributes: ['name'],
-                },
+                  model: db.AttributeValue,
+                  as: 'AttributeValue2',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
+                }
               ],
-              where: {
-                [db.Sequelize.Op.and]: [
-                  { sizeId: { [db.Sequelize.Op.not]: null } },
-                  { colorId: { [db.Sequelize.Op.not]: null } },
-                ],
-              },
             }
           ]
         }

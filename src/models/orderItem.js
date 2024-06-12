@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       OrderItem.belongsTo(models.Order, { foreignKey: "orderId" });
-      OrderItem.belongsTo(models.Product_size_color, { foreignKey: "productColorSizeId" });
+      OrderItem.belongsTo(models.ProductAttribute, { foreignKey: "product_AttributeId" });
     }
   }
   OrderItem.init(
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       price_per_item: DataTypes.STRING,
       quantily: DataTypes.STRING,
       orderId: DataTypes.INTEGER,
-      productColorSizeId: DataTypes.INTEGER,
+      product_AttributeId: DataTypes.INTEGER,
     },
     {
       sequelize,
