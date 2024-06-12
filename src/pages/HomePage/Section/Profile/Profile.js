@@ -142,15 +142,15 @@ function Profile() {
                                         {order.OrderItems.map((item, itemIndex) => {
                                             const formattedTotalAmount = (order.total_amount * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
                                             let imageBase64 = '';
-                                            if (item.Product_size_color.Product.image) {
-                                                imageBase64 = new Buffer.from(item.Product_size_color.Product.image, 'base64').toString('binary');
+                                            if (item.ProductAttribute.Product.image) {
+                                                imageBase64 = new Buffer.from(item.ProductAttribute.Product.image, 'base64').toString('binary');
                                             }
                                             return (
                                                 <div key={itemIndex} className='product_item'>
                                                     <div className='name-order'>
                                                         Tên đơn hàng
                                                         <div className='name-product'>
-                                                            {item.Product_size_color.Product.product_name}
+                                                            {item.ProductAttribute.Product.product_name} , <span style={{ fontSize: '14px', paddingLeft: '3px' }}>Lựa chọn: {item.ProductAttribute.AttributeValue1.name} , {item.ProductAttribute.AttributeValue2.name}</span>
                                                         </div>
                                                         <span className='quantity'>Số lượng : x{item.quantily}</span> , <span className='total_price'>Tổng tiền : <span className='price'>{formattedTotalAmount}</span></span>
                                                         <div style={{ backgroundImage: `url(${imageBase64})` }} className='img_product'>

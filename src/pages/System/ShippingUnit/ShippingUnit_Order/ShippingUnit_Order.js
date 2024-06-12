@@ -15,6 +15,7 @@ function ShippingUnitOrder() {
     const [currentLimit] = useState(6);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
+    console.log(listOrders);
     const [searchInput, setSearchInput] = useState("");
     const [listShippers, setListShippers] = useState([]);
 
@@ -192,9 +193,9 @@ function ShippingUnitOrder() {
                                                     <td>
                                                         {(currentPage - 1) * currentLimit + index + 1}
                                                     </td>
-                                                    <td>{item.Order.OrderItems[0].Product_size_color.Product.product_name}
+                                                    <td>{item.Order.OrderItems[0].ProductAttribute.Product.product_name}
                                                     </td>
-                                                    <td>{item.Order.OrderItems[0].Product_size_color.Color.name} , {item.Order.OrderItems[0].Product_size_color.Size.size_value}
+                                                    <td>{item.Order.OrderItems[0].ProductAttribute.AttributeValue1.name} , {item.Order.OrderItems[0].ProductAttribute.AttributeValue2.name}
                                                     </td>
                                                     <td>
                                                         {item.Order.User.username}

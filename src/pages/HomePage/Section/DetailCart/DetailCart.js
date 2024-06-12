@@ -97,11 +97,11 @@ function DetailCart() {
             item.OrderItems.forEach(orderItem => {
                 if (selectAll || selectedItems[orderItem.id]) {
                     selectedOrderItemIds.push({
-                        productColorSizeId: orderItem.Product_size_color.id,
+                        product_attribute_value_Id: orderItem.ProductAttribute.id,
                         orderId: item.id,
-                        storeId: orderItem.Product_size_color.Product.Store.id,
-                        quantily: quantities[orderItem.Product_size_color.Inventories[0].id],
-                        price: orderItem.Product_size_color.Product.price
+                        storeId: orderItem.ProductAttribute.Product.Store.id,
+                        quantily: quantities[orderItem.ProductAttribute.Inventories[0].id],
+                        price: orderItem.ProductAttribute.Product.price
                     });
                 }
             });
@@ -112,7 +112,7 @@ function DetailCart() {
                 return;
             }
             const responses = await Promise.all(selectedOrderItemIds.map(orderItem =>
-                buyProduct(orderItem.productColorSizeId, orderItem.orderId, orderItem.storeId, { quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id, shippingFee: shippingFee })
+                buyProduct(orderItem.product_attribute_value_Id, orderItem.orderId, orderItem.storeId, { quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id, shippingFee: shippingFee })
             ));
 
             const allSuccess = responses.every(response => response.EC === 0);
@@ -155,7 +155,7 @@ function DetailCart() {
         const initialQuantities = {};
         cartItems.forEach(item => {
             item.OrderItems.forEach(orderItem => {
-                const inventory = orderItem.Product_size_color?.Inventories?.[0];
+                const inventory = orderItem.ProductAttribute?.Inventories?.[0];
                 if (inventory && inventory.id) {
                     initialQuantities[inventory.id] = 1;
                 }
@@ -173,8 +173,8 @@ function DetailCart() {
         const totalAmount = cartItems.reduce((total, item) => {
             return total + item.OrderItems.reduce((itemTotal, orderItem) => {
                 if (selectedItems[orderItem.id]) {
-                    const price = orderItem.Product_size_color.Product.price;
-                    const quantity = quantities[orderItem.Product_size_color.Inventories[0].id];
+                    const price = orderItem.ProductAttribute.Product.price;
+                    const quantity = quantities[orderItem.ProductAttribute.Inventories[0].id];
                     return itemTotal + price * quantity;
                 }
                 return itemTotal;
@@ -234,11 +234,11 @@ function DetailCart() {
         setQuantities(prev => {
             const maxQuantity = cartItems.find(item =>
                 item.OrderItems.some(orderItem =>
-                    orderItem.Product_size_color?.Inventories?.[0]?.id === inventoryId
+                    orderItem.ProductAttribute?.Inventories?.[0]?.id === inventoryId
                 )
             )?.OrderItems.find(orderItem =>
-                orderItem.Product_size_color?.Inventories?.[0]?.id === inventoryId
-            )?.Product_size_color?.Inventories?.[0]?.currentNumber;
+                orderItem.ProductAttribute?.Inventories?.[0]?.id === inventoryId
+            )?.ProductAttribute?.Inventories?.[0]?.currentNumber;
 
             if (prev[inventoryId] < maxQuantity) {
                 return { ...prev, [inventoryId]: prev[inventoryId] + 1 };
@@ -292,10 +292,10 @@ function DetailCart() {
                                     <div className="product_cart_item" key={index}>
                                         {item.OrderItems.map((orderItem, orderIndex) => {
                                             let imageBase64 = '';
-                                            if (orderItem.Product_size_color.Product.image) {
-                                                imageBase64 = new Buffer.from(orderItem.Product_size_color.Product.image, 'base64').toString('binary');
+                                            if (orderItem.ProductAttribute.Product.image) {
+                                                imageBase64 = new Buffer.from(orderItem.ProductAttribute.Product.image, 'base64').toString('binary');
                                             }
-                                            const inventory = orderItem.Product_size_color?.Inventories?.[0];
+                                            const inventory = orderItem.ProductAttribute?.Inventories?.[0];
                                             if (!inventory) return null;
                                             return (
                                                 <div className="item_product" key={orderIndex}>
@@ -306,15 +306,15 @@ function DetailCart() {
                                                     />
                                                     <div className="name_prod">
                                                         <div className="name">
-                                                            {orderItem.Product_size_color.Product.product_name}
+                                                            {orderItem.ProductAttribute.Product.product_name}
                                                         </div>
                                                         <div className="size_color">
-                                                            {orderItem.Product_size_color.Color.name} , {orderItem.Product_size_color.Size.size_value}
+                                                            {orderItem.ProductAttribute.AttributeValue2.name} , {orderItem.ProductAttribute.AttributeValue1.name}
                                                         </div>
                                                     </div>
                                                     <div className="colum-3">
                                                         <div className="price_prod">
-                                                            <span className="underline">đ</span> {orderItem.Product_size_color.Product.price}
+                                                            <span className="underline">đ</span> {orderItem.ProductAttribute.Product.price}
                                                         </div>
                                                         <div className="delete_prod" onClick={() => handleDeleteProduct(orderItem.id)}>
                                                             <i className="fa fa-trash-o" aria-hidden="true"></i>

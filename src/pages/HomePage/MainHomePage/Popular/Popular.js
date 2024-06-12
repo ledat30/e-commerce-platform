@@ -64,7 +64,7 @@ function Popular() {
                                             {item.Store.name}
                                         </span>
                                         <span className="home-product-item__sold">
-                                            {item.total_quantity_ordered} Đã bán
+                                            {item.total_quantity_ordered ? `${item.total_quantity_ordered} Đã bán` : "0 Đã bán"}
                                         </span>
                                     </div>
                                     <div className="home-product-item__new">

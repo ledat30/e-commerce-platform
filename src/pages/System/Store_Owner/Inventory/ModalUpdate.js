@@ -75,9 +75,9 @@ function ModalUpdate(props) {
                 className={"form-control mt-1"}
                 type="text"
                 value={
-                  dataModalProduct.Product_size_color && dataModalProduct.Product_size_color.Product &&
-                    dataModalProduct.Product_size_color.Product.product_name
-                    ? dataModalProduct.Product_size_color.Product.product_name
+                  dataModalProduct.ProductAttribute && dataModalProduct.ProductAttribute.Product &&
+                    dataModalProduct.ProductAttribute.Product.product_name
+                    ? dataModalProduct.ProductAttribute.Product.product_name
                     : ""
                 }
                 disabled

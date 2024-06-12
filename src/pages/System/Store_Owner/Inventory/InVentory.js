@@ -75,7 +75,7 @@ function InVentory(ropps) {
 
   //search
   const filteredData = dataProductInStockByStore.filter((item) =>
-    item.Product_size_color.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
+    item.ProductAttribute.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
   );
 
   const onHideModalProduct = async () => {
@@ -154,9 +154,12 @@ function InVentory(ropps) {
                               textOverflow: "ellipsis",
                             }}
                           >
-                            {item.Product_size_color.Product.product_name}
+                            {item.ProductAttribute.Product.product_name}
                           </td>
-                          <td>{item.Product_size_color.Color.name} , {item.Product_size_color.Size.size_value}</td>
+                          <td>
+                            {item.ProductAttribute.AttributeValue2.name} -{" "}
+                            {item.ProductAttribute.AttributeValue1.name}
+                          </td>
                           <td>{item.quantyly}</td>
                           <td>{item.currentNumber}</td>
                           <td>{item.quantyly_ordered || 0}</td>

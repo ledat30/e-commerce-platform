@@ -40,7 +40,7 @@ function DetailProduct() {
 
   const handleBuyNow = () => {
     if (!selectedSize || !selectedColor) {
-      toast.error("Please select size and color");
+      toast.error("Please select options");
       return;
     }
 
@@ -198,8 +198,8 @@ function DetailProduct() {
     }
   };
 
-  const handleSizeClick = (size_value) => {
-    setSelectedSize(size_value === selectedSize ? null : size_value);
+  const handleSizeClick = (name) => {
+    setSelectedSize(name === selectedSize ? null : name);
   };
 
   const handleColorClick = (name) => {
@@ -213,19 +213,19 @@ function DetailProduct() {
   const handleAddToCart = async () => {
 
     if (!selectedSize || !selectedColor) {
-      toast.error("Please select size and color");
+      toast.error("Please select options");
       return;
     }
     try {
-      const selectedColorSize = dataDetailProduct.Product_size_colors.find(item =>
-        item.Color.name === selectedColor &&
-        item.Size.size_value === selectedSize
+      const selectedColorSize = dataDetailProduct.ProductAttributes.find(item =>
+        item.AttributeValue1.name === selectedSize &&
+        item.AttributeValue2.name === selectedColor
       );
       if (selectedColorSize) {
-        const productColorSizeId = selectedColorSize.id;
+        const product_attribute_value_Id = selectedColorSize.id;
 
         const response = await addToCart(
-          productColorSizeId,
+          product_attribute_value_Id,
           user.account.id,
           dataDetailProduct.Store.id,
           { quantily: quantily, price_per_item: price_per_item, }
@@ -241,7 +241,7 @@ function DetailProduct() {
           toast.error(response.EM);
         }
       } else {
-        toast.error("Selected color, size are not available");
+        toast.error("Selected options are not available");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -249,30 +249,30 @@ function DetailProduct() {
     }
   }
 
-  const getInventory = (size, color) => {
-    const selectedColorSize = dataDetailProduct.Product_size_colors.find(item =>
-      item.Color.name === color &&
-      item.Size.size_value === size
+  const getInventory = (valua1, value2) => {
+    const selectedColorSize = dataDetailProduct.ProductAttributes.find(item =>
+      item.AttributeValue1.name === valua1 &&
+      item.AttributeValue2.name === value2
     );
     return selectedColorSize?.Inventories?.[0]?.currentNumber || 0;
   }
 
   const isSizeAvailable = (size) => {
-    return dataDetailProduct.Product_size_colors.some(item =>
-      item.Size.size_value === size &&
+    return dataDetailProduct.ProductAttributes.some(item =>
+      item.AttributeValue1.name === size &&
       item.Inventories.some(inventory => inventory.currentNumber > 0)
     );
   };
 
   const isColorAvailable = (color) => {
-    return dataDetailProduct.Product_size_colors.some(item =>
-      item.Color.name === color &&
+    return dataDetailProduct.ProductAttributes.some(item =>
+      item.AttributeValue2.name === color &&
       item.Inventories.some(inventory => inventory.currentNumber > 0)
     );
   };
 
   const isAllOutOfStock = () => {
-    return dataDetailProduct.Product_size_colors.every(item =>
+    return dataDetailProduct.ProductAttributes.every(item =>
       item.Inventories.every(inventory => inventory.currentNumber === 0)
     );
   };
@@ -307,27 +307,27 @@ function DetailProduct() {
                   </div>
                   <div className="choose-color-size">
                     <div className="size-color">
-                      Chọn size
+                      Chọn {dataDetailProduct?.ProductAttributes[0]?.AttributeValue1?.Attribute?.name}
                       <div className="choose-size-color">
-                        {Array.from(new Set(dataDetailProduct?.Product_size_colors?.map(item => item.Size.size_value))).map((size_value, index) => {
-                          const isActive = size_value === selectedSize;
-                          const isAvailable = isSizeAvailable(size_value);
+                        {Array.from(new Set(dataDetailProduct?.ProductAttributes?.map(item => item.AttributeValue1.name))).map((name, index) => {
+                          const isActive = name === selectedSize;
+                          const isAvailable = isSizeAvailable(name);
                           const isNoHover = !isAvailable;
                           return (
                             <div key={index}
                               className={`choose ${isActive ? 'active' : ''} ${isNoHover ? 'no-hover' : ''}`}
-                              onClick={() => isAvailable && handleSizeClick(size_value)}
+                              onClick={() => isAvailable && handleSizeClick(name)}
                             >
-                              {size_value}
+                              {name}
                             </div>
                           );
                         })}
                       </div>
                     </div>
                     <div className="size-color">
-                      Chọn màu
+                      Chọn {dataDetailProduct?.ProductAttributes[0]?.AttributeValue2?.Attribute?.name}
                       <div className="choose-size-color">
-                        {Array.from(new Set(dataDetailProduct?.Product_size_colors?.map(item => item.Color.name))).map((name, index) => {
+                        {Array.from(new Set(dataDetailProduct?.ProductAttributes?.map(item => item.AttributeValue2.name))).map((name, index) => {
                           const isActive = name === selectedColor;
                           const isAvailable = isColorAvailable(name);
                           const isNoHover = !isAvailable;
@@ -378,12 +378,12 @@ function DetailProduct() {
                         isAllOutOfStock() ? (
                           <div className="out_of_stock">Hết hàng</div>
                         ) : (
-                          dataDetailProduct && selectedColor && getInventory(selectedSize, selectedColor) === 0 ? (
+                          dataDetailProduct && selectedColor && selectedSize && getInventory(selectedSize, selectedColor) === 0 ? (
                             <div className="out_of_stock">Hết hàng</div>
                           ) : (
                             <>
                               <div className="buy" onClick={handleBuyNow}>Buy now</div>
-                              <div className="add_cart" onClick={handleAddToCart}>Add to cart</div>
+                              <div className="add_cart" onClick={handleAddToCart} >Add to cart</div>
                             </>
                           )
                         )

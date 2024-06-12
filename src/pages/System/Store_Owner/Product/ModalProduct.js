@@ -9,9 +9,9 @@ import {
 } from "../../../../services/productService";
 import { getAllCategory } from "../../../../services/categoryService";
 import {
-  getAllColorByStore,
-  getAllSizeByStore,
-} from "../../../../services/productService";
+  readAttributeByStore,
+  readVariantByStore,
+} from "../../../../services/attributeAndVariantService";
 import { CommonUtils } from "../../../../utils";
 import _ from "lodash";
 import { toast } from "react-toastify";
@@ -26,17 +26,18 @@ const mdParser = new MarkdownIt(/* Markdown-it options */);
 
 const ModalProduct = (props) => {
   const [category, setCategory] = useState([]);
-  const [listcolor, setListColor] = useState([]);
-  const [listSize, setListSize] = useState([]);
+  const [filteredAttributes, setFilteredAttributes] = useState([]);
+  const [filteredVariants, setFilteredVariants] = useState([]);
   const [currentPage] = useState(1);
   const [selectedOption, setSelectedOption] = useState(null);
   const [previewImgURL, setPreviewImgURL] = useState("");
   const { action, dataModalProduct } = props;
+
   const { user } = useContext(UserContext);
   const [editorVisible, setEditorVisible] = useState(false);
 
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [selectedAttributes, setSelectedAttributes] = useState([]);
+  const [selectedVariants, setSelectedVariants] = useState([]);
 
   const defaultProductData = {
     price: "",
@@ -45,8 +46,6 @@ const ModalProduct = (props) => {
     description: "",
     image: "",
     category: "",
-    color: "",
-    size: "",
     contentHtml: "",
     contentMarkdown: "",
   };
@@ -66,17 +65,21 @@ const ModalProduct = (props) => {
 
   useEffect(() => {
     getCategory();
-    getColor();
-    getSize();
+    getAttribute();
+    getVariant();
   }, []);
 
   useEffect(() => {
     if (action === "UPDATE") {
-      const selectedColorIds = dataModalProduct?.Product_size_colors?.map(item => item.Color.id);
-      const selectedSizeIds = dataModalProduct?.Product_size_colors?.map(item => item.Size.id);
+      const selectedAttributeIds = dataModalProduct?.ProductAttributes?.flatMap(
+        (item) => [item.AttributeValue1?.Attribute?.id, item.AttributeValue2?.Attribute?.id].filter(Boolean)
+      );
+      const selectedVariantIds = dataModalProduct?.ProductAttributes?.flatMap(
+        (item) => [item.AttributeValue1?.id, item.AttributeValue2?.id].filter(Boolean)
+      );
 
-      setSelectedColors(selectedColorIds);
-      setSelectedSizes(selectedSizeIds);
+      setSelectedAttributes(selectedAttributeIds);
+      setSelectedVariants(selectedVariantIds);
 
       setProductData({
         ...dataModalProduct,
@@ -91,6 +94,12 @@ const ModalProduct = (props) => {
         ).toString("binary");
       }
       setPreviewImgURL(imageBase64);
+
+      // Fetch attributes and variants based on category
+      const categoryId = dataModalProduct.Category
+        ? dataModalProduct.Category.id
+        : "";
+      getAttribute(categoryId);
     }
   }, [action, dataModalProduct]);
 
@@ -114,27 +123,26 @@ const ModalProduct = (props) => {
     }
   };
 
-  const getColor = async () => {
-    let response = await getAllColorByStore(user.account.storeId);
-
+  const getAttribute = async (categoryId) => {
+    let response = await readAttributeByStore(user.account.storeId, categoryId);
     if (response && response.EC === 0) {
-      const colorsWithId = response.DT.map((color) => ({
-        ...color,
-        id: color.id,
+      const attributeWithId = response.DT.map((attribute) => ({
+        ...attribute,
+        id: attribute.id,
       }));
-      setListColor(colorsWithId);
+      setFilteredAttributes(attributeWithId);
+      setFilteredVariants([]);
     }
   };
 
-  const getSize = async () => {
-    let response = await getAllSizeByStore(user.account.storeId);
-
+  const getVariant = async (attributeId) => {
+    let response = await readVariantByStore(user.account.storeId, attributeId);
     if (response && response.EC === 0) {
-      const sizesWithId = response.DT.map((size) => ({
-        ...size,
-        id: size.id,
+      const variantWithId = response.DT.map((variant) => ({
+        ...variant,
+        id: variant.id,
       }));
-      setListSize(sizesWithId);
+      setFilteredVariants(variantWithId);
     }
   };
 
@@ -202,26 +210,40 @@ const ModalProduct = (props) => {
     }
   };
 
-  const handleSelectColor = (colorId) => {
-    setSelectedColors((prevColors) => {
-      const index = prevColors.indexOf(colorId);
+  const handleSelectAttribute = (attributeId) => {
+    setSelectedAttributes((prevAttributes) => {
+      const index = prevAttributes.indexOf(attributeId);
       if (index === -1) {
-        return [...prevColors, colorId];
+        // Fetch variants for the selected attribute
+        getVariant(attributeId);
+        return [...prevAttributes, attributeId];
       } else {
-        return prevColors.filter((id) => id !== colorId);
+        // Remove variants when deselecting an attribute
+        setFilteredVariants([]);
+        return prevAttributes.filter((id) => id !== attributeId);
       }
     });
   };
 
-  const handleSelectSize = (sizeId) => {
-    setSelectedSizes((prevSizes) => {
-      const index = prevSizes.indexOf(sizeId);
+  const handleSelectVariant = (variantId) => {
+    setSelectedVariants((prevVariants) => {
+      const index = prevVariants.indexOf(variantId);
       if (index === -1) {
-        return [...prevSizes, sizeId];
+        return [...prevVariants, variantId];
       } else {
-        return prevSizes.filter((id) => id !== sizeId);
+        return prevVariants.filter((id) => id !== variantId);
       }
     });
+  };
+
+  const handleCategoryChange = (selected) => {
+    const categoryId = selected.value;
+    setSelectedOption(categoryId);
+    handleOnChangeInput(categoryId, "category");
+    getAttribute(categoryId);
+    setSelectedAttributes([]);
+    setSelectedVariants([]);
+    setFilteredVariants([]);
   };
 
   const handleConfirmProduct = async () => {
@@ -236,8 +258,8 @@ const ModalProduct = (props) => {
               quantyly: productData.quantyly,
             },
             user.account.storeId,
-            selectedColors,
-            selectedSizes
+            selectedAttributes,
+            selectedVariants
           )
           : await updateProduct(
             {
@@ -245,8 +267,8 @@ const ModalProduct = (props) => {
               categoryId: productData["category"],
             },
             user.account.storeId,
-            selectedColors,
-            selectedSizes
+            selectedAttributes,
+            selectedVariants
           );
 
       if (response && response.EC === 0) {
@@ -258,30 +280,19 @@ const ModalProduct = (props) => {
         });
 
         if (updatedProductsResponse && updatedProductsResponse.EC === 0) {
-          // Update the dataProductByStore state in the parent component
-          props.onAddStore(updatedProductsResponse.DT.product);
-          toast.success("Update new product successfully");
-        } else {
-          console.error(
-            "Error fetching updated products. Check the response for more details."
-          );
+          const updatedProductList = updatedProductsResponse.DT.products;
+          const updatedTotalProducts = updatedProductsResponse.DT.totalProducts;
+
+          // Pass the updated list of products to the onHide function
+          props.onHide(updatedProductList);
         }
 
+        toast.success(response.EM);
         props.onHide();
-        setProductData({
-          ...defaultProductData,
-          category: category && category.length > 0 ? category[0].id : "",
-        });
+        setSelectedAttributes([]);
+        setSelectedVariants([]);
         setPreviewImgURL("");
-        if (editorVisible) {
-          setEditorVisible(false);
-          setProductData({
-            ...productData,
-            contentHtml: mdParser.render(productData.contentMarkdown),
-          });
-        }
-        setSelectedColors([]);
-        setSelectedSizes([]);
+        setProductData(defaultProductData);
       } else {
         toast.error(response.EM);
       }
@@ -296,8 +307,7 @@ const ModalProduct = (props) => {
   const handleCloseModalProduct = () => {
     props.onHide();
     setProductData(defaultProductData);
-    setSelectedColors([]);
-    setSelectedSizes([]);
+    setValidInputs(validInputsDefault);
     setPreviewImgURL("");
     setEditorVisible(false);
   };
@@ -346,35 +356,28 @@ const ModalProduct = (props) => {
               </label>
               <Select
                 className="mt-1"
-                value={
-                  options.find(
-                    (option) => option.value === productData.category
-                  ) || null
-                }
-                onChange={(selected) => {
-                  setSelectedOption(selected.value);
-                  handleOnChangeInput(selected.value, "category");
-                }}
+                value={options.find((option) => option.value === productData.category) || null}
+                onChange={handleCategoryChange}
                 options={options}
                 isDisabled={action === "CREATE" ? false : true}
               />
             </div>
             <div className="col-12 col-sm-6 from-group mt-2">
               <label style={{ paddingRight: "6px", paddingBottom: "3px" }}>
-                Choose color(<span style={{ color: "red" }}>*</span>)
+                Choose attribute(<span style={{ color: "red" }}>*</span>)
               </label>
               <div className="input-fake">
-                {selectedColors && Array.isArray(listcolor) && listcolor.length > 0 &&
-                  listcolor.map((color, index) => {
-                    const isSelected = selectedColors.includes(color.id);
+                {selectedAttributes && Array.isArray(filteredAttributes) && filteredAttributes.length > 0 &&
+                  filteredAttributes.map((item, index) => {
+                    const isSelected = selectedAttributes.includes(item.id);
                     const buttonClass = isSelected ? "button-fake active-button-fake" : "button-fake";
                     return (
                       <div
                         className={buttonClass}
                         key={index}
-                        onClick={() => handleSelectColor(color.id)}
+                        onClick={() => handleSelectAttribute(item.id)}
                       >
-                        {color.name}
+                        {item.name}
                       </div>
                     );
                   })
@@ -383,12 +386,12 @@ const ModalProduct = (props) => {
             </div>
             <div className="col-12 col-sm-6 from-group mt-2">
               <label style={{ paddingRight: "6px", paddingBottom: "3px" }}>
-                Choose size(<span style={{ color: "red" }}>*</span>)
+                Choose variant(<span style={{ color: "red" }}>*</span>)
               </label>
               <div className="input-fake">
-                {selectedColors && Array.isArray(listcolor) && listcolor.length > 0 &&
-                  listSize.map((size, index) => {
-                    const isSelected = selectedSizes.includes(size.id);
+                {selectedVariants && Array.isArray(filteredVariants) && filteredVariants.length > 0 &&
+                  filteredVariants.map((item, index) => {
+                    const isSelected = selectedVariants.includes(item.id);
                     const buttonClass = isSelected
                       ? "button-fake active-button-fake"
                       : "button-fake";
@@ -396,9 +399,9 @@ const ModalProduct = (props) => {
                       <div
                         className={buttonClass}
                         key={index}
-                        onClick={() => handleSelectSize(size.id)}
+                        onClick={() => handleSelectVariant(item.id)}
                       >
-                        {size.size_value}
+                        {item.name}
                       </div>
                     );
                   })}

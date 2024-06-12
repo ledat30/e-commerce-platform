@@ -95,11 +95,11 @@ function AppRoutes() {
               element={<PrivateRoutes element={<InVentory />} />}
             />
             <Route
-              path="/store-owner/color"
+              path="/store-owner/attribute"
               element={<PrivateRoutes element={<Color />} />}
             />
             <Route
-              path="/store-owner/size"
+              path="/store-owner/variant"
               element={<PrivateRoutes element={<Size />} />}
             />
             <Route

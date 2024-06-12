@@ -3,84 +3,81 @@ import { useState, useEffect } from "react";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
 import { toast } from "react-toastify";
-import {
-  createSizeProduct,
-  getAllSizeProduct,
-  deleteSize,
-  updateSizeProduct,
-} from "../../../../services/productService";
+import { createVariantProduct, getAllVariantProduct, updateVariantProduct, deleteVariant, getAllAttributes } from '../../../../services/attributeAndVariantService';
 import ReactPaginate from "react-paginate";
+import Select from "react-select";
 import { NavLink } from "react-router-dom";
 
-function Size(props) {
+function Color(props) {
   const { user } = useContext(UserContext);
 
-  const [size_value, setSize_value] = useState("");
-  const [validInputSize_value, setValidInputSize_value] = useState(true);
+  const [name, setName] = useState("");
+  const [validInputNameColor, setValidInputNameColor] = useState(true);
   const [attemptedSave, setAttemptedSave] = useState(false);
 
   const [editMode, setEditMode] = useState(false);
-  const [editSizeId, setEditSizeId] = useState(null);
-
-  const [listSizes, setListSizes] = useState([]);
+  const [editVariantId, setEditVariantId] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [listVariant, setListVariant] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
 
   const [searchInput, setSearchInput] = useState("");
 
+  const [listAttribute, setListAttribute] = useState([]);
+
   const checkValidInput = () => {
-    if (!size_value) {
-      setValidInputSize_value(false);
-      toast.error("Empty input size value");
+    if (!name) {
+      setValidInputNameColor(false);
+      toast.error("Empty input color name");
       return false;
     }
     return true;
   };
 
-  const handleConfirmSizeProduct = async () => {
+  const handleConfirmCategory = async () => {
     setAttemptedSave(true);
 
     if (checkValidInput()) {
       if (editMode) {
-        // Update the size if in edit mode
-        let response = await updateSizeProduct({
-          id: editSizeId,
-          size_value,
-        });
+        // Update the category if in edit mode
+        let response = await updateVariantProduct({
+          id: editVariantId,
+          name,
+        }, user.account.storeId);
 
         if (response && response.EC === 0) {
-          setSize_value("");
+          setName("");
           toast.success(response.EM);
-          await fetchSizesProduct();
+          await fetchVariantProduct();
           setAttemptedSave(false);
-          setValidInputSize_value(true);
+          setValidInputNameColor(true);
           setEditMode(false);
-          setEditSizeId(null);
+          setEditVariantId(null);
+          setSelectedOption(null);
         } else if (response && response.EC !== 0) {
           toast.error(response.EM);
-          setValidInputSize_value({
-            ...validInputSize_value,
+          setValidInputNameColor({
+            ...validInputNameColor,
             [response.DT]: false,
           });
         }
       } else {
-        // Create a new size if not in edit mode
-        let response = await createSizeProduct(
-          { size_value },
-          user.account.storeId
-        );
+        // Create a new attribute if not in edit mode
+        let response = await createVariantProduct({ name, attributeId: selectedOption.value }, user.account.storeId);
 
         if (response && response.EC === 0) {
-          setSize_value("");
+          setName("");
           toast.success(response.EM);
-          await fetchSizesProduct();
+          await fetchVariantProduct();
           setAttemptedSave(false);
-          setValidInputSize_value(true);
+          setValidInputNameColor(true);
+          setSelectedOption(null);
         } else if (response && response.EC !== 0) {
           toast.error(response.EM);
-          setValidInputSize_value({
-            ...validInputSize_value,
+          setValidInputNameColor({
+            ...validInputNameColor,
             [response.DT]: false,
           });
         }
@@ -88,75 +85,112 @@ function Size(props) {
     }
   };
 
-  const handleEditClick = (id, size_value) => {
+  const handleEditClick = (id, name, nameAttribute) => {
     setEditMode(true);
-    setEditSizeId(id);
-    setSize_value(size_value);
+    setEditVariantId(id);
+    setName(name);
+    const selectedAttribute = listAttribute.find((cat) => cat.name === nameAttribute);
+    setSelectedOption(selectedAttribute ? { label: selectedAttribute.name, value: selectedAttribute.id } : null);
   };
 
   useEffect(() => {
-    fetchSizesProduct();
+    fetchVariantProduct();
+    getAttribute();
   }, [currentPage]);
 
-  const fetchSizesProduct = async () => {
-    let response = await getAllSizeProduct(
+  const fetchVariantProduct = async () => {
+    let response = await getAllVariantProduct(
       currentPage,
       currentLimit,
       user.account.storeId
     );
 
     if (response && response.EC === 0) {
-      setListSizes(response.DT.sizes);
+      setListVariant(response.DT.colors);
       setTotalPages(response.DT.totalPages);
     }
+  };
+
+  const getAttribute = async () => {
+    let response = await getAllAttributes();
+
+    if (response && response.EC === 0) {
+      setListAttribute(response.DT);
+    }
+  };
+
+  const options = listAttribute.map((item) => ({
+    label: item.name,
+    value: item.id,
+  }));
+
+  const handleOnChangeInput = (value, key) => {
+    const updatedCategory = listAttribute.map(name =>
+      name.id === value ? { ...name, [key]: value } : name
+    );
+    setListAttribute(updatedCategory);
   };
 
   const handlePageClick = async (event) => {
     setCurrentPage(+event.selected + 1);
   };
 
-  const handleDeleteSize = async (size) => {
-    let data = await deleteSize(size);
+  const handleDeleteVariant = async (variant) => {
+    let data = await deleteVariant(variant);
     if (data && data.EC === 0) {
       toast.success(data.EM);
-      await fetchSizesProduct();
+      await fetchVariantProduct();
     } else {
       toast.error(data.EM);
     }
   };
 
   //search
-  const filteredData = listSizes.filter((item) =>
-    item.size_value.toLowerCase().includes(searchInput.toLowerCase())
+  const filteredData = listVariant.filter((item) =>
+    item.Attribute.name.toLowerCase().includes(searchInput.toLowerCase())
   );
 
   return (
     <>
-      <div className="size-container">
+      <div className="color-container">
         <div className="container">
-          <div className="title-size">
-            <h4>Size management</h4>
+          <div className="title-color">
+            <h4>Value management</h4>
           </div>
-          <div className="size-input row">
-            <div className="col-11 from-group">
+          <div className="color-input row">
+            <div className="col-8 from-group">
               <label>
-                Size value (<span style={{ color: "red" }}>*</span>)
+                Value name (<span style={{ color: "red" }}>*</span>)
               </label>
               <input
-                className={`form-control mt-1 ${
-                  validInputSize_value.category_name || !attemptedSave
-                    ? ""
-                    : "is-invalid"
-                }`}
+                className={`form-control mt-1 ${validInputNameColor.name || !attemptedSave
+                  ? ""
+                  : "is-invalid"
+                  }`}
                 type="email"
-                value={size_value}
-                onChange={(e) => setSize_value(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="col-3 from-group">
+              <label>
+                Choose attribute(<span style={{ color: "red" }}>*</span>)
+              </label>
+              <Select
+                className="mt-1"
+                value={selectedOption}
+                onChange={(selected) => {
+                  setSelectedOption(selected);
+                  handleOnChangeInput(selected.value, "category");
+                }}
+                options={options}
+                isDisabled={editMode}
               />
             </div>
             <div className="col-1 from-group mt">
               <button
                 className="btn btn-warning mt-3"
-                onClick={() => handleConfirmSizeProduct()}
+                onClick={() => handleConfirmCategory()}
               >
                 Save
               </button>
@@ -164,16 +198,16 @@ function Size(props) {
           </div>
 
           <hr />
-          <div className="table-size">
-            <div className="header-table-size">
-              <h4>List current sizes</h4>
+          <div className="table-color">
+            <div className="header-table-color">
+              <h4>List current value</h4>
               <div className="box">
                 <form className="sbox">
                   <input
                     className="stext"
                     type="text"
                     name="q"
-                    placeholder="Tìm kiếm size..."
+                    placeholder="Tìm kiếm value..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                   />
@@ -188,7 +222,8 @@ function Size(props) {
                 <tr>
                   <th>No</th>
                   <th>Id</th>
-                  <th>Size value</th>
+                  <th>Attribute</th>
+                  <th>Value</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -202,13 +237,14 @@ function Size(props) {
                             {(currentPage - 1) * currentLimit + index + 1}
                           </td>
                           <td>{item.id}</td>
-                          <td>{item.size_value}</td>
+                          <td>{item.Attribute.name}</td>
+                          <td>{item.name}</td>
                           <td>
                             <button
                               title="Edit"
                               className="btn btn-warning mx-2"
                               onClick={() =>
-                                handleEditClick(item.id, item.size_value)
+                                handleEditClick(item.id, item.name, item.Attribute.name)
                               }
                             >
                               <i className="fa fa-pencil"></i>
@@ -216,7 +252,7 @@ function Size(props) {
                             <button
                               title="Delete"
                               className="btn btn-danger"
-                              onClick={() => handleDeleteSize(item)}
+                              onClick={() => handleDeleteVariant(item)}
                             >
                               <i className="fa fa-trash-o"></i>
                             </button>
@@ -228,7 +264,7 @@ function Size(props) {
                 ) : (
                   <>
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={6}>Not found color...</td>
+                      <td colSpan={6}>Not found value...</td>
                     </tr>
                   </>
                 )}
@@ -265,4 +301,4 @@ function Size(props) {
   );
 }
 
-export default Size;
+export default Color;

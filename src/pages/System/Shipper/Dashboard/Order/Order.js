@@ -79,8 +79,8 @@ function Order() {
                                             {(currentPage - 1) * currentLimit + index + 1}
                                         </td>
                                         <td>{item.Shipping_Unit_Order.Order.User.username}</td>
-                                        <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.Product_size_color.Product.product_name}</td>
-                                        <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.Product_size_color.Color.name} , {item.Shipping_Unit_Order.Order.OrderItems[0]?.Product_size_color.Size.size_value}</td>
+                                        <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.Product.product_name}</td>
+                                        <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue2.name}</td>
                                         <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.quantily}</td>
                                         <td>{formattedDate}</td>
                                         <td>{formattedPrice}</td>

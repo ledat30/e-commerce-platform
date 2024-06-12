@@ -198,7 +198,7 @@ function HeaderHome() {
                     fontSize="40"
                     fill="#fff"
                   >
-                    EliteEmporium
+                    EcomZone
                   </text>
                 </svg>
               </Link>
@@ -256,8 +256,8 @@ function HeaderHome() {
                             <ul className="header__cart-list-item" key={index}>
                               {item.OrderItems.map((orderItem, orderIndex) => {
                                 let imageBase64 = '';
-                                if (orderItem.Product_size_color.Product.image) {
-                                  imageBase64 = new Buffer.from(orderItem.Product_size_color.Product.image, 'base64').toString('binary');
+                                if (orderItem.ProductAttribute.Product.image) {
+                                  imageBase64 = new Buffer.from(orderItem.ProductAttribute.Product.image, 'base64').toString('binary');
                                 }
                                 return (
                                   <li className="header__cart-item" key={orderIndex} >
@@ -266,11 +266,11 @@ function HeaderHome() {
                                     <div className="header__cart-item-info">
                                       <div className="header__cart-item-head">
                                         <h5 className="header__cart-item-name">
-                                          {orderItem.Product_size_color.Product.product_name}
+                                          {orderItem.ProductAttribute.Product.product_name}
                                         </h5>
                                         <div className="header__cart-item-price-wrap">
                                           <span className="header__cart-item-price">
-                                            {orderItem.Product_size_color.Product.price}
+                                            {orderItem.ProductAttribute.Product.price}
                                           </span>
                                           <span className="header__cart-item-miltiply">
                                             x
@@ -281,7 +281,7 @@ function HeaderHome() {
 
                                       <div className="header__cart-item-body">
                                         <span className="header__cart-item-description">
-                                          {orderItem.Product_size_color.Product.description}
+                                          {orderItem.ProductAttribute.Product.description}
                                         </span>
                                         <span className="header__cart-item-remove"
                                           onClick={() => handleDeleteProduct(orderItem.id)}
@@ -290,10 +290,10 @@ function HeaderHome() {
                                         </span>
                                       </div>
                                       <div>
-                                        <span className="color_size">Color : {orderItem.Product_size_color.Color.name}
+                                        <span className="color_size">{orderItem.ProductAttribute.AttributeValue1.Attribute.name} : {orderItem.ProductAttribute.AttributeValue1.name}
                                         </span>
                                         <span className="color_size pl-1">
-                                          , Size : {orderItem.Product_size_color.Size.size_value}
+                                          , {orderItem.ProductAttribute.AttributeValue2.Attribute.name} : {orderItem.ProductAttribute.AttributeValue2.name}
                                         </span >
                                       </div>
                                     </div>

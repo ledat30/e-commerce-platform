@@ -55,8 +55,8 @@ function Sidebar(props) {
   ) {
     menuItems.push(
       { to: "/", label: "Dashboard", icon: "fa-home" },
-      { to: "/store-owner/color", label: "Color", icon: "fa-paint-brush" },
-      { to: "/store-owner/size", label: "Size", icon: "fa-arrows-alt" },
+      { to: "/store-owner/attribute", label: "Attibute", icon: "fa-list-alt" },
+      { to: "/store-owner/variant", label: "Variant", icon: "fa-arrows-alt" },
       { to: "/store-owner/product", label: "Products", icon: "fa-product-hunt" },
       { to: "/store-owner/inventory", label: "Inventory", icon: "fa fa-archive" },
       { to: "/admin/comment", label: "Comment", icon: "fa-commenting-o " },

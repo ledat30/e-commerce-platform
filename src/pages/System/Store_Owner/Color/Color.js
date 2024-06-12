@@ -3,16 +3,14 @@ import { useState, useEffect } from "react";
 import { useContext } from "react";
 import { UserContext } from "../../../../context/userContext";
 import { toast } from "react-toastify";
-import {
-  createColorProduct,
-  getAllColorsProduct,
-  deleteColor,
-  updateColorProduct,
-} from "../../../../services/productService";
+import { getAllCategory } from "../../../../services/categoryService";
+import { createAttributeProduct, getAllAttributeProduct, updateAttributeProduct, deleteAttribute } from '../../../../services/attributeAndVariantService';
 import ReactPaginate from "react-paginate";
+import Select from "react-select";
 import { NavLink } from "react-router-dom";
 
 function Color(props) {
+  const [category, setCategory] = useState([]);
   const { user } = useContext(UserContext);
 
   const [name, setName] = useState("");
@@ -20,9 +18,9 @@ function Color(props) {
   const [attemptedSave, setAttemptedSave] = useState(false);
 
   const [editMode, setEditMode] = useState(false);
-  const [editColorId, setEditColorId] = useState(null);
-
-  const [listColors, setListColors] = useState([]);
+  const [editAttibuteId, setEditAttributeId] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [listAttribute, setListAttribute] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLimit] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
@@ -44,19 +42,20 @@ function Color(props) {
     if (checkValidInput()) {
       if (editMode) {
         // Update the category if in edit mode
-        let response = await updateColorProduct({
-          id: editColorId,
+        let response = await updateAttributeProduct({
+          id: editAttibuteId,
           name,
-        });
+        }, user.account.storeId);
 
         if (response && response.EC === 0) {
           setName("");
           toast.success(response.EM);
-          await fetchColorsProduct();
+          await fetchAttributeProduct();
           setAttemptedSave(false);
           setValidInputNameColor(true);
           setEditMode(false);
-          setEditColorId(null);
+          setEditAttributeId(null);
+          setSelectedOption(null);
         } else if (response && response.EC !== 0) {
           toast.error(response.EM);
           setValidInputNameColor({
@@ -65,15 +64,16 @@ function Color(props) {
           });
         }
       } else {
-        // Create a new color if not in edit mode
-        let response = await createColorProduct({ name }, user.account.storeId);
+        // Create a new attribute if not in edit mode
+        let response = await createAttributeProduct({ name, categoryId: selectedOption.value }, user.account.storeId);
 
         if (response && response.EC === 0) {
           setName("");
           toast.success(response.EM);
-          await fetchColorsProduct();
+          await fetchAttributeProduct();
           setAttemptedSave(false);
           setValidInputNameColor(true);
+          setSelectedOption(null);
         } else if (response && response.EC !== 0) {
           toast.error(response.EM);
           setValidInputNameColor({
@@ -85,45 +85,68 @@ function Color(props) {
     }
   };
 
-  const handleEditClick = (id, name) => {
+  const handleEditClick = (id, name, category_name) => {
     setEditMode(true);
-    setEditColorId(id);
+    setEditAttributeId(id);
     setName(name);
+    const selectedCategory = category.find((cat) => cat.category_name === category_name);
+    setSelectedOption(selectedCategory ? { label: selectedCategory.category_name, value: selectedCategory.id } : null);
   };
 
   useEffect(() => {
-    fetchColorsProduct();
+    fetchAttributeProduct();
+    getCategory();
   }, [currentPage]);
 
-  const fetchColorsProduct = async () => {
-    let response = await getAllColorsProduct(
+  const fetchAttributeProduct = async () => {
+    let response = await getAllAttributeProduct(
       currentPage,
       currentLimit,
       user.account.storeId
     );
 
     if (response && response.EC === 0) {
-      setListColors(response.DT.colors);
+      setListAttribute(response.DT.colors);
       setTotalPages(response.DT.totalPages);
     }
+  };
+
+  const getCategory = async () => {
+    let response = await getAllCategory();
+
+    if (response && response.EC === 0) {
+      setCategory(response.DT);
+    }
+  };
+
+  const options = category.map((item) => ({
+    label: item.category_name,
+    value: item.id,
+  }));
+
+  const handleOnChangeInput = (value, key) => {
+    const updatedCategory = category.map(categoryName =>
+      categoryName.id === value ? { ...categoryName, [key]: value } : categoryName
+    );
+    setCategory(updatedCategory);
   };
 
   const handlePageClick = async (event) => {
     setCurrentPage(+event.selected + 1);
   };
 
-  const handleDeleteCategory = async (color) => {
-    let data = await deleteColor(color);
+  const handleDeleteAttribute = async (attribute) => {
+    let data = await deleteAttribute(attribute);
     if (data && data.EC === 0) {
       toast.success(data.EM);
-      await fetchColorsProduct();
+      await fetchAttributeProduct();
     } else {
       toast.error(data.EM);
     }
   };
 
   //search
-  const filteredData = listColors.filter((item) =>
+  const filteredData = listAttribute.filter((item) =>
     item.name.toLowerCase().includes(searchInput.toLowerCase())
   );
 
@@ -132,21 +155,36 @@ function Color(props) {
       <div className="color-container">
         <div className="container">
           <div className="title-color">
-            <h4>Color management</h4>
+            <h4>Attibute management</h4>
           </div>
           <div className="color-input row">
-            <div className="col-11 from-group">
+            <div className="col-8 from-group">
               <label>
-                Color name (<span style={{ color: "red" }}>*</span>)
+                Attibute name (<span style={{ color: "red" }}>*</span>)
               </label>
               <input
-                className={`form-control mt-1 ${validInputNameColor.category_name || !attemptedSave
+                className={`form-control mt-1 ${validInputNameColor.name || !attemptedSave
                   ? ""
                   : "is-invalid"
                   }`}
                 type="email"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="col-3 from-group">
+              <label>
+                Choose category(<span style={{ color: "red" }}>*</span>)
+              </label>
+              <Select
+                className="mt-1"
+                value={selectedOption}
+                onChange={(selected) => {
+                  setSelectedOption(selected);
+                  handleOnChangeInput(selected.value, "category");
+                }}
+                options={options}
+                isDisabled={editMode}
               />
             </div>
             <div className="col-1 from-group mt">
@@ -162,14 +200,14 @@ function Color(props) {
           <hr />
           <div className="table-color">
             <div className="header-table-color">
-              <h4>List current colors</h4>
+              <h4>List current attribute</h4>
               <div className="box">
                 <form className="sbox">
                   <input
                     className="stext"
                     type="text"
                     name="q"
-                    placeholder="Tìm kiếm product..."
+                    placeholder="Tìm kiếm attribute..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                   />
@@ -184,7 +222,8 @@ function Color(props) {
                 <tr>
                   <th>No</th>
                   <th>Id</th>
-                  <th>Color name</th>
+                  <th>Attribute name</th>
+                  <th>Category</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -199,12 +238,13 @@ function Color(props) {
                           </td>
                           <td>{item.id}</td>
                           <td>{item.name}</td>
+                          <td>{item.Category.category_name}</td>
                           <td>
                             <button
                               title="Edit"
                               className="btn btn-warning mx-2"
                               onClick={() =>
-                                handleEditClick(item.id, item.name)
+                                handleEditClick(item.id, item.name, item.Category.category_name)
                               }
                             >
                               <i className="fa fa-pencil"></i>
@@ -212,7 +252,7 @@ function Color(props) {
                             <button
                               title="Delete"
                               className="btn btn-danger"
-                              onClick={() => handleDeleteCategory(item)}
+                              onClick={() => handleDeleteAttribute(item)}
                             >
                               <i className="fa fa-trash-o"></i>
                             </button>
@@ -224,7 +264,7 @@ function Color(props) {
                 ) : (
                   <>
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={6}>Not found color...</td>
+                      <td colSpan={6}>Not found attribute...</td>
                     </tr>
                   </>
                 )}

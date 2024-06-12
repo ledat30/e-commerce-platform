@@ -216,7 +216,7 @@ function Order() {
                                                     <td>
                                                         {(currentPage - 1) * currentLimit + index + 1}
                                                     </td>
-                                                    <td style={{ width: '250px' }}>{item.OrderItems[0].Product_size_color.Product.product_name}
+                                                    <td style={{ width: '250px' }}>{item.OrderItems[0].ProductAttribute.Product.product_name}
                                                     </td>
                                                     <td>
                                                         {item.User.username}

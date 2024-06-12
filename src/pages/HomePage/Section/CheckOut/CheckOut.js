@@ -129,7 +129,27 @@ function CheckOut() {
             toast.info("Please select a payment method.");
             return;
         }
-        const response = await buyNowProduct(product.Product_size_colors[0].id, user.account.id, product.Store.id, { quantily: quantily, total: total, price_item: product.price, payment_methodID: listPayMents[activeIndex].id });
+
+        const matchedProductAttribute = product.ProductAttributes.find(attr => {
+            const attrValues = [attr.AttributeValue1, attr.AttributeValue2];
+            return attrValues.some(value => value.name === size) && attrValues.some(value => value.name === color);
+        });
+
+        if (!matchedProductAttribute) {
+            toast.error("No matching product found for the selected options.");
+            return;
+        }
+
+        const response = await buyNowProduct(
+            matchedProductAttribute.id,
+            user.account.id,
+            product.Store.id,
+            {
+                quantily, total,
+                price_item: product.price,
+                payment_methodID: listPayMents[activeIndex].id
+            }
+        );
 
         if (response && response.EC === 0) {
             toast.success(response.EM);

@@ -62,9 +62,13 @@
 
                         .name-order {
                             .name-product {
-                                padding-top: 10px;
-                                color      : #8b8787;
-                                font-size  : 15px;
+                                padding-top  : 10px;
+                                color        : #8b8787;
+                                font-size    : 15px;
+                                width        : 250px;
+                                word-wrap    : break-word;
+                                overflow-wrap: break-word;
+                                white-space  : normal;
                             }
 
                             .quantity {

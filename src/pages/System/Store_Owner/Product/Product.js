@@ -52,14 +52,14 @@ function Product(ropps) {
     setCurrentPage(selectedPage.selected + 1);
   };
 
-  const onHideModalProduct = async () => {
+  const onHideModalProduct = (updatedProductList = null) => {
     setIsShowModalProduct(false);
     setDataModalProduct({});
-    await getAllProductsByStore({
-      storeId: user.account.storeId,
-      page: currentPage,
-      limit: currentLimit,
-    });
+    if (updatedProductList) {
+      setDataProductByStore(updatedProductList);
+    } else {
+      getDataProductByStore();
+    }
   };
 
   const handleAddProduct = (updatedProductList) => {
