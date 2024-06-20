@@ -12,9 +12,6 @@ module.exports = {
       username: {
         type: Sequelize.STRING,
       },
-      address: {
-        type: Sequelize.STRING,
-      },
       email: {
         type: Sequelize.STRING,
       },
@@ -32,6 +29,30 @@ module.exports = {
         allowNull: false,
         references: {
           model: "Groups",
+          key: "id",
+        },
+      },
+      provinceId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Provinces",
+          key: "id",
+        },
+      },
+      districtId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Districts",
+          key: "id",
+        },
+      },
+      wardId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Wards",
           key: "id",
         },
       },

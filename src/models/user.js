@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       User.belongsTo(models.Group, { foreignKey: "groupId" });
+      User.belongsTo(models.Province, { foreignKey: "provinceId" });
+      User.belongsTo(models.District, { foreignKey: "districtId" });
+      User.belongsTo(models.Ward, { foreignKey: "wardId" });
       User.hasMany(models.Order, { foreignKey: "userId" });
       User.hasMany(models.Comment, { foreignKey: "userId" });
       User.hasOne(models.Store, { foreignKey: "userId", as: "store" });
@@ -20,7 +23,9 @@ module.exports = (sequelize, DataTypes) => {
   User.init(
     {
       username: DataTypes.STRING,
-      address: DataTypes.STRING,
+      provinceId: DataTypes.INTEGER,
+      districtId: DataTypes.INTEGER,
+      wardId: DataTypes.INTEGER,
       email: DataTypes.STRING,
       image: DataTypes.BLOB("long"),
       groupId: DataTypes.INTEGER,

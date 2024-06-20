@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Order.belongsTo(models.User, { foreignKey: "userId" });
+      Order.belongsTo(models.Province, { foreignKey: "provinceId" });
+      Order.belongsTo(models.District, { foreignKey: "districtId" });
+      Order.belongsTo(models.Ward, { foreignKey: "wardId" });
       Order.belongsTo(models.PaymentMethod, { foreignKey: "payment_methodID" });
       Order.hasMany(models.Invoice, { foreignKey: "orderId" });
       Order.hasMany(models.OrderItem, { foreignKey: "orderId" });
@@ -24,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       payment_methodID: DataTypes.INTEGER,
       status: DataTypes.STRING,
       userId: DataTypes.INTEGER,
+      provinceId: DataTypes.INTEGER,
+      districtId: DataTypes.INTEGER,
+      wardId: DataTypes.INTEGER,
+      address_detail: DataTypes.STRING,
       storeId: DataTypes.INTEGER,
     },
     {

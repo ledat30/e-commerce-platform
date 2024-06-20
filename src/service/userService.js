@@ -27,7 +27,7 @@ const createNewUser = async (data) => {
 
     let hashPassword = hashUserPassword(data.password);
 
-    await db.User.create({ ...data, password: hashPassword });
+    await db.User.create({ ...data, password: hashPassword, provinceId: data.province.id, districtId: data.district.id, wardId: data.ward.id });
     return {
       EM: "Create new user successful",
       EC: 0,
@@ -83,10 +83,18 @@ const getUserWithPagination = async (page, limit) => {
         "username",
         "email",
         "phonenumber",
-        "address",
         "image",
       ],
-      include: { model: db.Group, attributes: ["id", "name"] },
+      include: [
+        { model: db.Group, attributes: ["id", "name"] },
+        {
+          model: db.Province, attributes: ['id', 'province_name', 'province_full_name'],
+        },
+        { model: db.District, attributes: ['district_name', 'district_full_name', 'provinceId'] },
+        {
+          model: db.Ward, attributes: ['id', 'ward_name', 'ward_full_name', 'districtId']
+        }
+      ],
       order: [["id", "DESC"]],
     });
     let totalPages = Math.ceil(count / limit);
@@ -126,7 +134,6 @@ const updateUser = async (data) => {
       //update
       await user.update({
         username: data.username,
-        address: data.address,
         groupId: data.groupId,
         ...(data.image && { image: data.image }),
       });
@@ -329,7 +336,12 @@ const getGroupShipper = async () => {
   try {
     let users = await db.User.findAll({
       where: { groupId: 5 },
-      attributes: ["id", "username", 'address'],
+      attributes: ["id", "username"],
+      include: [
+        { model: db.Province, attributes: ['province_name'] },
+        { model: db.District, attributes: ['district_name'] },
+        { model: db.Ward, attributes: ['ward_name'] }
+      ],
       order: [["id", "DESC"]],
     });
     if (users && users.length > 0) {
@@ -355,8 +367,46 @@ const getGroupShipper = async () => {
   }
 }
 
+const getAllProvinceDistrictWard = async () => {
+  try {
+    try {
+      let results = await db.Province.findAll({
+        attributes: ["id", "province_full_name", "province_name"],
+        include: [
+          {
+            model: db.District, attributes: ['id', 'district_full_name', 'district_name', 'provinceId'],
+            include: [
+              { model: db.Ward, attributes: ['id', 'ward_name', 'ward_full_name', 'districtId'] }
+            ]
+          }
+        ]
+      });
+      return {
+        EM: "Get all success!",
+        EC: 0,
+        DT: results,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        EM: "Somnething wrongs with services",
+        EC: -1,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
   createNewUser,
+  getAllProvinceDistrictWard,
   getAllUsers,
   getUserWithPagination,
   updateUser,

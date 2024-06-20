@@ -213,13 +213,16 @@ const adminDashboardUser = async (page, limit) => {
         const { count, rows } = await db.User.findAndCountAll({
             offset: offset,
             limit: limit,
-            attributes: ['id', 'username', 'email', 'phonenumber', 'address'],
+            attributes: ['id', 'username', 'email', 'phonenumber'],
             order: [['id', 'DESC']],
             include: [
                 {
                     model: db.Group,
                     attributes: ['name', 'id']
-                }
+                },
+                { model: db.Province, attributes: ['id', 'province_name'] },
+                { model: db.District, attributes: ['id', 'district_name'] },
+                { model: db.Ward, attributes: ['id', 'ward_name'] },
             ]
         });
         let totalPages = Math.ceil(count / limit);

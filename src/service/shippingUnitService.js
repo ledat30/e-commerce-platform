@@ -267,9 +267,12 @@ const readAllOrderByShippingUnit = async (page, limit, shipingUnitId) => {
                 }
               ]
             },
+            { model: db.Province, attributes: ['province_name'] },
+            { model: db.District, attributes: ['district_name'] },
+            { model: db.Ward, attributes: ['ward_name'] },
             {
               model: db.User,
-              attributes: ['username', 'address']
+              attributes: ['username'],
             },
             { model: db.PaymentMethod, attributes: [`method_name`] },
           ]

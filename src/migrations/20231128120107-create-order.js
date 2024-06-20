@@ -15,6 +15,9 @@ module.exports = {
       order_date: {
         type: Sequelize.DATE,
       },
+      address_detail: {
+        type: Sequelize.STRING,
+      },
       status: {
         type: Sequelize.STRING,
       },
@@ -31,6 +34,30 @@ module.exports = {
         allowNull: false,
         references: {
           model: "Users",
+          key: "id",
+        },
+      },
+      provinceId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Provinces",
+          key: "id",
+        },
+      },
+      districtId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Districts",
+          key: "id",
+        },
+      },
+      wardId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Wards",
           key: "id",
         },
       },

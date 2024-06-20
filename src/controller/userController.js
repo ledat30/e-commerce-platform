@@ -132,7 +132,12 @@ const getUserAccount = async (req, res) => {
       groupWithRoles: req.user.groupWithRoles,
       email: req.user.email,
       phonenumber: req.user.phonenumber,
-      address: req.user.address,
+      provinceName: req.user.provinceName,
+      districtName: req.user.districtName,
+      wardName: req.user.wardName,
+      provinceId: req.user.provinceId,
+      districtId: req.user.districtId,
+      wardId: req.user.wardId,
       username: req.user.username,
       id: req.user.id,
       storeId: req.user.storeId,
@@ -198,9 +203,29 @@ const getGroupShipper = async (req, res) => {
   }
 }
 
+const getAllProvinceDistrictWard = async (req, res) => {
+  try {
+    let data = await userService.getAllProvinceDistrictWard();
+
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
   createFunc,
   readFunc,
+  getAllProvinceDistrictWard,
   updateFunc,
   deleteFunc,
   searchUser,

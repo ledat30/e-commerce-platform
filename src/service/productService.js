@@ -458,7 +458,7 @@ const getProductInStockWithPagination = async (page, limit, storeId) => {
         {
           model: db.ProductAttribute, attributes: ["id"],
           include: [
-            { model: db.Product, attributes: ['product_name'] },
+            { model: db.Product, attributes: ['product_name', 'id'] },
             {
               model: db.AttributeValue,
               as: 'AttributeValue1',
@@ -683,6 +683,9 @@ const buyNowProduct = async (product_attribute_value_Id, userId, storeId, body) 
         status: 'Processing',
         payment_methodID: body.payment_methodID,
         userId: userId,
+        provinceId: body.province,
+        districtId: body.district,
+        wardId: body.ward,
         storeId: storeId,
       });
     } else {
@@ -733,7 +736,7 @@ const buyNowProduct = async (product_attribute_value_Id, userId, storeId, body) 
   }
 }
 
-const postAddToCart = async (product_attribute_value_Id, userId, storeId, body) => {
+const postAddToCart = async (product_attribute_value_Id, userId, provinceId, districtId, wardId, storeId, body) => {
   try {
     let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId, createdAt: new Date() } });
     if (!order) {
@@ -742,6 +745,9 @@ const postAddToCart = async (product_attribute_value_Id, userId, storeId, body) 
         order_date: new Date(),
         status: 'pending',
         userId: userId,
+        provinceId: provinceId,
+        districtId: districtId,
+        wardId: wardId,
         storeId: storeId,
       });
     }
@@ -894,6 +900,9 @@ const createBuyProduct = async (orderId, product_attribute_value_Id, storeId, bo
   const pricePerItem = parseFloat(body.price_per_item);
   const shippingFee = parseFloat(body.shippingFee);
   const transaction = await sequelize.transaction();
+  const wardId = body.ward;
+  const provinceId = body.province;
+  const districtId = body.district;
 
   try {
     const order = await db.Order.findByPk(orderId, { transaction });
@@ -911,7 +920,9 @@ const createBuyProduct = async (orderId, product_attribute_value_Id, storeId, bo
     let newOrder = null;
 
     if (purchaseQuantity === item.quantily) {
-      await order.update({ status: 'Processing', payment_methodID: payment_methodID, total_amount: pricePerItem * purchaseQuantity + shippingFee, }, { transaction });
+      await order.update({
+        status: 'Processing', payment_methodID: payment_methodID, total_amount: pricePerItem * purchaseQuantity + shippingFee, provinceId: provinceId, districtId: districtId, wardId: wardId,
+      }, { transaction });
       await db.Invoice.create({
         orderId: order.id,
         invoice_date: new Date(),
@@ -926,6 +937,9 @@ const createBuyProduct = async (orderId, product_attribute_value_Id, storeId, bo
         order_date: new Date(),
         payment_methodID: payment_methodID,
         storeId: storeId,
+        provinceId: provinceId,
+        districtId: districtId,
+        wardId: wardId,
       }, { transaction });
 
       await item.update({ quantily: purchaseQuantity, orderId: newOrder.id }, { transaction });
@@ -1328,9 +1342,12 @@ const readAllOrderByShipper = async (page, limit, userId) => {
                     }
                   ]
                 },
+                { model: db.Province, attributes: ['province_name'] },
+                { model: db.District, attributes: ['district_name'] },
+                { model: db.Ward, attributes: ['ward_name'] },
                 {
                   model: db.User,
-                  attributes: ['username', 'address']
+                  attributes: ['username']
                 },
                 { model: db.PaymentMethod, attributes: [`method_name`] },
               ]
@@ -1457,9 +1474,12 @@ const orderSuccessByShipper = async (page, limit, userId) => {
                     }
                   ]
                 },
+                { model: db.Province, attributes: ['province_name'] },
+                { model: db.District, attributes: ['district_name'] },
+                { model: db.Ward, attributes: ['ward_name'] },
                 {
                   model: db.User,
-                  attributes: ['username', 'address']
+                  attributes: ['username']
                 },
                 { model: db.PaymentMethod, attributes: [`method_name`] },
               ]

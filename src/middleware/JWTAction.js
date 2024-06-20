@@ -50,6 +50,7 @@ const nonSecurePaths = [
   '/admin/dashboard-revenue-store-detail-by-date',
   '/product/confirm-order-by-transfer',
   '/product/delete-order-transfer',
+  '/user/getAllProvinceDistrictWard',
 
 
   ///

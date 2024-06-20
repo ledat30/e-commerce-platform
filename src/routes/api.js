@@ -9,8 +9,6 @@ import storeController from "../controller/storeController";
 import shippingUnitController from "../controller/shippingUnitController";
 import productController from "../controller/productController";
 import paymentMethodController from "../controller/paymentMethodController";
-import colorController from "../controller/colorController";
-import sizeController from "../controller/sizeController";
 import commentController from "../controller/commentController";
 import dashboardController from '../controller/dashboardAdminController';
 import contactController from '../controller/contactController';
@@ -40,6 +38,7 @@ const initApiRouter = (app) => {
   router.get("/user-group-shipping_unit", userController.groupShippingUnitFunc);
   router.put("/user/edit-profile", userController.editProfile);
   router.get("/user-group-shipper", userController.getGroupShipper);
+  router.get("/user/getAllProvinceDistrictWard", userController.getAllProvinceDistrictWard);
 
   //role routes
   router.get("/role/read", roleController.readFunc);
@@ -137,13 +136,6 @@ const initApiRouter = (app) => {
   router.delete("/inventory/delete", productController.deleteProductInStock);
   router.put("/inventory/update", productController.updateProductInStock);
 
-  //color
-  // router.post("/color/create", colorController.createFunc);
-  // router.get("/color/read", colorController.readFunc);
-  // router.delete("/color/delete", colorController.deleteFunc);
-  // router.put("/color/update", colorController.updateFunc);
-  // router.get("/color/readByStore", colorController.readColorByStore);
-
   //attribute
   router.get("/attribute/read", productAttributeController.readFunc);
   router.post("/attribute/create", productAttributeController.createFunc);
@@ -158,13 +150,6 @@ const initApiRouter = (app) => {
   router.put("/variant/update", attributeValueController.updateFunc);
   router.delete("/variant/delete", attributeValueController.deleteFunc);
   router.get("/variant/readByStore", attributeValueController.readVariantByStore);
-
-  //size
-  // router.post("/size/create", sizeController.createFunc);
-  // router.get("/size/read", sizeController.readFunc);
-  // router.delete("/size/delete", sizeController.deleteFunc);
-  // router.put("/size/update", sizeController.updateFunc);
-  // router.get("/size/readByStore", sizeController.readSizeByStore);
 
   //dashboard admin
   router.get("/admin/dashboard-summary", dashboardController.adminDashboardSummary);

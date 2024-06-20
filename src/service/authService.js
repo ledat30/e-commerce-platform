@@ -39,6 +39,20 @@ const handleUserLogin = async (rawData) => {
           { phonenumber: rawData.valueLogin },
         ],
       },
+      include: [
+        {
+          model: db.Province,
+          attributes: ['id', 'province_name'],
+        },
+        {
+          model: db.District,
+          attributes: ['id', 'district_name'],
+        },
+        {
+          model: db.Ward,
+          attributes: ['id', 'ward_name'],
+        },
+      ],
     });
     if (user) {
       let isCorrectPassword = checkPassword(rawData.password, user.password);
@@ -59,7 +73,12 @@ const handleUserLogin = async (rawData) => {
         let payload = {
           email: user.email,
           phonenumber: user.phonenumber,
-          address: user.address,
+          provinceId: user.Province.id,
+          districtId: user.District.id,
+          wardId: user.Ward.id,
+          provinceName: user.Province.province_name,
+          districtName: user.District.district_name,
+          wardName: user.Ward.ward_name,
           groupWithRoles,
           id: user.id,
           username: user.username,
@@ -77,7 +96,12 @@ const handleUserLogin = async (rawData) => {
             groupWithRoles,
             email: user.email,
             phonenumber: user.phonenumber,
-            address: user.address,
+            provinceId: user.Province.id,
+            districtId: user.District.id,
+            wardId: user.Ward.id,
+            provinceName: user.Province.province_name,
+            districtName: user.District.district_name,
+            wardName: user.Ward.ward_name,
             id: user.id,
             username: user.username,
             storeId: storeId,

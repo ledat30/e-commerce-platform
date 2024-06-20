@@ -197,7 +197,7 @@ const getRandomProducts = async (req, res) => {
 
 const postAddToCart = async (req, res) => {
   try {
-    let data = await productService.postAddToCart(req.query.product_attribute_value_Id, req.query.userId, req.query.storeId, req.body);
+    let data = await productService.postAddToCart(req.query.product_attribute_value_Id, req.query.userId, req.query.provinceId, req.query.districtId, req.query.wardId, req.query.storeId, req.body);
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,
