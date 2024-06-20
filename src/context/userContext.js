@@ -38,7 +38,12 @@ function UserProvider({ children }) {
       let email = response.DT.email;
       let phonenumber = response.DT.phonenumber;
       let username = response.DT.username;
-      let address = response.DT.address;
+      let provinceId = response.DT.provinceId;
+      let districtId = response.DT.districtId;
+      let wardId = response.DT.wardId;
+      let provinceName = response.DT.provinceName;
+      let districtName = response.DT.districtName;
+      let wardName = response.DT.wardName;
       let id = response.DT.id;
       let token = response.DT.access_token;
       let storeId = response.DT.storeId;
@@ -48,7 +53,7 @@ function UserProvider({ children }) {
       let data = {
         isAuthenticated: true,
         token: token,
-        account: { groupWithRoles, email, phonenumber, username, address, id, storeId, nameStore, shipingUnitId, shipingUnitName },
+        account: { groupWithRoles, email, phonenumber, username, provinceName, districtName, wardName, provinceId, districtId, wardId, id, storeId, nameStore, shipingUnitId, shipingUnitName },
         isLoading: false,
       };
       setTimeout(() => {

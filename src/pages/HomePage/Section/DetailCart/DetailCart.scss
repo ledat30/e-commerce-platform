@@ -170,9 +170,45 @@
                 .title_add {
                     padding-top: 10px;
                     color      : rgb(122, 120, 120);
+
+                    .order_relatives {
+                        border          : none;
+                        background-color: #ffb916;
+                        float           : right;
+                        margin-right    : 20px;
+                        color           : white;
+                        font-size       : 14px;
+                        border-radius   : 3px;
+                        padding         : 0 5px;
+                        cursor          : pointer;
+                    }
+
+                    .order_relatives.active {
+                        background-color: #ee9a4b;
+                    }
+                }
+
+                .select_option {
+                    display        : flex;
+                    margin-top     : 10px;
+                    justify-content: space-between;
+                    width          : 360px;
+                    flex-shrink    : 0;
+                }
+
+                .all_option {
+                    display      : flex;
+                    border-bottom: 1px solid #ccc;
+                    margin-right : 20px;
+
+                    .selected_option {
+                        margin-top   : -10px;
+                        margin-bottom: 5px;
+                    }
                 }
 
                 .order {
+                    margin-top  : -5px;
                     margin-right: 20px;
 
                     .title-order {

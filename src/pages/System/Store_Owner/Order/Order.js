@@ -13,7 +13,7 @@ import { NavLink } from "react-router-dom";
 function Order() {
     const { user } = useContext(UserContext);
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(6);
+    const [currentLimit] = useState(4);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
     const [searchInput, setSearchInput] = useState("");

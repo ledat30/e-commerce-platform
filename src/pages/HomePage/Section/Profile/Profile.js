@@ -70,6 +70,9 @@ function Profile() {
     };
 
     const handleEditClick = () => {
+        setUsernameInput(user.account.username);
+        setEmailInput(user.account.email);
+        setAddressInput(`${user.account.wardName}, ${user.account.districtName}, ${user.account.provinceName}`);
         setIsEditing(true);
     };
 
@@ -319,7 +322,11 @@ function Profile() {
                                         className='input'
                                     />
                                 ) : (
-                                    user.account.address
+                                    <>
+                                        <span>{user.account.wardName} , </span>
+                                        <span>{user.account.districtName} , </span>
+                                        <span>{user.account.provinceName}</span>
+                                    </>
                                 )}
                                 <button
                                     title="Edit"

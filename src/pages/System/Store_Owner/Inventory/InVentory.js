@@ -22,8 +22,10 @@ function InVentory(ropps) {
   const [isShowModelDelete, setIsShowModelDelete] = useState(false);
   const [dataModel, setDataModel] = useState({});
   const [searchInput, setSearchInput] = useState("");
+  const [detailSearchInput, setDetailSearchInput] = useState("");
   const [dataModalProduct, setDataModalProduct] = useState({});
   const [isShowModalProduct, setIsShowModalProduct] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     getDataProductInStockByStore();
@@ -78,6 +80,18 @@ function InVentory(ropps) {
     item.ProductAttribute.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
   );
 
+  const groupByProductId = (products) => {
+    return products.reduce((acc, product) => {
+      const productId = product.ProductAttribute.Product.id;
+      if (!acc[productId]) {
+        acc[productId] = [];
+      }
+      acc[productId].push(product);
+      return acc;
+    }, {});
+  };
+  const groupedProducts = groupByProductId(filteredData);
+
   const onHideModalProduct = async () => {
     setIsShowModalProduct(false);
     setDataModalProduct({});
@@ -88,6 +102,19 @@ function InVentory(ropps) {
     setDataModalProduct(product);
     setIsShowModalProduct(true);
   };
+
+  const handleViewDetails = (productGroup) => {
+    setSelectedProduct(productGroup);
+  };
+
+  const handleBackToList = () => {
+    setSelectedProduct(null);
+  };
+
+  const filteredDetailData = selectedProduct?.filter((item) =>
+    item.ProductAttribute.AttributeValue1.name.toLowerCase().includes(detailSearchInput.toLowerCase()) ||
+    item.ProductAttribute.AttributeValue2.name.toLowerCase().includes(detailSearchInput.toLowerCase())
+  );
 
   return (
     <>
@@ -105,48 +132,44 @@ function InVentory(ropps) {
                 <i className="fa fa-refresh"></i> Refesh
               </button>
 
-              <div className="box">
-                <form className="sbox" action="/search" method="get">
-                  <input
-                    className="stext"
-                    type="text"
-                    name="q"
-                    placeholder="Tìm kiếm product..."
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                  />
-                  <NavLink className="sbutton" type="submit" to="">
-                    <i className="fa fa-search"></i>
-                  </NavLink>
-                </form>
-              </div>
+              {!selectedProduct && (
+                <div className="box">
+                  <form className="sbox" action="/search" method="get">
+                    <input
+                      className="stext"
+                      type="text"
+                      name="q"
+                      placeholder="Tìm kiếm product..."
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                    <NavLink className="sbutton" type="submit" to="">
+                      <i className="fa fa-search"></i>
+                    </NavLink>
+                  </form>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="store-body">
-            <table>
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Product</th>
-                  <th>Color & Size</th>
-                  <th>Quantity</th>
-                  <th style={{ width: '110px' }}>Current number</th>
-                  <th style={{ width: '110px' }}>Ordered quantity</th>
-                  <th style={{ width: '110px' }}>Shipping quantity</th>
-                  <th style={{ width: '110px' }}>Quantity sold</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData && filteredData.length > 0 ? (
-                  <>
-                    {filteredData.map((item, index) => {
+            {!selectedProduct ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Product</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(groupedProducts).length > 0 ? (
+                    Object.keys(groupedProducts).map((productId, index) => {
+                      const productGroup = groupedProducts[productId];
+                      const firstProduct = productGroup[0];
                       return (
                         <tr key={`row-${index}`}>
-                          <td>
-                            {(currentPage - 1) * currentLimit + index + 1}
-                          </td>
+                          <td>{(currentPage - 1) * currentLimit + index + 1}</td>
                           <td
                             style={{
                               maxWidth: "220px",
@@ -154,46 +177,118 @@ function InVentory(ropps) {
                               textOverflow: "ellipsis",
                             }}
                           >
-                            {item.ProductAttribute.Product.product_name}
+                            {firstProduct.ProductAttribute.Product.product_name}
                           </td>
                           <td>
-                            {item.ProductAttribute.AttributeValue2.name} -{" "}
-                            {item.ProductAttribute.AttributeValue1.name}
-                          </td>
-                          <td>{item.quantyly}</td>
-                          <td>{item.currentNumber}</td>
-                          <td>{item.quantyly_ordered || 0}</td>
-                          <td>{item.quantyly_shipped || 0}</td>
-                          <td>{item.quantity_sold || 0}</td>
-                          <td>
                             <button
-                              title="Edit"
-                              className="btn btn-warning mx-2"
-                              onClick={() => handleEditProduct(item)}
+                              className="btn btn-primary"
+                              onClick={() => handleViewDetails(productGroup)}
                             >
-                              <i className="fa fa-pencil"></i>
-                            </button>
-                            <button
-                              title="Delete"
-                              className="btn btn-danger"
-                              onClick={() => handleDeleteProduct(item)}
-                            >
-                              <i className="fa fa-trash-o"></i>
+                              View Details
                             </button>
                           </td>
                         </tr>
                       );
-                    })}
-                  </>
-                ) : (
-                  <>
+                    })
+                  ) : (
                     <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                      <td colSpan={9}>Not found product...</td>
+                      <td colSpan={3}>Not found product...</td>
                     </tr>
-                  </>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              <>
+                <button className="btn btn-secondary mb-3" onClick={handleBackToList}>
+                  Back to List
+                </button>
+                <div className="box mb-3">
+                  <form className="sbox" action="/search" method="get">
+                    <input
+                      className="stext"
+                      type="text"
+                      name="q"
+                      placeholder="Search options product..."
+                      value={detailSearchInput}
+                      onChange={(e) => setDetailSearchInput(e.target.value)}
+                    />
+                    <NavLink className="sbutton" type="submit" to="">
+                      <i className="fa fa-search"></i>
+                    </NavLink>
+                  </form>
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Product</th>
+                      <th>Options</th>
+                      <th>Quantity</th>
+                      <th style={{ width: '110px' }}>Current number</th>
+                      <th style={{ width: '110px' }}>Ordered quantity</th>
+                      <th style={{ width: '110px' }}>Shipping quantity</th>
+                      <th style={{ width: '110px' }}>Quantity sold</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDetailData && filteredDetailData.length > 0 ? (
+                      <>
+                        {filteredDetailData.map((item, index) => {
+                          return (
+                            <tr key={`row-${index}`}>
+                              <td>
+                                {(currentPage - 1) * currentLimit + index + 1}
+                              </td>
+                              <td
+                                style={{
+                                  maxWidth: "220px",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {item.ProductAttribute.Product.product_name}
+                              </td>
+                              <td>
+                                {item.ProductAttribute.AttributeValue2.name} -{" "}
+                                {item.ProductAttribute.AttributeValue1.name}
+                              </td>
+                              <td>{item.quantyly}</td>
+                              <td>{item.currentNumber}</td>
+                              <td>{item.quantyly_ordered || 0}</td>
+                              <td>{item.quantyly_shipped || 0}</td>
+                              <td>{item.quantity_sold || 0}</td>
+                              <td>
+                                <button
+                                  title="Edit"
+                                  className="btn btn-warning mx-2"
+                                  onClick={() => handleEditProduct(item)}
+                                >
+                                  <i className="fa fa-pencil"></i>
+                                </button>
+                                <button
+                                  title="Delete"
+                                  className="btn btn-danger"
+                                  onClick={() => handleDeleteProduct(item)}
+                                >
+                                  <i className="fa fa-trash-o"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <>
+                        <tr style={{ textAlign: "center", fontWeight: 600 }}>
+                          <td colSpan={9}>Not found product...</td>
+                        </tr>
+                      </>
+                    )}
+                  </tbody>
+                </table>
+              </>
+            )}
           </div>
           <div className="store-footer mt-4">
             <ReactPaginate

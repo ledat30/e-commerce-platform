@@ -12,10 +12,9 @@ import { NavLink } from "react-router-dom";
 function ShippingUnitOrder() {
     const { user } = useContext(UserContext);
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(6);
+    const [currentLimit] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
-    console.log(listOrders);
     const [searchInput, setSearchInput] = useState("");
     const [listShippers, setListShippers] = useState([]);
 
@@ -59,38 +58,57 @@ function ShippingUnitOrder() {
     }
 
     const handleConfirmOrders = () => {
-        const groupedOrders = groupOrdersByCitySuffix(listOrders, listShippers);
-        sendGroupedOrdersToBackend(groupedOrders);
+        const { groupedOrders, unmatchedOrders } = groupOrdersByLocation(listOrders, listShippers);
+
+        unmatchedOrders.forEach(order => {
+            toast.error(`No shippers found for order ${order.orderId} in ${order.ward}, ${order.district}, ${order.province}`);
+        });
+
+        // Kiểm tra xem có đơn hàng nào phù hợp với shipper không
+        const hasMatchedOrders = Object.keys(groupedOrders).some(key => groupedOrders[key].length > 0);
+
+        if (hasMatchedOrders) {
+            sendGroupedOrdersToBackend(groupedOrders);
+        }
     };
 
-    const groupOrdersByCitySuffix = (orders, shippers) => {
+    const groupOrdersByLocation = (orders, shippers) => {
         const groupedOrders = {};
         const shipperIndexes = {};
+        const unmatchedOrders = [];
 
         orders.forEach(order => {
-            const orderCitySuffix = order.Order.User.address.split(', ').map(s => s.trim()).pop().toLowerCase();
+            const orderProvince = order.Order.Province.province_name.toLowerCase();
+            const orderDistrict = order.Order.District.district_name.toLowerCase();
+            const orderWard = order.Order.Ward.ward_name.toLowerCase();
 
             const cityShippers = shippers.filter(shipper => {
-                const shipperCitySuffix = shipper.address.split(', ').map(s => s.trim()).pop().toLowerCase();
-                return orderCitySuffix === shipperCitySuffix;
+                const shipperProvince = shipper.Province.province_name.toLowerCase();
+                const shipperDistrict = shipper.District.district_name.toLowerCase();
+                const shipperWard = shipper.Ward.ward_name.toLowerCase();
+
+                return orderProvince === shipperProvince &&
+                    orderDistrict === shipperDistrict &&
+                    orderWard === shipperWard;
             });
 
             if (cityShippers.length > 0) {
-                if (!groupedOrders[orderCitySuffix]) {
-                    groupedOrders[orderCitySuffix] = [];
-                    shipperIndexes[orderCitySuffix] = 0;
+                const locationKey = `${orderProvince}-${orderDistrict}-${orderWard}`;
+                if (!groupedOrders[locationKey]) {
+                    groupedOrders[locationKey] = [];
+                    shipperIndexes[locationKey] = 0;
                 }
 
-                const currentShipperIndex = shipperIndexes[orderCitySuffix];
+                const currentShipperIndex = shipperIndexes[locationKey];
                 const currentShipper = cityShippers[currentShipperIndex];
 
-                let shipperGroup = groupedOrders[orderCitySuffix].find(group => group.shipperId === currentShipper.id);
+                let shipperGroup = groupedOrders[locationKey].find(group => group.shipperId === currentShipper.id);
                 if (!shipperGroup) {
                     shipperGroup = {
                         shipperId: currentShipper.id,
                         orders: []
                     };
-                    groupedOrders[orderCitySuffix].push(shipperGroup);
+                    groupedOrders[locationKey].push(shipperGroup);
                 }
 
                 shipperGroup.orders.push({
@@ -98,10 +116,18 @@ function ShippingUnitOrder() {
                     orderId: order.orderId
                 });
 
-                shipperIndexes[orderCitySuffix] = (currentShipperIndex + 1) % cityShippers.length;
+                shipperIndexes[locationKey] = (currentShipperIndex + 1) % cityShippers.length;
+            } else {
+                unmatchedOrders.push({
+                    orderId: order.orderId,
+                    province: orderProvince,
+                    district: orderDistrict,
+                    ward: orderWard
+                });
             }
         });
-        return groupedOrders;
+
+        return { groupedOrders, unmatchedOrders };
     };
 
     const sendGroupedOrdersToBackend = async (groupedOrders) => {
@@ -201,7 +227,7 @@ function ShippingUnitOrder() {
                                                         {item.Order.User.username}
                                                     </td>
                                                     <td>
-                                                        {item.Order.User.address}
+                                                        {item.Order.Ward.ward_name} , {item.Order.District.district_name} , {item.Order.Province.province_name}
                                                     </td>
                                                     <td>
                                                         {item.Order.OrderItems[0].quantily}

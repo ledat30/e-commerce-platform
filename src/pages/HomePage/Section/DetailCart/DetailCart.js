@@ -3,14 +3,17 @@ import { useContext } from "react";
 import React, { useState, useEffect } from "react";
 import HeaderHome from "../../HeaderHome/HeaderHome";
 import Footer from "../../Footer/Footer";
+import _ from "lodash";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"
 import { UserContext } from "../../../../context/userContext";
 import { deleteProductCart, buyProduct } from "../../../../services/productService";
 import { getAllPaymentClient } from "../../../../services/paymentMethodService";
+import { getAllProvinceDistrictWard } from "../../../../services/attributeAndVariantService";
 import { useCart } from '../../../../context/cartContext';
 import axios from 'axios';
 import { point, distance } from '@turf/turf';
+import Select from "react-select";
 const { Buffer } = require("buffer");
 
 function DetailCart() {
@@ -24,12 +27,94 @@ function DetailCart() {
     const [totalPayment, setTotalPayment] = useState(0);
     const [listPayMents, setListPayMents] = useState([]);
     const [activeIndex, setActiveIndex] = useState(null);
+    const [locations, setLocations] = useState([]);
+    const [filteredDistricts, setFilteredDistricts] = useState([]);
+    const [filteredWards, setFilteredWards] = useState([]);
+    const [isRelative, setIsRelative] = useState(false);
+
+    const defaultUserData = {
+        province: "",
+        district: "",
+        ward: "",
+    };
+    const validInputsDefault = {
+        province: true,
+        district: true,
+        ward: true,
+    };
+    const [userData, setUserData] = useState(defaultUserData);
+    const [validInputs, setValidInputs] = useState(validInputsDefault);
+
+    const handleOnChangeInput = (selected, name) => {
+        let _userData = _.cloneDeep(userData);
+        _userData[name] = selected.value;
+        setUserData(_userData);
+
+        if (name === "province") {
+            const selectedProvince = locations.find(prov => prov.id === selected.value);
+            const districts = selectedProvince ? selectedProvince.Districts : [];
+            setFilteredDistricts(districts);
+            setFilteredWards([]);
+            setUserData({ ..._userData, province: selectedProvince, district: "", ward: "" });
+        }
+
+        if (name === "district") {
+            const selectedDistrict = filteredDistricts.find(dist => dist.id === selected.value);
+            const wards = selectedDistrict ? selectedDistrict.Wards : [];
+            setFilteredWards(wards);
+            setUserData({ ..._userData, district: selectedDistrict, ward: "" });
+        }
+
+        if (name === "ward") {
+            const selectedWard = filteredWards.find(ward => ward.id === selected.value);
+            setUserData({ ..._userData, ward: selectedWard });
+        }
+    };
+
+    const checkValidInput = () => {
+        setValidInputs(validInputsDefault);
+        let arr = ["province", "district", "ward"];
+        let check = true;
+        for (let i = 0; i < arr.length; i++) {
+            if (!userData[arr[i]]) {
+                let _validInputs = _.cloneDeep(validInputsDefault);
+                _validInputs[arr[i]] = false;
+                setValidInputs(_validInputs);
+
+                toast.error(`Empty input ${arr[i]}`);
+                check = false;
+                break;
+            }
+        }
+        return check;
+    };
+
+    const handleToggleRelative = () => {
+        setIsRelative(prevState => !prevState);
+    };
+
+    useEffect(() => {
+        getAllLocationData();
+    }, []);
+
+    const getAllLocationData = async () => {
+        try {
+            let response = await getAllProvinceDistrictWard();
+            if (response && response.EC === 0) {
+                setLocations(response.DT);
+            }
+        } catch (error) {
+            console.error("Error fetching location data:", error);
+        }
+    };
 
     useEffect(() => {
         const calculateShippingFee = async () => {
             try {
                 // tọa độ của địa chỉ nhận hàng 
-                const address = user.account.address;
+                const address = isRelative
+                    ? `${userData.ward?.ward_name}, ${userData.district?.district_name}, ${userData.province?.province_name}`
+                    : `${user.account.wardName}, ${user.account.districtName}, ${user.account.provinceName}`;
                 if (!address) {
                     throw new Error('Địa chỉ người dùng không tồn tại.');
                 }
@@ -43,7 +128,7 @@ function DetailCart() {
                 const roundedDistance = distanceInKm.toFixed(1);
 
                 //  công thức phí vận chuyển 
-                const shippingRatePerKm = 2000;
+                const shippingRatePerKm = 1000;
 
                 const shippingTotal = (roundedDistance / 1000) * shippingRatePerKm;
                 const ship = shippingTotal;
@@ -58,7 +143,7 @@ function DetailCart() {
 
         //gọi lại khi thông tin user thay đổi
         calculateShippingFee();
-    }, [user]);
+    }, [user, userData, isRelative]);
 
     //chuyển đổi địa chỉ thành tọa độ
     const geocodeAddress = async (address) => {
@@ -92,6 +177,9 @@ function DetailCart() {
     };
 
     const handBuyProduct = async () => {
+        if (isRelative && !checkValidInput()) {
+            return;
+        };
         const selectedOrderItemIds = [];
         cartItems.forEach(item => {
             item.OrderItems.forEach(orderItem => {
@@ -111,8 +199,16 @@ function DetailCart() {
                 toast.info("Please select a payment method.");
                 return;
             }
+
+            const ward = isRelative ? `${userData.ward.id}` : `${user.account.wardId}`;
+            const province = isRelative ? `${userData.province.id}` : `${user.account.provinceId}`;
+            const district = isRelative ? `${userData.district.id}` : `${user.account.districtId}`;
+
             const responses = await Promise.all(selectedOrderItemIds.map(orderItem =>
-                buyProduct(orderItem.product_attribute_value_Id, orderItem.orderId, orderItem.storeId, { quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id, shippingFee: shippingFee })
+                buyProduct(orderItem.product_attribute_value_Id, orderItem.orderId, orderItem.storeId, {
+                    quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id, shippingFee: shippingFee,
+                    ward: ward, province: province, district: district
+                })
             ));
 
             const allSuccess = responses.every(response => response.EC === 0);
@@ -122,6 +218,7 @@ function DetailCart() {
                 setSelectedItems({});
                 setListPayMents([]);
                 fetchCartItems(user.account.id);
+                navigate(`/profile-user`);
             } else {
                 responses.forEach(response => {
                     if (response.EC !== 0) toast.error(response.EM);
@@ -361,11 +458,56 @@ function DetailCart() {
                 </div>
                 <div className="left_cart">
                     <div className="form_pay">
-                        <div className="title_add">Địa chỉ nhận hàng</div>
-                        <div className="address">
-                            <i className="fa fa-map-marker" aria-hidden="true"></i>
-                            <span className="ps-2">{user.account.address}</span>
+                        <div className="title_add">Địa chỉ nhận hàng
+                            <span className={`order_relatives ${isRelative ? 'active' : ''} `} onClick={handleToggleRelative}>
+                                Đặt cho người thân
+                            </span>
                         </div>
+                        {isRelative ? (
+                            <>
+                                <div className="select_option">
+                                    <Select
+                                        className={validInputs.province ? 'mb-4' : 'mb-4 is-invalid'}
+                                        value={locations.find(option => option.id === userData.province)}
+                                        onChange={(selected) => handleOnChangeInput(selected, 'province')}
+                                        options={locations.map(province => ({
+                                            value: province.id,
+                                            label: province.province_name,
+                                        }))}
+                                    />
+                                    <Select
+                                        className={validInputs.district ? 'mb-4' : 'mb-4 is-invalid'}
+                                        value={filteredDistricts.find(option => option.id === userData.district)}
+                                        onChange={(selected) => handleOnChangeInput(selected, 'district')}
+                                        options={filteredDistricts.map(district => ({
+                                            value: district.id,
+                                            label: district.district_name,
+                                        }))}
+                                    />
+                                    <Select
+                                        className={validInputs.ward ? 'mb-4' : 'mb-4 is-invalid'}
+                                        value={filteredWards.find(option => option.id === userData.ward)}
+                                        onChange={(selected) => handleOnChangeInput(selected, 'ward')}
+                                        options={filteredWards.map(ward => ({
+                                            value: ward.id,
+                                            label: ward.ward_name,
+                                        }))}
+                                    />
+                                </div>
+                                <div className="all_option">
+                                    <div className="selected_option">
+                                        <i className="fa fa-map-marker" aria-hidden="true"></i>
+                                        <span style={{ paddingLeft: '5px' }}>
+                                            {userData.province?.province_name || 'Chưa chọn'} , {userData.district?.district_name || 'Chưa chọn'} ,  {userData.ward?.ward_name || 'Chưa chọn'}</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="address">
+                                <i className="fa fa-map-marker" aria-hidden="true"></i>
+                                <span className="ps-2">{user.account.wardName} , {user.account.districtName} , {user.account.provinceName}  </span>
+                            </div>
+                        )}
                         <div className="order">
                             <div className="title-order">Đơn hàng</div>
                             <div className="items">

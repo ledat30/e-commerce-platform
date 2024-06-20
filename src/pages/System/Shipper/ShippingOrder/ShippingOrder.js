@@ -128,7 +128,7 @@ function ShippingOrder() {
                                                         {item.Shipping_Unit_Order.Order.User.username}
                                                     </td>
                                                     <td>
-                                                        {item.Shipping_Unit_Order.Order.User.address}
+                                                        {item.Shipping_Unit_Order.Order.Ward.ward_name} ,   {item.Shipping_Unit_Order.Order.District.district_name} ,  {item.Shipping_Unit_Order.Order.Province.province_name} ,
                                                     </td>
                                                     <td>
                                                         {item.Shipping_Unit_Order.Order.OrderItems[0].quantily}

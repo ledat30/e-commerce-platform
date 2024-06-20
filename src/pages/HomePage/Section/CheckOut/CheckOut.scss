@@ -18,6 +18,39 @@
                 margin-left           : -20px;
                 border-top-left-radius: 3px;
                 padding               : 5px 0 5px 20px;
+
+                .order_relatives {
+                    border          : none;
+                    background-color: #ffb916;
+                    float           : right;
+                    margin-right    : 20px;
+                    color           : white;
+                    font-size       : 14px;
+                    border-radius   : 3px;
+                    padding         : 0 5px;
+                    cursor          : pointer;
+                }
+
+                .order_relatives.active {
+                    background-color: #ee9a4b;
+                }
+            }
+
+            .select_option {
+                display        : flex;
+                margin-top     : 10px;
+                justify-content: space-between;
+                width          : 500px;
+            }
+
+            .all_option {
+                display     : flex;
+                margin-right: 20px;
+
+                .selected_option {
+                    margin-top   : -10px;
+                    margin-bottom: 5px;
+                }
             }
 
             .info {

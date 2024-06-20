@@ -50,54 +50,6 @@ const updateProductInStockByStore = (data) => {
   return axios.put(`/api/inventory/update`, data);
 };
 
-const createColorProduct = (data, storeId) => {
-  return axios.post(`/api/color/create?storeId=${storeId}`, { ...data });
-};
-
-const getAllColorsProduct = (page, limit, storeId) => {
-  return axios.get(
-    `/api/color/read?page=${page}&limit=${limit}&storeId=${storeId}`
-  );
-};
-
-const getAllColorByStore = (storeId) => {
-  return axios.get(`/api/color/readByStore?storeId=${storeId}`);
-};
-
-const deleteColor = (color) => {
-  return axios.delete(`/api/color/delete`, {
-    data: { id: color.id },
-  });
-};
-
-const updateColorProduct = (data, storeId) => {
-  return axios.put(`/api/color/update?storeId=${storeId}`, { ...data });
-};
-
-const createSizeProduct = (data, storeId) => {
-  return axios.post(`/api/size/create?storeId=${storeId}`, { ...data });
-};
-
-const getAllSizeProduct = (page, limit, storeId) => {
-  return axios.get(
-    `/api/size/read?page=${page}&limit=${limit}&storeId=${storeId}`
-  );
-};
-
-const getAllSizeByStore = (storeId) => {
-  return axios.get(`/api/size/readByStore?storeId=${storeId}`);
-};
-
-const deleteSize = (color) => {
-  return axios.delete(`/api/size/delete`, {
-    data: { id: color.id },
-  });
-};
-
-const updateSizeProduct = (data, storeId) => {
-  return axios.put(`/api/size/update?storeId=${storeId}`, { ...data });
-};
-
 const getDetailProductById = (id) => {
   return axios.get(`/api/detail-productById?id=${id}`);
 }
@@ -138,8 +90,8 @@ const searchComment = (key) => {
   return axios.get(`/api/search-comment?q=${key}`);
 };
 
-const addToCart = (product_attribute_value_Id, userId, storeId, data) => {
-  return axios.post(`/api/product/add-to-cart?product_attribute_value_Id=${product_attribute_value_Id}&userId=${userId}&storeId=${storeId}`, { ...data });
+const addToCart = (product_attribute_value_Id, userId, provinceId, districtId, wardId, storeId, data) => {
+  return axios.post(`/api/product/add-to-cart?product_attribute_value_Id=${product_attribute_value_Id}&userId=${userId}&provinceId=${provinceId}&districtId=${districtId}&wardId=${wardId}&storeId=${storeId}`, { ...data });
 }
 
 const buyNowProduct = (product_attribute_value_Id, userId, storeId, data) => {
@@ -259,16 +211,6 @@ export {
   getProductInStockWithPagination,
   deleteProductInStock,
   updateProductInStockByStore,
-  createColorProduct,
-  getAllColorsProduct,
-  getAllColorByStore,
-  deleteColor,
-  updateColorProduct,
-  createSizeProduct,
-  getAllSizeProduct,
-  getAllSizeByStore,
-  deleteSize,
-  updateSizeProduct,
   getDetailProductById,
   getRamdomProduct,
   getAllCommentByProduct,

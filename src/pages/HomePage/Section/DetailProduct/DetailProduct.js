@@ -227,6 +227,9 @@ function DetailProduct() {
         const response = await addToCart(
           product_attribute_value_Id,
           user.account.id,
+          user.account.provinceId,
+          user.account.districtId,
+          user.account.wardId,
           dataDetailProduct.Store.id,
           { quantily: quantily, price_per_item: price_per_item, }
         );

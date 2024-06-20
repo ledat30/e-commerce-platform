@@ -7,10 +7,13 @@ import React, { useState, useEffect } from "react";
 import HeaderHome from "../../HeaderHome/HeaderHome";
 import Footer from "../../Footer/Footer";
 import { getAllPaymentClient } from "../../../../services/paymentMethodService";
+import { getAllProvinceDistrictWard } from "../../../../services/attributeAndVariantService";
 import { buyNowProduct } from '../../../../services/productService';
 import { point, distance } from '@turf/turf';
 import axios from 'axios';
 import { toast } from "react-toastify";
+import _ from "lodash";
+import Select from "react-select";
 const { Buffer } = require("buffer");
 
 function CheckOut() {
@@ -25,6 +28,82 @@ function CheckOut() {
     const [activeIndex, setActiveIndex] = useState(null);
     const [total, setTotal] = useState(0);
     let navigate = useNavigate();
+    const [locations, setLocations] = useState([]);
+    const [filteredDistricts, setFilteredDistricts] = useState([]);
+    const [filteredWards, setFilteredWards] = useState([]);
+    const [isRelative, setIsRelative] = useState(false);
+
+    const defaultUserData = {
+        province: "",
+        district: "",
+        ward: "",
+    };
+    const validInputsDefault = {
+        province: true,
+        district: true,
+        ward: true,
+    };
+    const [userData, setUserData] = useState(defaultUserData);
+    const [validInputs, setValidInputs] = useState(validInputsDefault);
+
+    const handleOnChangeInput = (selected, name) => {
+        let _userData = _.cloneDeep(userData);
+        _userData[name] = selected.value;
+        setUserData(_userData);
+
+        if (name === "province") {
+            const selectedProvince = locations.find(prov => prov.id === selected.value);
+            const districts = selectedProvince ? selectedProvince.Districts : [];
+            setFilteredDistricts(districts);
+            setFilteredWards([]);
+            setUserData({ ..._userData, province: selectedProvince, district: "", ward: "" });
+        }
+
+        if (name === "district") {
+            const selectedDistrict = filteredDistricts.find(dist => dist.id === selected.value);
+            const wards = selectedDistrict ? selectedDistrict.Wards : [];
+            setFilteredWards(wards);
+            setUserData({ ..._userData, district: selectedDistrict, ward: "" });
+        }
+
+        if (name === "ward") {
+            const selectedWard = filteredWards.find(ward => ward.id === selected.value);
+            setUserData({ ..._userData, ward: selectedWard });
+        }
+    };
+
+    const checkValidInput = () => {
+        setValidInputs(validInputsDefault);
+        let arr = ["province", "district", "ward"];
+        let check = true;
+        for (let i = 0; i < arr.length; i++) {
+            if (!userData[arr[i]]) {
+                let _validInputs = _.cloneDeep(validInputsDefault);
+                _validInputs[arr[i]] = false;
+                setValidInputs(_validInputs);
+
+                toast.error(`Empty input ${arr[i]}`);
+                check = false;
+                break;
+            }
+        }
+        return check;
+    };
+
+    useEffect(() => {
+        getAllLocationData();
+    }, []);
+
+    const getAllLocationData = async () => {
+        try {
+            let response = await getAllProvinceDistrictWard();
+            if (response && response.EC === 0) {
+                setLocations(response.DT);
+            }
+        } catch (error) {
+            console.error("Error fetching location data:", error);
+        }
+    };
 
     useEffect(() => {
         fetchAllPayMent();
@@ -54,7 +133,9 @@ function CheckOut() {
     useEffect(() => {
         const calculateShippingFee = async () => {
             try {
-                const address = user.account.address;
+                const address = isRelative
+                    ? `${userData.ward?.ward_name}, ${userData.district?.district_name}, ${userData.province?.province_name}`
+                    : `${user.account.wardName}, ${user.account.districtName}, ${user.account.provinceName}`;
                 if (!address) {
                     throw new Error('Địa chỉ người dùng không tồn tại.');
                 }
@@ -65,7 +146,7 @@ function CheckOut() {
                 const distanceInKm = calculateDistance(destinationCoordinates, storeCoordinates);
                 const roundedDistance = distanceInKm.toFixed(1);
 
-                const shippingRatePerKm = 2000;
+                const shippingRatePerKm = 1000;
 
                 const shippingTotal = (roundedDistance / 1000) * shippingRatePerKm;
                 const ship = shippingTotal;
@@ -78,7 +159,7 @@ function CheckOut() {
             }
         };
         calculateShippingFee();
-    }, [user]);
+    }, [user, userData, isRelative]);
 
     const geocodeAddress = async (address) => {
         try {
@@ -129,6 +210,9 @@ function CheckOut() {
             toast.info("Please select a payment method.");
             return;
         }
+        if (isRelative && !checkValidInput()) {
+            return;
+        };
 
         const matchedProductAttribute = product.ProductAttributes.find(attr => {
             const attrValues = [attr.AttributeValue1, attr.AttributeValue2];
@@ -140,6 +224,10 @@ function CheckOut() {
             return;
         }
 
+        const ward = isRelative ? `${userData.ward.id}` : `${user.account.wardId}`;
+        const province = isRelative ? `${userData.province.id}` : `${user.account.provinceId}`;
+        const district = isRelative ? `${userData.district.id}` : `${user.account.districtId}`;
+
         const response = await buyNowProduct(
             matchedProductAttribute.id,
             user.account.id,
@@ -147,7 +235,8 @@ function CheckOut() {
             {
                 quantily, total,
                 price_item: product.price,
-                payment_methodID: listPayMents[activeIndex].id
+                payment_methodID: listPayMents[activeIndex].id,
+                ward: ward, province: province, district: district
             }
         );
 
@@ -157,6 +246,10 @@ function CheckOut() {
         }
     }
 
+    const handleToggleRelative = () => {
+        setIsRelative(prevState => !prevState);
+    };
+
     return (
         <div className="container-checkout">
             <HeaderHome />
@@ -164,17 +257,68 @@ function CheckOut() {
                 <div className='containe'>
                     <div className='left'>
                         <div className='title-left'>
-                            Shipping address
+                            Shipping address <span className={`order_relatives ${isRelative ? 'active' : ''} `} onClick={handleToggleRelative}>
+                                Đặt cho người thân
+                            </span>
                         </div>
-                        <div className='info'>
-                            <div className='name-user'>
-                                {user.account.username}
-                            </div>
-                            <div className='sđt'>{user.account.phonenumber}</div>
-                        </div>
-                        <div className='address'>
-                            <span className='home'>Home</span> {user.account.address}
-                        </div>
+                        {isRelative ? (
+                            <>
+                                <div className="select_option">
+                                    <div className="col-12 col-sm-5 from-group ">
+                                        <Select
+                                            className={validInputs.province ? 'mb-4' : 'mb-4 is-invalid'}
+                                            value={locations.find(option => option.id === userData.province)}
+                                            onChange={(selected) => handleOnChangeInput(selected, 'province')}
+                                            options={locations.map(province => ({
+                                                value: province.id,
+                                                label: province.province_name,
+                                            }))}
+                                        />
+                                    </div>
+                                    <div className="col-12 col-sm-5 from-group">
+                                        <Select
+                                            className={validInputs.district ? 'mb-4' : 'mb-4 is-invalid'}
+                                            value={filteredDistricts.find(option => option.id === userData.district)}
+                                            onChange={(selected) => handleOnChangeInput(selected, 'district')}
+                                            options={filteredDistricts.map(district => ({
+                                                value: district.id,
+                                                label: district.district_name,
+                                            }))}
+                                        />
+                                    </div>
+                                    <div className="col-12 col-sm-5 from-group ">
+                                        <Select
+                                            className={validInputs.ward ? 'mb-4' : 'mb-4 is-invalid'}
+                                            value={filteredWards.find(option => option.id === userData.ward)}
+                                            onChange={(selected) => handleOnChangeInput(selected, 'ward')}
+                                            options={filteredWards.map(ward => ({
+                                                value: ward.id,
+                                                label: ward.ward_name,
+                                            }))}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="all_option">
+                                    <div className="selected_option">
+                                        <i className="fa fa-map-marker" aria-hidden="true"></i>
+                                        <span style={{ paddingLeft: '5px' }}>
+                                            {userData.province?.province_name || 'Chưa chọn'} , {userData.district?.district_name || 'Chưa chọn'} ,  {userData.ward?.ward_name || 'Chưa chọn'}</span>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className='info'>
+                                    <div className='name-user'>
+                                        {user.account.username}
+                                    </div>
+                                    <div className='sđt'>{user.account.phonenumber}</div>
+                                </div>
+                                <div className='address'>
+                                    <span className='home'>Home</span> {user.account.wardName} , {user.account.districtName} , {user.account.provinceName}
+                                </div>
+                            </>
+                        )}
                         <div className='title-product'>Sản phẩm</div>
                         <div className='product'>
                             <div className='info_product'>

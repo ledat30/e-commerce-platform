@@ -118,7 +118,7 @@ function User() {
                                         <td>{item.username}</td>
                                         <td>{item.email}</td>
                                         <td>{item.phonenumber}</td>
-                                        <td>{item.address}</td>
+                                        <td>{item.Ward.ward_name} - {item.District.district_name} - {item.Province.province_name}</td>
                                         <td>{item.Group.name}</td>
                                     </tr>
                                 )

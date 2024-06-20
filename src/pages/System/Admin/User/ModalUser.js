@@ -8,45 +8,62 @@ import {
   createNewUser,
   updateUser,
 } from "../../../../services/userService";
+import { getAllProvinceDistrictWard } from "../../../../services/attributeAndVariantService";
 import { CommonUtils } from "../../../../utils";
+import Select from "react-select";
 const { Buffer } = require("buffer");
 
 const ModalUser = (props) => {
   const [userGroup, setUserGroup] = useState([]);
   const [previewImgURL, setPreviewImgURL] = useState("");
+  const [locations, setLocations] = useState([]);
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [filteredWards, setFilteredWards] = useState([]);
   const { action, dataModalUser } = props;
 
   const defaultUserData = {
     username: "",
-    address: "",
     email: "",
     image: "",
     group: "",
     phonenumber: "",
     password: "",
+    province: "",
+    district: "",
+    ward: "",
   };
 
   const validInputsDefault = {
     username: true,
-    address: true,
     email: true,
     image: true,
     group: true,
     phonenumber: true,
     password: true,
+    province: true,
+    district: true,
+    ward: true,
   };
   const [userData, setUserData] = useState(defaultUserData);
   const [validInputs, setValidInputs] = useState(validInputsDefault);
 
   useEffect(() => {
     getGroups();
+    getAllLocationData();
   }, []);
 
   useEffect(() => {
-    if (action === "UPDATE") {
+    if (action === "UPDATE" && dataModalUser) {
       setUserData({
-        ...dataModalUser,
-        group: dataModalUser.Group ? dataModalUser.Group.id : "",
+        ...defaultUserData,
+        id: dataModalUser.id,
+        username: dataModalUser.username,
+        email: dataModalUser.email,
+        phonenumber: dataModalUser.phonenumber,
+        province: dataModalUser.Province ? dataModalUser.Province.id : '',
+        district: dataModalUser.District ? dataModalUser.District.id : '',
+        ward: dataModalUser.Ward ? dataModalUser.Ward.id : '',
+        group: dataModalUser.Group ? dataModalUser.Group.id : '',
       });
       // Convert Buffer to base64 for image preview
       let imageBase64 = "";
@@ -57,6 +74,7 @@ const ModalUser = (props) => {
       }
       setPreviewImgURL(imageBase64);
     }
+    getAllLocationData();
   }, [action, dataModalUser]);
 
   useEffect(() => {
@@ -83,10 +101,41 @@ const ModalUser = (props) => {
     }
   };
 
-  const handleOnChangeInput = (value, name) => {
+  const getAllLocationData = async () => {
+    try {
+      let response = await getAllProvinceDistrictWard();
+      if (response && response.EC === 0) {
+        setLocations(response.DT);
+      }
+    } catch (error) {
+      console.error("Error fetching location data:", error);
+    }
+  };
+
+  const handleOnChangeInput = (selected, name) => {
     let _userData = _.cloneDeep(userData);
-    _userData[name] = value;
+    _userData[name] = selected.value;
     setUserData(_userData);
+
+    if (name === "province") {
+      const selectedProvince = locations.find(prov => prov.id === selected.value);
+      const districts = selectedProvince ? selectedProvince.Districts : [];
+      setFilteredDistricts(districts);
+      setFilteredWards([]);
+      setUserData({ ..._userData, province: selectedProvince, district: "", ward: "" });
+    }
+
+    if (name === "district") {
+      const selectedDistrict = filteredDistricts.find(dist => dist.id === selected.value);
+      const wards = selectedDistrict ? selectedDistrict.Wards : [];
+      setFilteredWards(wards);
+      setUserData({ ..._userData, district: selectedDistrict, ward: "" });
+    }
+
+    if (name === "ward") {
+      const selectedWard = filteredWards.find(ward => ward.id === selected.value);
+      setUserData({ ..._userData, ward: selectedWard });
+    }
   };
 
   const handleOnChangeImage = async (event) => {
@@ -101,10 +150,9 @@ const ModalUser = (props) => {
   };
 
   const checkValidInput = () => {
-    //check create user
     if (action === "UPDATE") return true;
     setValidInputs(validInputsDefault);
-    let arr = ["email", "phonenumber", "password", "group"];
+    let arr = ["email", "phonenumber", "password", "group", "province", "district", "ward"];
     let check = true;
     for (let i = 0; i < arr.length; i++) {
       if (!userData[arr[i]]) {
@@ -126,17 +174,16 @@ const ModalUser = (props) => {
       let response =
         action === "CREATE"
           ? await createNewUser({
-              ...userData,
-              groupId: userData["group"],
-            })
+            ...userData,
+            groupId: userData["group"],
+          })
           : await updateUser({ ...userData, groupId: userData["group"] });
       if (response && response.EC === 0) {
         props.onHide();
-        setUserData({
-          ...defaultUserData,
-          group: userGroup && userGroup.length > 0 ? userGroup[0].id : "",
-        });
-        setPreviewImgURL("");
+        setUserData({ ...defaultUserData, group: userData.group });
+        setLocations([]);
+        setFilteredDistricts([]);
+        setFilteredWards([]);
         toast.success(response.EM);
       }
       if (response && response.EC !== 0) {
@@ -152,7 +199,14 @@ const ModalUser = (props) => {
     props.onHide();
     setUserData(defaultUserData);
     setValidInputs(validInputsDefault);
+    setFilteredDistricts([]);
+    setFilteredWards([]);
+    setLocations([]);
   };
+
+  if (!dataModalUser) {
+    return null;
+  }
 
   return (
     <>
@@ -173,7 +227,7 @@ const ModalUser = (props) => {
           <div className="content-body row">
             <div className="col-12 col-sm-6 from-group">
               <label>
-                Email address (<span style={{ color: "red" }}>*</span>)
+                Email (<span style={{ color: "red" }}>*</span>)
               </label>
               <input
                 disabled={action === "CREATE" ? false : true}
@@ -184,7 +238,7 @@ const ModalUser = (props) => {
                 }
                 type="email"
                 value={userData.email}
-                onChange={(e) => handleOnChangeInput(e.target.value, "email")}
+                onChange={(e) => setUserData({ ...userData, email: e.target.value })}
               />
             </div>
             <div className="col-12 col-sm-6 from-group">
@@ -200,9 +254,7 @@ const ModalUser = (props) => {
                 }
                 type="text"
                 value={userData.phonenumber}
-                onChange={(e) =>
-                  handleOnChangeInput(e.target.value, "phonenumber")
-                }
+                onChange={(e) => setUserData({ ...userData, phonenumber: e.target.value })}
               />
             </div>
             <div className="col-12 col-sm-6 from-group mt-1">
@@ -211,9 +263,7 @@ const ModalUser = (props) => {
                 className="form-control mt-1"
                 type="text"
                 value={userData.username}
-                onChange={(e) =>
-                  handleOnChangeInput(e.target.value, "username")
-                }
+                onChange={(e) => setUserData({ ...userData, username: e.target.value })}
               />
             </div>
             <div className="col-12 col-sm-6 from-group mt-1">
@@ -229,18 +279,7 @@ const ModalUser = (props) => {
                 }
                 type="password"
                 value={action !== "CREATE" ? "**********" : userData.password}
-                onChange={(e) =>
-                  handleOnChangeInput(e.target.value, "password")
-                }
-              />
-            </div>
-            <div className="col-12 col-sm-12 from-group mt-1">
-              <label>Address</label>
-              <input
-                className="form-control mt-1"
-                type="text"
-                value={userData.address}
-                onChange={(e) => handleOnChangeInput(e.target.value, "address")}
+                onChange={(e) => setUserData({ ...userData, password: e.target.value })}
               />
             </div>
             <div className="col-12 col-sm-6 from-group mt-1">
@@ -253,7 +292,7 @@ const ModalUser = (props) => {
                     ? "form-select mt-1"
                     : "form-select mt-1 is-invalid"
                 }
-                onChange={(e) => handleOnChangeInput(e.target.value, "group")}
+                onChange={(e) => setUserData({ ...userData, group: e.target.value })}
                 value={userData.group}
               >
                 {userGroup.length > 0 &&
@@ -286,14 +325,80 @@ const ModalUser = (props) => {
                 </div>
               </div>
             </div>
+            <div className="col-12 col-sm-4 from-group mt-1">
+              <label>Province</label>
+              {action === 'CREATE' ? (
+                <Select
+                  className={validInputs.province ? 'mb-4' : 'mb-4 is-invalid'}
+                  value={locations.find(option => option.id === userData.province)}
+                  onChange={(selected) => handleOnChangeInput(selected, 'province')}
+                  options={locations.map(province => ({
+                    value: province.id,
+                    label: province.province_name,
+                  }))}
+                />
+              ) : (
+                <Select
+                  isDisabled
+                  value={{ value: dataModalUser.Province ? dataModalUser.Province.id : '', label: dataModalUser.Province ? dataModalUser.Province.province_name : '' }}
+                  options={[
+                    { value: dataModalUser.Province ? dataModalUser.Province.id : '', label: dataModalUser.Province ? dataModalUser.Province.province_name : '', isDisabled: true },
+                  ]}
+                />
+              )}
+            </div>
+            <div className="col-12 col-sm-4 from-group mt-1">
+              <label>District</label>
+              {action === 'CREATE' ? (
+                <Select
+                  className={validInputs.district ? 'mb-4' : 'mb-4 is-invalid'}
+                  value={filteredDistricts.find(option => option.id === userData.district)}
+                  onChange={(selected) => handleOnChangeInput(selected, 'district')}
+                  options={filteredDistricts.map(district => ({
+                    value: district.id,
+                    label: district.district_name,
+                  }))}
+                />
+              ) : (
+                <Select
+                  isDisabled
+                  value={{ value: dataModalUser.District ? dataModalUser.District.id : '', label: dataModalUser.District ? dataModalUser.District.district_full_name : '' }}
+                  options={[
+                    { value: dataModalUser.District ? dataModalUser.District.id : '', label: dataModalUser.District ? dataModalUser.District.district_full_name : '', isDisabled: true },
+                  ]}
+                />
+              )}
+            </div>
+            <div className="col-12 col-sm-4 from-group mt-1">
+              <label>Ward</label>
+              {action === 'CREATE' ? (
+                <Select
+                  className={validInputs.ward ? 'mb-4' : 'mb-4 is-invalid'}
+                  value={filteredWards.find(option => option.id === userData.ward)}
+                  onChange={(selected) => handleOnChangeInput(selected, 'ward')}
+                  options={filteredWards.map(ward => ({
+                    value: ward.id,
+                    label: ward.ward_name,
+                  }))}
+                />
+              ) : (
+                <Select
+                  isDisabled
+                  value={{ value: dataModalUser.Ward ? dataModalUser.Ward.id : '', label: dataModalUser.Ward ? dataModalUser.Ward.ward_full_name : '' }}
+                  options={[
+                    { value: dataModalUser.Ward ? dataModalUser.Ward.id : '', label: dataModalUser.Ward ? dataModalUser.Ward.ward_full_name : '', isDisabled: true },
+                  ]}
+                />
+              )}
+            </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => handleCloseModalUser()}>
-            Đóng
+            Cancel
           </Button>
           <Button variant="primary" onClick={() => handleConfirmUser()}>
-            {action === "CREATE" ? "Thêm mới" : "Sửa"}
+            {action === "CREATE" ? "Create" : "Update"}
           </Button>
         </Modal.Footer>
       </Modal>

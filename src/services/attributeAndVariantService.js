@@ -52,6 +52,10 @@ const readVariantByStore = (storeId, attributeId) => {
     return axios.get(`/api/variant/readByStore?storeId=${storeId}&attributeId=${attributeId}`);
 }
 
+const getAllProvinceDistrictWard = () => {
+    return axios.get(`/api/user/getAllProvinceDistrictWard`);
+}
+
 export {
-    createAttributeProduct, getAllAttributeProduct, getAllAttributes, updateAttributeProduct, deleteAttribute, createVariantProduct, getAllVariantProduct, updateVariantProduct, deleteVariant, readAttributeByStore, readVariantByStore
+    createAttributeProduct, getAllAttributeProduct, getAllAttributes, updateAttributeProduct, deleteAttribute, createVariantProduct, getAllVariantProduct, updateVariantProduct, deleteVariant, readAttributeByStore, readVariantByStore, getAllProvinceDistrictWard
 }
