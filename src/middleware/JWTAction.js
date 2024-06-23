@@ -51,7 +51,7 @@ const nonSecurePaths = [
   '/product/confirm-order-by-transfer',
   '/product/delete-order-transfer',
   '/user/getAllProvinceDistrictWard',
-
+  '/user/register',
 
   ///
   '/attribute/create',

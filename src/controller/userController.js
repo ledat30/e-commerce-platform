@@ -1,5 +1,23 @@
 import userService from "../service/userService";
 
+const registerUser = async (req, res) => {
+  try {
+    let data = await userService.registerUser(req.body);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Create new user error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+}
+
 const createFunc = async (req, res) => {
   try {
     let data = await userService.createNewUser(req.body);
@@ -225,6 +243,7 @@ const getAllProvinceDistrictWard = async (req, res) => {
 module.exports = {
   createFunc,
   readFunc,
+  registerUser,
   getAllProvinceDistrictWard,
   updateFunc,
   deleteFunc,
