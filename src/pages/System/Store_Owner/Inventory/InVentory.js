@@ -26,10 +26,11 @@ function InVentory(ropps) {
   const [dataModalProduct, setDataModalProduct] = useState({});
   const [isShowModalProduct, setIsShowModalProduct] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [refreshData, setRefreshData] = useState(false);
 
   useEffect(() => {
     getDataProductInStockByStore();
-  }, [currentPage]);
+  }, [currentPage, refreshData]);
 
   const getDataProductInStockByStore = async () => {
     let response = await getProductInStockWithPagination({
@@ -52,7 +53,7 @@ function InVentory(ropps) {
   };
 
   const handleRefresh = async () => {
-    await getDataProductInStockByStore();
+    setRefreshData(!refreshData);
   };
 
   const handleDeleteProduct = async (product) => {
@@ -68,10 +69,24 @@ function InVentory(ropps) {
     let response = await deleteProductInStock(dataModel);
     if (response && response.EC === 0) {
       toast.success(response.EM);
-      await getDataProductInStockByStore();
       setIsShowModelDelete(false);
+      setRefreshData(!refreshData);
+      updateSelectedProductAfterDeletion(dataModel);
     } else {
       toast.error(response.EM);
+    }
+  };
+
+  const updateSelectedProductAfterDeletion = (deletedProduct) => {
+    if (selectedProduct) {
+      const updatedSelectedProduct = selectedProduct.filter(
+        (item) => item.id !== deletedProduct.id
+      );
+      if (updatedSelectedProduct.length === 0) {
+        setSelectedProduct(null);
+      } else {
+        setSelectedProduct(updatedSelectedProduct);
+      }
     }
   };
 
@@ -95,7 +110,7 @@ function InVentory(ropps) {
   const onHideModalProduct = async () => {
     setIsShowModalProduct(false);
     setDataModalProduct({});
-    await getDataProductInStockByStore();
+    setRefreshData(!refreshData);
   };
 
   const handleEditProduct = async (product) => {
