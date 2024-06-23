@@ -37,6 +37,7 @@ const getStoreWithPagination = async (page, limit) => {
       offset: offset,
       limit: limit,
       attributes: ["id", "name", "image"],
+      where: { isDelete: null },
       include: { model: db.User, attributes: ["id", "username"], as: "user" },
       order: [["id", "DESC"]],
     });
@@ -172,7 +173,7 @@ const deleteStore = async (id) => {
       where: { id: id },
     });
     if (store) {
-      await store.destroy();
+      await store.update({ isDelete: 1 });
       return {
         EM: "Delete store successfully",
         EC: 0,

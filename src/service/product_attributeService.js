@@ -83,6 +83,7 @@ const getAttributeWithPagination = async (page, limit, storeId) => {
                 { model: db.Category, attribute: ['category_name'] }
             ],
             attributes: ["id", "name"],
+            where: { isDelete: null },
             order: [["id", "DESC"]],
         });
         let totalPages = Math.ceil(count / limit);
@@ -151,7 +152,7 @@ const deleteAttribute = async (id) => {
             where: { id: id },
         });
         if (attibute) {
-            await attibute.destroy();
+            await attibute.update({ isDelete: 1 });
             return {
                 EM: "Delete attibute successfully",
                 EC: 0,

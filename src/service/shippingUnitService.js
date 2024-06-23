@@ -97,6 +97,7 @@ const getShippingUnitWithPagination = async (page, limit) => {
       offset: offset,
       limit: limit,
       attributes: ["id", "shipping_unit_name"],
+      where: { isDelete: null },
       include: [
         { model: db.User, attributes: [`username`] },
       ],
@@ -129,7 +130,7 @@ const deleteShippingUnit = async (id) => {
       where: { id: id },
     });
     if (shippingUnit) {
-      await shippingUnit.destroy();
+      await shippingUnit.update({ isDelete: 1 });
       return {
         EM: "Delete shipping Unit successfully",
         EC: 0,

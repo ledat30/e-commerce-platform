@@ -74,6 +74,7 @@ const getMethodWithPagination = async (page, limit) => {
       offset: offset,
       limit: limit,
       attributes: ["id", "method_name"],
+      where: { isDelete: null },
       order: [["id", "DESC"]],
     });
     let totalPages = Math.ceil(count / limit);
@@ -142,7 +143,7 @@ const deleteMethod = async (id) => {
       where: { id: id },
     });
     if (payment) {
-      await payment.destroy();
+      await payment.update({ isDelete: 1 });
       return {
         EM: "Delete method successfully",
         EC: 0,

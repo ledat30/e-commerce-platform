@@ -74,6 +74,7 @@ const getCategoryWithPagination = async (page, limit) => {
       offset: offset,
       limit: limit,
       attributes: ["id", "category_name"],
+      where: { isDelete: null },
       order: [["id", "DESC"]],
     });
     let totalPages = Math.ceil(count / limit);
@@ -142,15 +143,15 @@ const deleteCategory = async (id) => {
       where: { id: id },
     });
     if (category) {
-      await category.destroy();
+      await category.update({ isDelete: 1 });
       return {
-        EM: "Delete category successfully",
+        EM: "Category marked as deleted successfully",
         EC: 0,
         DT: [],
       };
     } else {
       return {
-        EM: "Category not exist",
+        EM: "Category does not exist",
         EC: 2,
         DT: [],
       };

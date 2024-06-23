@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   PaymentMethod.init(
     {
       method_name: DataTypes.STRING,
+      isDelete: DataTypes.STRING,
     },
     {
       sequelize,

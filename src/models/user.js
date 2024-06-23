@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       groupId: DataTypes.INTEGER,
       phonenumber: DataTypes.STRING,
       password: DataTypes.STRING,
+      isDelete: DataTypes.STRING,
     },
     {
       sequelize,

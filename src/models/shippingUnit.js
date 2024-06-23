@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       shipping_unit_name: DataTypes.STRING,
       userId: DataTypes.INTEGER,
+      isDelete: DataTypes.STRING,
     },
     {
       sequelize,

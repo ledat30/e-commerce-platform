@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       categoryId: DataTypes.INTEGER,
       contentHtml: DataTypes.TEXT("long"),
       contentMarkdown: DataTypes.TEXT("long"),
+      isDelete: DataTypes.STRING,
     },
     {
       sequelize,

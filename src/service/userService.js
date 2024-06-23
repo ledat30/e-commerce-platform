@@ -85,6 +85,7 @@ const getUserWithPagination = async (page, limit) => {
         "phonenumber",
         "image",
       ],
+      where: { isDelete: null },
       include: [
         { model: db.Group, attributes: ["id", "name"] },
         {
@@ -198,7 +199,7 @@ const deleteUser = async (id) => {
       where: { id: id },
     });
     if (user) {
-      await user.destroy();
+      await user.update({ isDelete: 1 });
       return {
         EM: "Delete user successfully",
         EC: 0,

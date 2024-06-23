@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             name: DataTypes.STRING,
             storeId: DataTypes.INTEGER,
             attributeId: DataTypes.INTEGER,
+            isDelete: DataTypes.STRING,
         },
         {
             sequelize,

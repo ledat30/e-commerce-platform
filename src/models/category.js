@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Category.init(
     {
       category_name: DataTypes.STRING,
+      isDelete: DataTypes.STRING,
     },
     {
       sequelize,

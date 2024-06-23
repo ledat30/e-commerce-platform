@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       quantity_sold: DataTypes.BIGINT,
       product_AttributeId: DataTypes.INTEGER,
       storeId: DataTypes.INTEGER,
+      isDelete: DataTypes.STRING,
     },
     {
       sequelize,

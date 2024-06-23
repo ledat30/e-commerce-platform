@@ -51,6 +51,7 @@ const getProductWithPagination = async (page, limit, storeId) => {
         "contentMarkdown",
         "contentHtml",
       ],
+      where: { isDelete: null },
       include: [
         { model: db.Category, attributes: ["category_name", "id"] },
         { model: db.Store, attributes: ["name", "id"] },
@@ -359,10 +360,6 @@ const updateProduct = async (data, storeId) => {
 
 const deleteProduct = async (id) => {
   try {
-    await db.ProductAttribute.destroy({
-      where: { productId: id },
-    });
-
     let product = await db.Product.findOne({
       where: { id: id },
     });
@@ -373,7 +370,7 @@ const deleteProduct = async (id) => {
         DT: [],
       };
     }
-    await product.destroy();
+    await product.update({ isDelete: 1 });
 
     return {
       EM: "Delete product successfully!",
@@ -454,6 +451,7 @@ const getProductInStockWithPagination = async (page, limit, storeId) => {
         "quantyly_shipped",
         "quantity_sold",
       ],
+      where: { isDelete: null },
       include: [
         {
           model: db.ProductAttribute, attributes: ["id"],
@@ -508,7 +506,7 @@ const deleteProductInStock = async (id) => {
       where: { id: id },
     });
     if (product) {
-      await product.destroy();
+      await product.update({ isDelete: 1 });
       return {
         EM: "Delete product in stock successfully",
         EC: 0,

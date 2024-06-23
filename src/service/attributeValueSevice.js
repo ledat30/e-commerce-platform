@@ -82,6 +82,7 @@ const getVariantWithPagination = async (page, limit, storeId) => {
                 { model: db.Attribute, attributes: ["name", "id"] },
             ],
             attributes: ["id", "name"],
+            where: { isDelete: null },
             order: [["id", "DESC"]],
         });
         let totalPages = Math.ceil(count / limit);
@@ -150,7 +151,7 @@ const deleteVariant = async (id) => {
             where: { id: id },
         });
         if (variant) {
-            await variant.destroy();
+            await variant.update({ isDelete: 1 });
             return {
                 EM: "Delete variant successfully",
                 EC: 0,

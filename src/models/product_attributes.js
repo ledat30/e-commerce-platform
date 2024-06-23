@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
             name: DataTypes.STRING,
             storeId: DataTypes.INTEGER,
             categoryId: DataTypes.INTEGER,
+            isDelete: DataTypes.STRING,
         },
         {
             sequelize,
