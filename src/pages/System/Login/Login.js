@@ -89,6 +89,10 @@ function Login(props) {
     }
   };
 
+  const toRegister = () => {
+    navigate("/register");
+  }
+
   return (
     <div className="login-container">
       <div className="screen-1">
@@ -141,6 +145,7 @@ function Login(props) {
           Login
         </button>
         <div className="footer-login">
+          <span className="register" onClick={toRegister}>Đăng ký ngay?</span>
           <span className="forgot-password">Forgot Password?</span>
         </div>
       </div>

@@ -1,16 +1,16 @@
-.screen-1 {
+.screen-2 {
     background      : rgb(241, 247, 254);
-    padding         : 2em;
+    padding         : 25px;
     display         : flex;
     flex-direction  : column;
     border-radius   : 30px;
     box-shadow      : 0 0 2em rgb(230, 233, 249);
-    gap             : 2em;
-    height          : 500px;
+    gap             : 15px;
+    height          : 600px;
     background-color: rgb(221, 229, 244);
     margin-left     : 516px;
     margin-right    : 518px;
-    margin-top      : 70px;
+    margin-top      : 20px;
 
     .title-login {
         text-align : center;
@@ -39,6 +39,12 @@
         }
 
         .fa-envelope-o {
+            color        : #4d4d4d;
+            margin-bottom: -0.2em;
+            padding-right: 5px;
+        }
+
+        .fa-phone {
             color        : #4d4d4d;
             margin-bottom: -0.2em;
             padding-right: 5px;
@@ -94,10 +100,6 @@
         .forgot-password {
             cursor: pointer;
             float : right;
-        }
-
-        .register {
-            cursor: pointer;
         }
     }
 }

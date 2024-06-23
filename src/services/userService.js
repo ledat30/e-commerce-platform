@@ -14,6 +14,10 @@ const createNewUser = (userData) => {
   });
 };
 
+const registerUser = (data) => {
+  return axios.post(`/api/user/register`, data);
+}
+
 const getAllUsers = (page, limit) => {
   return axios.get(
     `/api/user/read?page=${page}&limit=${limit}` //template string
@@ -69,6 +73,7 @@ export {
   fetchRoles,
   fetchGroups,
   createNewUser,
+  registerUser,
   getAllUsers,
   updateUser,
   deleteUser,

@@ -27,6 +27,7 @@ import DashboardStore from '../pages/System/Store_Owner/Dashboard/Dashboard';
 import DashboardShippingUnit from "../pages/System/ShippingUnit/Dashboard/Dashboard";
 import DashboardShipper from "../pages/System/Shipper/Dashboard/Dashboard";
 import Contact from "../pages/System/Admin/Contact/Contact";
+import Register from "../pages/System/Register/Register";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -159,6 +160,7 @@ function AppRoutes() {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     );
