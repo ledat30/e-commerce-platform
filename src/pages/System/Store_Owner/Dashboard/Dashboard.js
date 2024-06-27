@@ -7,7 +7,7 @@ import Order from './Order/Order';
 import Comment from './Comment/Comment';
 import View from './View/View';
 import User from './User/User';
-import Revenue from './Revenue/Revenue';
+import { PieChart } from './Statistical/Statistical';
 
 function DashboardStore() {
     const { user } = useContext(UserContext);
@@ -33,8 +33,6 @@ function DashboardStore() {
     const handleItemClick = (item) => {
         setActiveItem(item);
     };
-
-    const formatPrice = (dataSummary.totalRevenue * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
     return (
         <div className='container' >
@@ -89,15 +87,14 @@ function DashboardStore() {
                     </div>
                 </div>
                 <div
-                    className={`summary_item ${activeItem === 'revenue' ? 'active' : ''}`}
-                    onClick={() => handleItemClick('revenue')}
+                    className={`summary_item ${activeItem === 'statistical' ? 'active' : ''}`}
+                    onClick={() => handleItemClick('statistical')}
                 >
                     <div className='summary_left'>
-                        <div className='number'>{formatPrice}</div>
-                        <div className='text'>Doanh thu</div>
+                        <div style={{ fontSize: '14px', paddingTop: '15px' }}>Biểu đồ thống kê</div>
                     </div>
                     <div className='summary_right'>
-                        <i className="fa fa-money" aria-hidden="true"></i>
+                        <i className="fa fa-pie-chart" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>
@@ -106,7 +103,9 @@ function DashboardStore() {
                 {activeItem === 'views' && <View dataSummary={dataSummary} />}
                 {activeItem === 'comments' && <Comment />}
                 {activeItem === 'users' && <User dataSummary={dataSummary} />}
-                {activeItem === 'revenue' && <Revenue />}
+                {activeItem === 'statistical' && (
+                    <PieChart dataSummary={dataSummary} />
+                )}
             </div>
         </div>
     );

@@ -1,8 +1,10 @@
+import './Revenue.scss';
 import { useEffect, useState } from 'react';
 import ReactPaginate from "react-paginate";
 import { useContext } from "react";
 import { UserContext } from "../../../../../context/userContext";
 import { storeDashboardRevenue, storeDashboardRevenueByDate } from '../../../../../services/storeService';
+import { storeDashboard } from '../../../../../services/storeService';
 import Model from './Model';
 
 function Revenue() {
@@ -15,6 +17,19 @@ function Revenue() {
     const [searchInputDetail, setSearchInputDetail] = useState("");
     const [listDetailOrder, setListDetailOrder] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [dataSummary, setDataSummary] = useState([]);
+
+    useEffect(() => {
+        fetchDataSummary();
+    }, [user.account.storeId]);
+
+    const fetchDataSummary = async () => {
+        let response = await storeDashboard(user.account.storeId);
+
+        if (response && response.EC === 0) {
+            setDataSummary(response.DT);
+        }
+    }
 
     useEffect(() => {
         fetchAllOrders();
@@ -61,11 +76,13 @@ function Revenue() {
 
     const closeModal = () => setIsModalOpen(false);
 
+    const formatPrice = (dataSummary.totalRevenue * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
     return (
-        <div className="table-category table">
+        <div className="table-revenue table">
             {isModalOpen ? (
                 <Model isOpen={isModalOpen} onClose={closeModal}>
-                    <div className="header-table-category header_table">
+                    <div className="header-table-revenue header_table">
                         <div className='table_manage'>Bảng thống kê chi tiết</div>
                         <div className="box search1">
                             <form className="sbox">
@@ -73,13 +90,13 @@ function Revenue() {
                                     className="stext"
                                     type=""
                                     placeholder="Tìm kiếm ..."
-                                    value={searchInput}
+                                    value={searchInputDetail}
                                     onChange={(e) => setSearchInputDetail(e.target.value)}
                                 />
                             </form>
                         </div>
                     </div>
-                    <table className='table1'>
+                    <table style={{ width: '1070px', borderRadius: '3px', borderCollapse: 'collapse', overflow: 'hidden', boxShadow: '0 0 15px rgba(0, 0, 0, 0.4)' }}>
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -149,16 +166,29 @@ function Revenue() {
                 <>
                     <div className="header-table-category header_table">
                         <div className='table_manage'>Bảng quản lý doanh thu</div>
-                        <div className="box search">
-                            <form className="sbox">
-                                <input
-                                    className="stext"
-                                    type=""
-                                    placeholder="Tìm kiếm ..."
-                                    value={searchInput}
-                                    onChange={(e) => setSearchInput(e.target.value)}
-                                />
-                            </form>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div
+                                className='summary_item active'
+                            >
+                                <div className='summary_left'>
+                                    <div className='number'>{formatPrice}</div>
+                                    <div className='text'>Doanh thu</div>
+                                </div>
+                                <div className='summary_right'>
+                                    <i className="fa fa-money" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <div className="box search">
+                                <form className="sbox">
+                                    <input
+                                        className="stext"
+                                        type=""
+                                        placeholder="Tìm kiếm ..."
+                                        value={searchInput}
+                                        onChange={(e) => setSearchInput(e.target.value)}
+                                    />
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <table>
@@ -183,7 +213,7 @@ function Revenue() {
                                         const price = item.total_revenue;
                                         const formattedPrice = (price * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
                                         return (
-                                            <tr key={index}>
+                                            <tr key={index} style={{ borderBottom: 'none' }}>
                                                 <td>
                                                     {(currentPage - 1) * currentLimit + index + 1}
                                                 </td>

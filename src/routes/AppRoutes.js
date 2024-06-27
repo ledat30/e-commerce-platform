@@ -28,6 +28,7 @@ import DashboardShippingUnit from "../pages/System/ShippingUnit/Dashboard/Dashbo
 import DashboardShipper from "../pages/System/Shipper/Dashboard/Dashboard";
 import Contact from "../pages/System/Admin/Contact/Contact";
 import Register from "../pages/System/Register/Register";
+import Revenue from "../pages/System/Store_Owner/Dashboard/Revenue/Revenue";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -86,6 +87,10 @@ function AppRoutes() {
             <Route
               path="/"
               element={<PrivateRoutes element={<DashboardStore />} />}
+            />
+            <Route
+              path="/store-owner/revenue"
+              element={<PrivateRoutes element={<Revenue />} />}
             />
             <Route
               path="/store-owner/product"

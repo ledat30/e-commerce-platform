@@ -240,8 +240,8 @@ function DetailProduct() {
           setQuantily(1);
           setSelectedColor("");
           setSelectedSize("");
-        } else {
-          toast.error(response.EM);
+        } if (response && response.EC === -3) {
+          toast.error(response.EM)
         }
       } else {
         toast.error("Selected options are not available");

@@ -1,0 +1,113 @@
+.table-revenue {
+    margin-left: 12px;
+
+    .table_manage {
+        font-weight: 500;
+        font-size  : 18px;
+    }
+
+    .box {
+        float        : right;
+        margin-right : 5px;
+        margin-bottom: 10px;
+    }
+
+    .sbox {
+        position: relative;
+    }
+
+    .stext {
+        width                : 300px;
+        height               : 50px;
+        background           : #2b303b;
+        border               : none;
+        font-size            : 10pt;
+        float                : left;
+        color                : #fff;
+        padding-left         : 45px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius   : 5px;
+        border-radius        : 5px;
+    }
+
+    .fa-search {
+        position   : absolute;
+        top        : 0;
+        left       : 0;
+        margin-left: 16px;
+        margin-top : 16px;
+        z-index    : 1;
+        color      : #fff;
+    }
+
+    table {
+        width          : 1070px;
+        border-radius  : 3px;
+        border-collapse: collapse;
+        overflow       : hidden;
+        box-shadow     : 0 0 15px rgba(0, 0, 0, 0.4);
+
+        th,
+        td {
+            padding         : 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        th {
+            text-align: left;
+        }
+
+        thead {
+            th {
+                background-color: #55608f;
+            }
+        }
+
+        tbody {
+            tr {
+                &:hover {
+                    background-color: rgba(122, 118, 118, 0.3);
+                }
+            }
+        }
+    }
+
+    .summary_item {
+        background-color: white;
+        margin          : 5px 0 5px 1px;
+        width           : 220px;
+        height          : 73px;
+        display         : flex;
+        justify-content : space-around;
+        border-radius   : 5px;
+
+        .summary_left {
+            padding-top: 5px;
+
+            .number {
+                font-weight: 500;
+                font-size  : 20px;
+            }
+
+            .text {
+                font-size: 13px;
+            }
+        }
+
+        .summary_right {
+            background-color: #253d46;
+            width           : 50px;
+            height          : 50px;
+            margin          : 5px 0;
+            text-align      : center;
+            border-radius   : 3px;
+            padding-top     : 11px;
+            color           : white;
+        }
+    }
+
+    .summary_item.active {
+        background-color: #7a9db1;
+        color           : white;
+    }
+}
