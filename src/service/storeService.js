@@ -374,6 +374,19 @@ const storeDashboard = async (storeId) => {
       group: ['User.id', 'User.username', 'User.email']
     });
 
+    const monthlyOrdersByStore = await db.Order.findAll({
+      attributes: [
+        [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'month'],
+        [db.sequelize.fn('count', db.sequelize.col('Order.id')), 'totalOrders'],
+      ],
+      where: {
+        storeId: storeId,
+        status: 'confirmed'
+      },
+      group: ['month'],
+      order: [[db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'ASC']]
+    });
+
     return {
       EM: "Get all category success!",
       EC: 0,
@@ -385,6 +398,7 @@ const storeDashboard = async (storeId) => {
         totalUsers: totalUsers,
         totalViewProduct: totalViewProduct,
         totalRevenue: totalRevenue,
+        monthlyOrdersByStore: monthlyOrdersByStore,
       },
     };
   } catch (error) {

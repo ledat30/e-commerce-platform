@@ -734,9 +734,28 @@ const buyNowProduct = async (product_attribute_value_Id, userId, storeId, body) 
   }
 }
 
+const startOfDay = new Date();
+startOfDay.setHours(0, 0, 0, 0);
+
+const endOfDay = new Date();
+endOfDay.setHours(23, 59, 59, 999);
+
 const postAddToCart = async (product_attribute_value_Id, userId, provinceId, districtId, wardId, storeId, body) => {
   try {
-    let order = await db.Order.findOne({ where: { userId: userId, storeId: storeId, createdAt: new Date() } });
+    let order = await db.Order.findOne({
+      where: {
+        userId: userId, storeId: storeId, order_date: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      }
+    });
+    if (order) {
+      return {
+        EM: "Order has been added to cart. Please check your shopping cart!",
+        EC: -3,
+        DT: []
+      };
+    }
     if (!order) {
       order = await db.Order.create({
         total_amount: 0,
@@ -875,7 +894,20 @@ const deleteProductCart = async (id) => {
         DT: [],
       };
     }
+
+    let orderId = product.orderId;
+
     await product.destroy();
+
+    let remainingOrderItems = await db.OrderItem.findAll({
+      where: { orderId: orderId },
+    });
+
+    if (remainingOrderItems.length === 0) {
+      await db.Order.destroy({
+        where: { id: orderId },
+      });
+    }
 
     return {
       EM: "Delete product successfully!",
