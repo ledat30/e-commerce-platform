@@ -29,6 +29,7 @@ import DashboardShipper from "../pages/System/Shipper/Dashboard/Dashboard";
 import Contact from "../pages/System/Admin/Contact/Contact";
 import Register from "../pages/System/Register/Register";
 import Revenue from "../pages/System/Store_Owner/Dashboard/Revenue/Revenue";
+import Statistical from "../pages/System/Store_Owner/Statistical/Statistical";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -91,6 +92,10 @@ function AppRoutes() {
             <Route
               path="/store-owner/revenue"
               element={<PrivateRoutes element={<Revenue />} />}
+            />
+            <Route
+              path="/store-owner/statistical"
+              element={<PrivateRoutes element={<Statistical />} />}
             />
             <Route
               path="/store-owner/product"

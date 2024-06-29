@@ -36,7 +36,7 @@ function DashboardStore() {
 
     return (
         <div className='container' >
-            <h5>Trang quản lý thống kê</h5>
+            <h5>Trang quản lý </h5>
             <div className='summary'>
                 <div
                     className={`summary_item ${activeItem === 'orders' ? 'active' : ''}`}

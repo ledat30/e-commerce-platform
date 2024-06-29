@@ -51,10 +51,10 @@ instance.interceptors.response.use(
       // forbidden (permission related issues)
       case 403: {
         if (!errorToastDisplayed) {
-          toast.error(`You don't permission to access this resource`);
+          toast.error("You don't have permission to access this resource");
           errorToastDisplayed = true;
         }
-        return Promise.reject(error);
+        break;
       }
 
       // bad request

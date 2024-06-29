@@ -56,6 +56,7 @@ function Sidebar(props) {
     menuItems.push(
       { to: "/", label: "Dashboard", icon: "fa-home" },
       { to: "/store-owner/revenue", label: "Revenue", icon: "fa fa-money" },
+      { to: "/store-owner/statistical", label: "Statistical", icon: "fa fa-bar-chart" },
       { to: "/store-owner/attribute", label: "Attibute", icon: "fa-list-alt" },
       { to: "/store-owner/variant", label: "Variant", icon: "fa-arrows-alt" },
       { to: "/store-owner/product", label: "Products", icon: "fa-product-hunt" },

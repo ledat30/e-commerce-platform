@@ -116,7 +116,7 @@ function Order() {
                                     <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody style={{ borderBottom: 'none' }}>
                                 {Object.keys(groupedOrders).length > 0 ? (
                                     Object.keys(groupedOrders).map((date, index) => (
                                         <React.Fragment key={index}>
