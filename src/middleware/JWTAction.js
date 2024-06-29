@@ -54,16 +54,10 @@ const nonSecurePaths = [
   '/user/register',
 
   ///
-  '/attribute/create',
-  '/attribute/read',
-  '/attribute/update',
-  '/attribute/delete',
-  '/variant/create',
-  '/variant/read',
-  '/variant/update',
-  '/variant/delete',
   '/attribute/readByStore',
   '/variant/readByStore',
+  
+  '/store/statistical',
 ];
 
 const createJWT = (payload) => {

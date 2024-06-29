@@ -73,6 +73,7 @@ const initApiRouter = (app) => {
   router.get("/store/dashboard-order-by-store", storeController.storeDashboardOrder);
   router.get("/store/dashboard-revenue-by-store", storeController.storeDashboardRevenue);
   router.get("/store/dashboard-revenue-by-date", storeController.storeDashboardRevenueByDate);
+  router.get("/store/statistical", storeController.storeStatistical);
 
   //shipping unit
   router.post("/shipping-unit/create", shippingUnitController.createFunc);

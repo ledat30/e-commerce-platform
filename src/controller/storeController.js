@@ -247,8 +247,28 @@ const storeDashboardRevenueByDate = async (req, res) => {
   }
 }
 
+const storeStatistical = async (req, res) => {
+  const storeId = req.query.storeId;
+  try {
+    let data = await storeService.storeStatistical(storeId);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(e);
+    return res.status(500).json({
+      EM: "Error from the server",
+      EC: -1,
+      DT: "",
+    });
+  }
+}
+
 module.exports = {
   readFunc,
+  storeStatistical,
   storeDashboardRevenueByDate,
   storeDashboardOrder,
   storeDashboardRevenue,

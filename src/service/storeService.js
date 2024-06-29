@@ -1,5 +1,5 @@
 import db from "../models";
-const { Op, Sequelize } = require("sequelize");
+const { Op, Sequelize, where, fn, col, literal } = require("sequelize");
 
 const getAllStores = async () => {
   try {
@@ -642,9 +642,138 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
   }
 }
 
+const storeStatistical = async (storeId) => {
+  try {
+    const topSellerProducts = await db.Inventory.findAll({
+      where: {
+        storeId: storeId
+      },
+      order: [
+        ['quantity_sold', 'DESC']
+      ],
+      attributes: ['quantity_sold'],
+      include: [
+        {
+          model: db.ProductAttribute, attributes: ['id'],
+          include: [
+            {
+              model: db.Product,
+              attributes: ['product_name']
+            },
+            {
+              model: db.AttributeValue,
+              as: 'AttributeValue1',
+              attributes: ['id', 'name'],
+              include: [
+                { model: db.Attribute, attributes: ['id', 'name'] }
+              ]
+            },
+            {
+              model: db.AttributeValue,
+              as: 'AttributeValue2',
+              attributes: ['id', 'name'],
+              include: [
+                { model: db.Attribute, attributes: ['id', 'name'] }
+              ]
+            }
+          ]
+        }
+      ],
+      limit: 20
+    });
+
+    const topViewProducts = await db.Product.findAll({
+      where: { storeId: storeId },
+      attributes: ['product_name', 'view_count', 'id'],
+      include: [{ model: db.Category, attributes: ['category_name'] }],
+      order: [['view_count', 'DESC']],
+      limit: 20
+    });
+
+    const topOrderByArea = await db.Order.findAll({
+      attributes: [
+        'districtId',
+        [fn('COUNT', col('districtId')), 'totalOrders']
+      ],
+      include: [
+        { model: db.Province, attributes: ['province_full_name'] },
+        { model: db.District, attributes: ['district_full_name'] },
+        {
+          model: db.OrderItem,
+          attributes: ['quantily', 'id', 'price_per_item'],
+          include: [
+            {
+              model: db.ProductAttribute,
+              attributes: ['id'],
+              include: [
+                {
+                  model: db.Product,
+                  attributes: ['product_name', 'id']
+                },
+                {
+                  model: db.AttributeValue,
+                  as: 'AttributeValue1',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
+                },
+                {
+                  model: db.AttributeValue,
+                  as: 'AttributeValue2',
+                  attributes: ['id', 'name'],
+                  include: [
+                    { model: db.Attribute, attributes: ['id', 'name'] }
+                  ]
+                }
+              ],
+            }
+          ]
+        }
+      ],
+      where: {
+        storeId: storeId, status: 'confirmed'
+      },
+      group: ['districtId'],
+      order: [[literal('totalOrders'), 'DESC']],
+      limit: 10
+    });
+
+    const totalOrdersForShippingUnits = await db.Shipping_Unit_Order.findAll({
+      attributes: [
+        'shippingUnitId',
+        [fn('COUNT', col('shippingUnitId')), 'totalOrders']
+      ],
+      include: [
+        { model: db.ShippingUnit, attributes: ['shipping_unit_name'] },
+      ],
+      group: ['shippingUnitId'],
+      order: [[literal('totalOrders'), 'DESC']]
+    });
+
+    return {
+      EM: "Get all success!",
+      EC: 0,
+      DT: {
+        topSellerProducts: topSellerProducts,
+        topViewProducts: topViewProducts,
+        topOrderByArea: topOrderByArea,
+        totalOrdersForShippingUnits: totalOrdersForShippingUnits,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Somnething wrongs with services",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
 
 module.exports = {
   storeDashboardOrder,
+  storeStatistical,
   getAllStores,
   storeDashboard,
   storeDashboardRevenueByDate,
