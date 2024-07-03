@@ -56,8 +56,9 @@ const nonSecurePaths = [
   ///
   '/attribute/readByStore',
   '/variant/readByStore',
-  
+
   '/store/statistical',
+  '/admin/statistical',
 ];
 
 const createJWT = (payload) => {

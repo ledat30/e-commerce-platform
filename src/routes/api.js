@@ -161,6 +161,7 @@ const initApiRouter = (app) => {
   router.get("/admin/dashboard-revenue-by-store", dashboardController.adminDashboardRevenueByStore);
   router.get("/admin/dashboard-revenue-store-by-date", dashboardController.adminDashboardRevenueStoreByDate);
   router.get("/admin/dashboard-revenue-store-detail-by-date", dashboardController.adminDashboardRevenueStoreDetailByDate);
+  router.get("/admin/statistical", dashboardController.adminStatistical);
 
   //contact
   router.post("/contact/create", contactController.createFunc);

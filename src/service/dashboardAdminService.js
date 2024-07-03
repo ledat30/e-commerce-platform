@@ -473,7 +473,139 @@ const adminDashboardRevenueStoreDetailByDate = async (page, limit, storeId, date
     }
 }
 
+const adminStatistical = async () => {
+    try {
+        const topStores = await db.Inventory.findAll({
+            attributes: ['storeId', [db.sequelize.fn('SUM', db.sequelize.col('quantity_sold')), 'total_quantity_sold']],
+            group: ['storeId'],
+            order: [[db.sequelize.fn('SUM', db.sequelize.col('quantity_sold')), 'DESC']],
+            limit: 10
+        });
+        let topSellerProducts = [];
+        for (let store of topStores) {
+            let storeId = store.storeId;
+            let topProducts = await db.Inventory.findAll({
+                where: { storeId: storeId },
+                attributes: ['quantity_sold'],
+                order: [['quantity_sold', 'DESC']],
+                include: [
+                    {
+                        model: db.ProductAttribute, attributes: ['id'],
+                        include: [
+                            {
+                                model: db.Product,
+                                attributes: ['product_name']
+                            },
+                            {
+                                model: db.AttributeValue,
+                                as: 'AttributeValue1',
+                                attributes: ['id', 'name'],
+                                include: [
+                                    { model: db.Attribute, attributes: ['id', 'name'] }
+                                ]
+                            },
+                            {
+                                model: db.AttributeValue,
+                                as: 'AttributeValue2',
+                                attributes: ['id', 'name'],
+                                include: [
+                                    { model: db.Attribute, attributes: ['id', 'name'] }
+                                ]
+                            }
+                        ]
+                    },
+                    { model: db.Store, attributes: ['id', 'name'] }
+                ],
+                limit: 30,
+            });
+            topSellerProducts.push({
+                storeId: storeId,
+                products: topProducts
+            });
+        };
+
+        const topRevenueStores = await db.Order.findAll({
+            attributes: [
+                'storeId',
+                [db.sequelize.fn('SUM', db.sequelize.col('total_amount')), 'totalRevenue']
+            ],
+            where: {
+                status: 'confirmed'
+            },
+            include: [{
+                model: db.Shipping_Unit_Order,
+                attributes: [],
+                required: true,
+                include: [{
+                    model: db.Shipping_Unit_Order_user,
+                    attributes: [],
+                    required: true,
+                    where: {
+                        status: 'Delivered'
+                    }
+                }]
+            },
+            { model: db.Store, attributes: ['id', 'name'] }
+            ],
+            group: ['storeId'],
+            order: [[db.sequelize.literal('totalRevenue'), 'DESC']],
+            limit: 10
+        });
+
+        const listStoreNew = await db.Store.findAll({
+            attributes: ['id', 'name', 'createdAt'],
+            order: [['id', 'DESC']],
+            limit: 10,
+        });
+        const formattedListStoreNew = listStoreNew.map(store => ({
+            name: store.name,
+            id: store.id,
+            createdAt: store.createdAt.toISOString().split('T')[0],
+        }));
+
+        const topCategoryUseByStore = await db.Product.findAll({
+            attributes: [
+                'categoryId',
+                [db.Sequelize.fn('COUNT', db.Sequelize.col('categoryId')), 'totalProducts']
+            ],
+            group: ['categoryId'],
+            order: [[db.Sequelize.fn('COUNT', db.Sequelize.col('categoryId')), 'DESC']],
+            include: [
+                {
+                    model: db.Category,
+                    attributes: ['category_name']
+                }
+            ],
+            limit: 10,
+        });
+        const formattedTopCategoryUseByStore = topCategoryUseByStore.map(category => ({
+            categoryId: category.categoryId,
+            totalProducts: category.dataValues.totalProducts,
+            categoryName: category.Category.category_name
+        }));
+
+        return {
+            EM: "Get all success!",
+            EC: 0,
+            DT: {
+                topSellerProducts: topSellerProducts,
+                topRevenueStores: topRevenueStores,
+                listStoreNew: formattedListStoreNew,
+                TopCategoryUseByStore: formattedTopCategoryUseByStore,
+            },
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: "Somnething wrongs with services",
+            EC: -1,
+            DT: [],
+        };
+    }
+}
+
 module.exports = {
+    adminStatistical,
     adminDashboardSummary,
     adminDashboardRevenueByStore,
     adminDashboardRevenueStoreDetailByDate,
