@@ -30,6 +30,8 @@ import Contact from "../pages/System/Admin/Contact/Contact";
 import Register from "../pages/System/Register/Register";
 import Revenue from "../pages/System/Store_Owner/Dashboard/Revenue/Revenue";
 import Statistical from "../pages/System/Store_Owner/Statistical/Statistical";
+import RevenueAdmin from '../pages/System/Admin/Dashboard/Revenue/Revenue';
+import StatisticalAdmin from "../pages/System/Admin/Statistical/Statistical";
 
 function AppRoutes() {
   const { user } = useContext(UserContext);
@@ -43,6 +45,14 @@ function AppRoutes() {
             <Route
               path="/"
               element={<PrivateRoutes element={<Dashboard />} />}
+            />
+            <Route
+              path="/admin/revenue"
+              element={<PrivateRoutes element={<RevenueAdmin />} />}
+            />
+            <Route
+              path="/admin/statistical"
+              element={<PrivateRoutes element={<StatisticalAdmin />} />}
             />
             <Route
               path="/admin/users"

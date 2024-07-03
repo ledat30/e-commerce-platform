@@ -1,3 +1,4 @@
+import './Revenue.scss';
 import { useEffect, useState } from 'react';
 import ReactPaginate from "react-paginate";
 import { adminDashboardRevenueByStore, adminDashboardRevenueStoreByDate, adminDashboardRevenueStoreDetailByDate } from '../../../../../services/storeService';
@@ -111,26 +112,28 @@ function Revenue() {
         <div className="table-category table">
             {isDetailModalOpen ? (
                 <div>
-                    <div className="header-table-category header_table">
+                    <div className="header-revenue header_table">
                         <div className='table_manage'>Bảng chi tiết doanh thu theo ngày</div>
-                        <button
-                            className="btn btn-secondary close"
-                            onClick={closeDetailModal}
-                        >Close
-                        </button>
-                        <div className="box search3">
-                            <form className="sbox">
-                                <input
-                                    className="stext"
-                                    type=""
-                                    placeholder="Tìm kiếm ..."
-                                    value={searchInputDetail}
-                                    onChange={(e) => setSearchInputDetail(e.target.value)}
-                                />
-                            </form>
+                        <div>
+                            <button
+                                className="btn btn-secondary close1"
+                                onClick={closeDetailModal}
+                            >Close
+                            </button>
+                            <div className="box search5">
+                                <form className="sbox">
+                                    <input
+                                        className="stext"
+                                        type=""
+                                        placeholder="Tìm kiếm ..."
+                                        value={searchInputDetail}
+                                        onChange={(e) => setSearchInputDetail(e.target.value)}
+                                    />
+                                </form>
+                            </div>
                         </div>
                     </div>
-                    <table className='table1'>
+                    <table style={{ width: '1084px' }}>
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -194,26 +197,28 @@ function Revenue() {
                 </div>
             ) : isModalOpen ? (
                 <div>
-                    <div className="header-table-category header_table">
+                    <div className="header-revenue header_table">
                         <div className='table_manage'>Bảng thống kê tổng doanh thu theo ngày</div>
-                        <button
-                            className="btn btn-secondary close"
-                            onClick={closeModal}
-                        >Close
-                        </button>
-                        <div className="box search2">
-                            <form className="sbox">
-                                <input
-                                    className="stext"
-                                    type=""
-                                    placeholder="Tìm kiếm ..."
-                                    value={searchInputModal}
-                                    onChange={(e) => setSearchInputModal(e.target.value)}
-                                />
-                            </form>
+                        <div>
+                            <button
+                                className="btn btn-secondary close1"
+                                onClick={closeModal}
+                            >Close
+                            </button>
+                            <div className="box search5">
+                                <form className="sbox">
+                                    <input
+                                        className="stext"
+                                        type=""
+                                        placeholder="Tìm kiếm ..."
+                                        value={searchInputModal}
+                                        onChange={(e) => setSearchInputModal(e.target.value)}
+                                    />
+                                </form>
+                            </div>
                         </div>
                     </div>
-                    <table className='table1'>
+                    <table style={{ width: '1084px' }}>
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -285,9 +290,9 @@ function Revenue() {
                 </div>
             ) : (
                 <>
-                    <div className="header-table-category header_table">
+                    <div className="header-table-revenue header_table">
                         <div className='table_manage'>Bảng quản lý doanh thu</div>
-                        <div className="box search">
+                        <div className="box search4">
                             <form className="sbox">
                                 <input
                                     className="stext"
@@ -299,7 +304,7 @@ function Revenue() {
                             </form>
                         </div>
                     </div>
-                    <table>
+                    <table style={{ width: '1084px' }}>
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -309,7 +314,7 @@ function Revenue() {
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style={{ borderBottom: 'aliceblue' }}>
                             {filteredData && filteredData.length > 0 ? (
                                 <>
                                     {filteredData.map((item, index) => {

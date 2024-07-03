@@ -3,6 +3,7 @@ import { Pie } from 'react-chartjs-2';
 import { Bar } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import Select from 'react-select';
+import { useNavigate } from "react-router-dom";
 
 Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
@@ -54,8 +55,8 @@ const Barchart = ({ dataSummary }) => {
     };
 
     return (
-        <div style={{ width: '400px', height: '400px', paddingTop: '20px' }}>
-            <Pie data={data} options={options1} width={400} height={400} />
+        <div style={{ width: '290px', height: '405px', paddingTop: '20px' }}>
+            <Pie data={data} options={options1} width={270} height={400} />
             <div style={{ fontSize: '15px', paddingLeft: '22px', paddingTop: '15px' }}>Biểu đồ tròn quản lý đơn thành công hoặc thất bại </div>
         </div>
     );
@@ -69,13 +70,18 @@ const PieChart = ({ dataSummary }) => {
     const [selectedStore, setSelectedStore] = useState('');
     const [selectedMonth, setSelectedMonth] = useState(null);
     const [months, setMonths] = useState([]);
+    let navigate = useNavigate();
 
     useEffect(() => {
         if (dataSummary && Array.isArray(dataSummary.monthlyStoreOrders)) {
-            const uniqueStores = [...new Set(dataSummary.monthlyStoreOrders.map(order => ({
-                value: order.storeId,
-                label: order.storeName
-            })))];
+            const storeMap = new Map();
+            dataSummary.monthlyStoreOrders.forEach(order => {
+                if (!storeMap.has(order.storeId)) {
+                    storeMap.set(order.storeId, { value: order.storeId, label: order.storeName });
+                }
+            });
+
+            const uniqueStores = Array.from(storeMap.values());
             setStores([{ value: '', label: 'All Stores' }, ...uniqueStores]);
 
             const uniqueMonths = [...new Set(dataSummary.monthlyStoreOrders.map(order => order.month))].map(month => ({
@@ -138,27 +144,46 @@ const PieChart = ({ dataSummary }) => {
         },
     };
 
+    const handleToDetailRevenue = () => {
+        navigate(`/admin/revenue`)
+    }
+
     return (
-        <div style={{ width: '400px', height: '360px', paddingTop: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: "space-around" }}>
-                <Select
-                    options={stores}
-                    value={selectedStore}
-                    onChange={setSelectedStore}
-                    isClearable={true}
-                    placeholder="Select a store"
-                />
-                <Select
-                    options={months}
-                    value={selectedMonth}
-                    onChange={setSelectedMonth}
-                    isClearable={true}
-                    placeholder="Select month"
-                />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ paddingTop: '20px', display: 'flex' }}>
+                <button
+                    className="btn btn-success refresh"
+                    onClick={() => handleToDetailRevenue()}
+                >
+                    <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Detail revenue
+                </button>
+                <span style={{ marginLeft: '10px' }}>
+                    <Select
+                        options={stores}
+                        value={selectedStore}
+                        onChange={setSelectedStore}
+                        isClearable={true}
+                        placeholder="Select a store"
+                    />
+                </span>
+                <span style={{ marginLeft: '10px' }}>
+                    <Select
+                        options={months}
+                        value={selectedMonth}
+                        onChange={setSelectedMonth}
+                        isClearable={true}
+                        placeholder="Select month"
+                    />
+                </span>
             </div>
-            <Bar data={data1} options={options} width={400} height={360} />
-            <div style={{ fontSize: '15px', paddingLeft: '22px', paddingTop: '15px' }}>
-                Biểu đồ cột tần suất đơn theo tháng
+            <div style={{ width: '650px', height: '390px', paddingTop: '20px' }}>
+                <div style={{ width: '600px', height: '325px' }}>
+                    <Bar data={data1} options={options} />
+                </div>
+
+                <div style={{ fontSize: '15px', paddingLeft: '22px', paddingTop: '15px' }}>
+                    Biểu đồ cột tần suất đơn theo tháng
+                </div>
             </div>
         </div>
     )

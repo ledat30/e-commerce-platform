@@ -37,6 +37,8 @@ function Sidebar(props) {
   ) {
     menuItems.push(
       { to: "/", label: "Dashboard", icon: "fa-home" },
+      { to: "/admin/revenue", label: "Revenue", icon: "fa fa-money" },
+      { to: "/admin/statistical", label: "Statistical", icon: "fa fa-bar-chart" },
       { to: "/admin/users", label: "User", icon: "fa-user" },
       { to: "/admin/role", label: "Role", icon: "fa-shield" },
       { to: "/admin/group-role", label: "Group role", icon: "fa-users" },

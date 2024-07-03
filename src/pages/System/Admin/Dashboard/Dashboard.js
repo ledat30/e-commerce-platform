@@ -4,7 +4,6 @@ import { adminDashboardSummary } from '../../../../services/storeService';
 import Order from './Order/Order';
 import Product from './Product/Product';
 import User from './User/User';
-import Revenue from './Revenue/Revenue';
 import { Barchart, PieChart } from './Statistical/Statiscal';
 
 function DashboardAdmin() {
@@ -30,8 +29,6 @@ function DashboardAdmin() {
   const handleItemClick = (item) => {
     setActiveItem(item);
   };
-
-  const formatPrice = (dataSummary.totalRevenue * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
   return (
     <div className='container' >
@@ -74,18 +71,6 @@ function DashboardAdmin() {
           </div>
         </div>
         <div
-          className={`summary_item ${activeItem === 'revenue' ? 'active' : ''}`}
-          onClick={() => handleItemClick('revenue')}
-        >
-          <div className='summary_left'>
-            <div className='number'>{formatPrice}</div>
-            <div className='text'>Doanh thu</div>
-          </div>
-          <div className='summary_right'>
-            <i className="fa fa-money" aria-hidden="true"></i>
-          </div>
-        </div>
-        <div
           className={`summary_item ${activeItem === 'statistical' ? 'active' : ''}`}
           onClick={() => handleItemClick('statistical')}
         >
@@ -101,7 +86,6 @@ function DashboardAdmin() {
         {activeItem === 'orders' && <Order />}
         {activeItem === 'products' && <Product />}
         {activeItem === 'users' && <User />}
-        {activeItem === 'revenue' && <Revenue />}
         {activeItem === 'statistical' && (
           <div style={{ display: 'flex', justifyContent: 'space-around' }}>
             <Barchart dataSummary={dataSummary} />

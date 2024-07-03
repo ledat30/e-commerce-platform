@@ -91,12 +91,17 @@ const adminDashboardRevenueStoreDetailByDate = (page, limit, storeId, date) => {
   return axios.get(`/api/admin/dashboard-revenue-store-detail-by-date?page=${page}&limit=${limit}&storeId=${storeId}&date=${date}`);
 }
 
+const adminStatistical = () => {
+  return axios.get(`/api/admin/statistical`);
+}
+
 const storeStatistical = (storeId) => {
   return axios.get(`/api/store/statistical?storeId=${storeId}`);
 }
 
 export {
   adminDashboardSummary,
+  adminStatistical,
   adminDashboardOrder,
   adminDashboardRevenueStoreByDate,
   adminDashboardRevenueStoreDetailByDate,
