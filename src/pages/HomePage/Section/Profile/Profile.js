@@ -107,10 +107,13 @@ function Profile() {
 
     const handleDeleteProduct = async (orderId) => {
         try {
-            await cancelOrder(orderId);
-            toast.success("Product removed successfully");
-            fetchProducts();
-
+            const response = await cancelOrder(orderId);
+            if (response && response.EC === 0) {
+                toast.success("Product removed successfully");
+                fetchProducts();
+            } if (response && response.EC === -2) {
+                toast.error(response.EM)
+            }
         } catch (error) {
             console.error("Error deleting product from cart:", error);
             toast.error("Failed to remove product from cart");
