@@ -746,7 +746,8 @@ const postAddToCart = async (product_attribute_value_Id, userId, provinceId, dis
       where: {
         userId: userId, storeId: storeId, order_date: {
           [Op.between]: [startOfDay, endOfDay]
-        }
+        },
+        status: 'pending'
       }
     });
     if (order) {
@@ -1291,6 +1292,24 @@ const getreadStatusOrderWithPagination = async (page, limit, userId) => {
 
 const cancelOrder = async (id) => {
   try {
+    const order = await db.Order.findOne({
+      where: { id: id }
+    });
+    if (!order) {
+      return {
+        EM: "No order found with the provided ID!",
+        EC: -1,
+        DT: null,
+      };
+    }
+    if (order.status !== 'pending') {
+      return {
+        EM: "Đơn hàng đã được xác nhận mời bạn tải lại trang để cập nhập dữ liệu mới nhất",
+        EC: -2,
+        DT: null,
+      };
+    }
+
     await db.OrderItem.destroy({
       where: { orderId: id }
     });
