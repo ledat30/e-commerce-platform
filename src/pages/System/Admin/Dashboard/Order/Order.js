@@ -154,7 +154,7 @@ function Order() {
                                 <th>Total</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style={{ borderBottom: 'aliceblue' }}>
                             {listOrders.length > 0 ? (
                                 listOrders.map((item, index) => {
                                     const orderDate = new Date(item.order_date);

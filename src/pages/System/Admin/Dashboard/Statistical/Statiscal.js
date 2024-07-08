@@ -73,9 +73,9 @@ const PieChart = ({ dataSummary }) => {
     let navigate = useNavigate();
 
     useEffect(() => {
-        if (dataSummary && Array.isArray(dataSummary.monthlyStoreOrders)) {
+        if (dataSummary && Array.isArray(dataSummary.monthlyStoreRevenue)) {
             const storeMap = new Map();
-            dataSummary.monthlyStoreOrders.forEach(order => {
+            dataSummary.monthlyStoreRevenue.forEach(order => {
                 if (!storeMap.has(order.storeId)) {
                     storeMap.set(order.storeId, { value: order.storeId, label: order.storeName });
                 }
@@ -84,7 +84,7 @@ const PieChart = ({ dataSummary }) => {
             const uniqueStores = Array.from(storeMap.values());
             setStores([{ value: '', label: 'All Stores' }, ...uniqueStores]);
 
-            const uniqueMonths = [...new Set(dataSummary.monthlyStoreOrders.map(order => order.month))].map(month => ({
+            const uniqueMonths = [...new Set(dataSummary.monthlyStoreRevenue.map(order => order.month))].map(month => ({
                 value: month,
                 label: month
             }));
@@ -95,8 +95,8 @@ const PieChart = ({ dataSummary }) => {
     }, [dataSummary]);
 
     useEffect(() => {
-        if (dataSummary && Array.isArray(dataSummary.monthlyStoreOrders)) {
-            let filteredOrders = dataSummary.monthlyStoreOrders;
+        if (dataSummary && Array.isArray(dataSummary.monthlyStoreRevenue)) {
+            let filteredOrders = dataSummary.monthlyStoreRevenue;
 
             if (selectedStore && selectedStore.value) {
                 filteredOrders = filteredOrders.filter(order => order.storeId === selectedStore.value);
@@ -109,15 +109,15 @@ const PieChart = ({ dataSummary }) => {
             const orderSummaryByMonth = filteredOrders.reduce((acc, order) => {
                 const monthIndex = acc.findIndex(item => item.month === order.month);
                 if (monthIndex > -1) {
-                    acc[monthIndex].totalOrders += order.totalOrders;
+                    acc[monthIndex].totalRevenue += order.totalRevenue;
                 } else {
-                    acc.push({ month: order.month, totalOrders: order.totalOrders });
+                    acc.push({ month: order.month, totalRevenue: order.totalRevenue });
                 }
                 return acc;
             }, []);
 
             const months = orderSummaryByMonth.map(order => order.month);
-            const totals = orderSummaryByMonth.map(order => order.totalOrders);
+            const totals = orderSummaryByMonth.map(order => order.totalRevenue);
             setListOrderMonth(months);
             setMonthlyTotals(totals);
         } else {

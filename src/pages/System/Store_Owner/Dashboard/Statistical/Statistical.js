@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const PieChart = ({ dataSummary }) => {
-    console.log(`dataSummary`, dataSummary);
     const [listOrderMonth, setListOrderMonth] = useState([]);
     const [monthlyTotals, setMonthlyTotals] = useState([]);
     const [selectedMonth, setSelectedMonth] = useState(null);
@@ -15,18 +14,18 @@ const PieChart = ({ dataSummary }) => {
     let navigate = useNavigate();
 
     useEffect(() => {
-        if (dataSummary && Array.isArray(dataSummary.monthlyOrdersByStore)) {
-            const months = dataSummary.monthlyOrdersByStore.map(order => ({
+        if (dataSummary && Array.isArray(dataSummary.monthlyRevenueByStore)) {
+            const months = dataSummary.monthlyRevenueByStore.map(order => ({
                 value: order.month,
                 label: order.month,
             }));
-            const monthsList = dataSummary.monthlyOrdersByStore.map(order => order.month);
-            const totals = dataSummary.monthlyOrdersByStore.map(order => order.totalOrders);
+            const monthsList = dataSummary.monthlyRevenueByStore.map(order => order.month);
+            const totals = dataSummary.monthlyRevenueByStore.map(order => order.totalRevenue);
             setMonths(months);
             setListOrderMonth(monthsList);
             setMonthlyTotals(totals);
         } else {
-            console.warn('dataSummary or dataSummary.monthlyOrders is not correctly defined');
+            console.warn('dataSummary or dataSummary.totalRevenue is not correctly defined');
         }
     }, [dataSummary]);
 
