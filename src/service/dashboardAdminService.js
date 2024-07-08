@@ -50,11 +50,11 @@ const adminDashboardSummary = async () => {
             order: [[db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'ASC']]
         });
 
-        const monthlyStoreOrders = await db.Order.findAll({
+        const monthlyStoreRevenue = await db.Order.findAll({
             attributes: [
                 [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('Order.createdAt'), '%Y-%m'), 'month'],
                 'storeId',
-                [db.sequelize.fn('count', db.sequelize.col('Order.id')), 'totalOrders'],
+                [db.sequelize.fn('sum', db.sequelize.col('Order.total_amount')), 'totalRevenue'],
                 [db.sequelize.col('Store.name'), 'storeName'],
             ],
             where: {
@@ -63,14 +63,25 @@ const adminDashboardSummary = async () => {
             include: [{
                 model: db.Store,
                 attributes: []
-            }],
+            },
+            {
+                model: db.Shipping_Unit_Order,
+                required: true,
+                include: [{
+                    model: db.Shipping_Unit_Order_user,
+                    required: true,
+                    where: {
+                        status: 'Delivered'
+                    }
+                }]
+            }
+            ],
             group: ['month', 'storeId', 'Store.name'],
             order: [
                 [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('Order.createdAt'), '%Y-%m'), 'ASC'],
                 ['storeId', 'ASC']
             ]
         });
-
 
         return {
             EM: "Get all success!",
@@ -83,7 +94,7 @@ const adminDashboardSummary = async () => {
                 totalOrderFails: totalOrderFails,
                 totalOrderSuccess: totalOrderSuccess,
                 monthlyOrders: monthlyOrders,
-                monthlyStoreOrders: monthlyStoreOrders
+                monthlyStoreRevenue: monthlyStoreRevenue
             },
         };
     } catch (error) {

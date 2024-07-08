@@ -374,16 +374,27 @@ const storeDashboard = async (storeId) => {
       group: ['User.id', 'User.username', 'User.email']
     });
 
-    const monthlyOrdersByStore = await db.Order.findAll({
+    const monthlyRevenueByStore = await db.Order.findAll({
       attributes: [
-        [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'month'],
-        [db.sequelize.fn('count', db.sequelize.col('Order.id')), 'totalOrders'],
+        [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('Order.createdAt'), '%Y-%m'), 'month'],
+        [db.sequelize.fn('sum', db.sequelize.col('Order.total_amount')), 'totalRevenue'],
       ],
       where: {
         storeId: storeId,
         status: 'confirmed'
       },
-      group: ['month'],
+      include: [{
+        model: db.Shipping_Unit_Order,
+        required: true,
+        include: [{
+          model: db.Shipping_Unit_Order_user,
+          required: true,
+          where: {
+            status: 'Delivered'
+          }
+        }]
+      }],
+      group: [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('Order.createdAt'), '%Y-%m')],
       order: [[db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'ASC']]
     });
 
@@ -398,7 +409,7 @@ const storeDashboard = async (storeId) => {
         totalUsers: totalUsers,
         totalViewProduct: totalViewProduct,
         totalRevenue: totalRevenue,
-        monthlyOrdersByStore: monthlyOrdersByStore,
+        monthlyRevenueByStore: monthlyRevenueByStore,
       },
     };
   } catch (error) {
