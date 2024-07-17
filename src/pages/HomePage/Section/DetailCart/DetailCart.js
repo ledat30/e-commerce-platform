@@ -254,7 +254,7 @@ function DetailCart() {
             item.OrderItems.forEach(orderItem => {
                 const inventory = orderItem.ProductAttribute?.Inventories?.[0];
                 if (inventory && inventory.id) {
-                    initialQuantities[inventory.id] = 1;
+                    initialQuantities[inventory.id] = orderItem.quantily;
                 }
             });
         });
@@ -294,7 +294,6 @@ function DetailCart() {
         }
         setTotalAmount(formattedTotalAmount);
     }, [cartItems, quantities, selectedItems, selectedItemCount, shippingFee]);
-
 
     const handleSelectAllChange = (e) => {
         const newChecked = e.target.checked;

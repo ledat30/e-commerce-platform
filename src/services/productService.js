@@ -1,8 +1,8 @@
 import axios from "../setup/axios";
 
-const getAllProductsByStore = (data) => {
+const getAllProductsByStore = (storeId, page, limit) => {
   return axios.get(
-    `/api/product/read?page=${data.page}&limit=${data.limit}&storeId=${data.storeId}`
+    `/api/product/read?storeId=${storeId}&page=${page}&limit=${limit}`
   );
 };
 

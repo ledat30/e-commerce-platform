@@ -32,11 +32,11 @@ function Product(ropps) {
   }, [currentPage]);
 
   const getDataProductByStore = async () => {
-    let response = await getAllProductsByStore({
-      storeId: user.account.storeId,
-      page: currentPage,
-      limit: currentLimit,
-    });
+    let response = await getAllProductsByStore(
+      user.account.storeId,
+      currentPage,
+      currentLimit,
+    );
 
     if (response && response.EC === 0) {
       setDataProductByStore(response.DT.product);

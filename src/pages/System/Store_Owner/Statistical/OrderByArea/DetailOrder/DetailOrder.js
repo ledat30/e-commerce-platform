@@ -1,9 +1,8 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './DetailOrder.scss';
 import ReactPaginate from "react-paginate";
 
-const DetailOrder = ({ order, onClose }) => {
+const DetailOrder = ({ orders, onClose }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [currentLimit] = useState(6);
     const [totalPages, setTotalPages] = useState(1);
@@ -11,11 +10,11 @@ const DetailOrder = ({ order, onClose }) => {
     const [searchInput, setSearchInput] = useState("");
 
     useEffect(() => {
-        if (order && order.OrderItems) {
-            setOrderDetail(order.OrderItems);
-            setTotalPages(Math.ceil(order.OrderItems.length / currentLimit));
+        if (orders) {
+            setOrderDetail(orders);
+            setTotalPages(Math.ceil(orders.length / currentLimit));
         }
-    }, [order, currentLimit]);
+    }, [orders, currentLimit]);
 
     const filteredData = orderDetail.filter((item) =>
         item.ProductAttribute.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
@@ -75,7 +74,7 @@ const DetailOrder = ({ order, onClose }) => {
                         <th>Product</th>
                         <th>Option</th>
                         <th>Price per item</th>
-                        <th>Quatity</th>
+                        <th>Quantity</th>
                     </tr>
                 </thead>
                 <tbody>

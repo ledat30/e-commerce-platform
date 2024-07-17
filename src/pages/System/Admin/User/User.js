@@ -168,10 +168,12 @@ function User(ropps) {
                           <td>{item.id}</td>
                           <td>{item.username}</td>
                           <td>{item.email}</td>
-                          <td>
-                            {item.Group?.name ||
-                              (item.groupId ? item.groupId : "")}
-                          </td>
+                          <span style={{ backgroundColor: '#9dbed9', borderRadius: '3px', padding: '1px 3px' }}>
+                            <td>
+                              {item.Group?.name ||
+                                (item.groupId ? item.groupId : "")}
+                            </td>
+                          </span>
                           <td>
                             <button
                               title="Edit"

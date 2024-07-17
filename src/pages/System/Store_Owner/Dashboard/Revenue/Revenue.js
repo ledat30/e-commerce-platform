@@ -37,8 +37,12 @@ function Revenue() {
     }
 
     useEffect(() => {
-        fetchAllOrders();
-    }, [currentPage]);
+        if (selectedMonth) {
+            fetchOrdersByMonth(selectedMonth);
+        } else {
+            fetchAllOrders();
+        }
+    }, [currentPage, selectedMonth]);
 
     const fetchAllOrders = async () => {
         let response = await storeDashboardRevenue(currentPage, currentLimit, user.account.storeId);
@@ -48,6 +52,20 @@ function Revenue() {
             setTotalPages(response.DT.totalPages);
             groupOrdersByMonth(response.DT.dailyRevenue);
             setTotalPagesMonth(response.DT.totalPages);
+        }
+    }
+
+    const fetchOrdersByMonth = async (monthYear) => {
+        let response = await storeDashboardRevenue(currentPage, currentLimit, user.account.storeId);
+
+        if (response && response.EC === 0) {
+            const [month, year] = monthYear.split('-');
+            const filteredOrders = response.DT.dailyRevenue.filter(order => {
+                const date = new Date(order.order_date);
+                return date.getMonth() + 1 === parseInt(month) && date.getFullYear() === parseInt(year);
+            });
+            setListOrdersByDate({ ...response.DT, dailyRevenue: filteredOrders });
+            setTotalPages(response.DT.totalPages);
         }
     }
 
@@ -94,8 +112,9 @@ function Revenue() {
 
     const handleMonthClick = (monthYear) => {
         setSelectedMonth(monthYear);
-    };
-
+        setCurrentPage(1);
+    }
+    
     const handleDetailClick = async (date) => {
         let response = await storeDashboardRevenueByDate(currentPage, currentLimit, user.account.storeId, date);
 

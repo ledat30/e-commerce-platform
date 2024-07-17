@@ -8,7 +8,7 @@ function OrderByArea({ dataStatistical }) {
     const [totalPages, setTotalPages] = useState(1);
     const [OrderByArea, setOrderByArea] = useState([]);
     const [searchInput, setSearchInput] = useState("");
-    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedOrders, setSelectedOrders] = useState(null);
 
     useEffect(() => {
         if (dataStatistical && dataStatistical.topOrderByArea) {
@@ -32,12 +32,12 @@ function OrderByArea({ dataStatistical }) {
             );
         }
         return selectedOrderByArea.map((area, index) => (
-            <tr key={area.id}>
+            <tr key={area.districtId}>
                 <td>{startIndex + index + 1}</td>
                 <td>{area.District.district_full_name} , {area.Province.province_full_name}</td>
                 <td>{area.totalOrders} orders</td>
                 <td>
-                    <button className="btn btn-primary" onClick={() => setSelectedOrder(area)}>Details</button>
+                    <button className="btn btn-primary" onClick={() => setSelectedOrders(area.OrderItems)}>Details</button>
                 </td>
             </tr>
         ));
@@ -47,14 +47,14 @@ function OrderByArea({ dataStatistical }) {
         setCurrentPage(+event.selected + 1);
     };
 
-    if (selectedOrder) {
-        return <DetailOrder order={selectedOrder} onClose={() => setSelectedOrder(null)} />;
+    if (selectedOrders) {
+        return <DetailOrder orders={selectedOrders} onClose={() => setSelectedOrders(null)} />;
     }
 
     return (
         <div className="table-category table">
             <div className="header-table-category header_table">
-                <div className='table_manage'>Bảng quản lý mặt hàng bán chạy</div>
+                <div className='table_manage'>Khu vực có lượng mua lớn</div>
                 <div className="box search">
                     <form className="sbox">
                         <input
