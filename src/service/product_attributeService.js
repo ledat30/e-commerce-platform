@@ -47,16 +47,20 @@ const createAttribute = async (data, storeId) => {
 
 const getAllAttributes = async () => {
     try {
-        let attibute = await db.Attribute.findAll();
-        if (attibute) {
+        let attributes = await db.Attribute.findAll();
+        if (attributes) {
+            const uniqueAttributes = Array.from(
+                new Map(attributes.map(item => [item.name, item])).values()
+            );
+
             return {
-                EM: "Get all attibute success!",
+                EM: "Get all attributes success!",
                 EC: 0,
-                DT: attibute,
+                DT: uniqueAttributes,
             };
         } else {
             return {
-                EM: "Get all attibutes error!",
+                EM: "Get all attributes error!",
                 EC: 0,
                 DT: [],
             };
@@ -64,12 +68,13 @@ const getAllAttributes = async () => {
     } catch (error) {
         console.log(error);
         return {
-            EM: "Somnething wrongs with services",
+            EM: "Something wrong with services",
             EC: -1,
             DT: [],
         };
     }
 };
+
 
 const getAttributeWithPagination = async (page, limit, storeId) => {
     try {
@@ -77,13 +82,12 @@ const getAttributeWithPagination = async (page, limit, storeId) => {
         const { count, rows } = await db.Attribute.findAndCountAll({
             offset: offset,
             limit: limit,
-            where: { storeId: storeId },
+            where: { storeId: storeId, isDelete: null },
             include: [
                 { model: db.Store, attributes: ["name", "id"] },
                 { model: db.Category, attribute: ['category_name'] }
             ],
             attributes: ["id", "name"],
-            where: { isDelete: null },
             order: [["id", "DESC"]],
         });
         let totalPages = Math.ceil(count / limit);

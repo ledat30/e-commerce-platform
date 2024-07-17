@@ -77,12 +77,11 @@ const getVariantWithPagination = async (page, limit, storeId) => {
         const { count, rows } = await db.AttributeValue.findAndCountAll({
             offset: offset,
             limit: limit,
-            where: { storeId: storeId },
+            where: { storeId: storeId, isDelete: null },
             include: [
                 { model: db.Attribute, attributes: ["name", "id"] },
             ],
             attributes: ["id", "name"],
-            where: { isDelete: null },
             order: [["id", "DESC"]],
         });
         let totalPages = Math.ceil(count / limit);

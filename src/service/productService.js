@@ -32,14 +32,17 @@ const getAllProductForStoreOwner = async () => {
   }
 };
 
-const getProductWithPagination = async (page, limit, storeId) => {
+const getProductWithPagination = async (storeId, page, limit) => {
   try {
     let offset = (page - 1) * limit;
     const { count, rows } = await db.Product.findAndCountAll({
       distinct: true,
       offset: offset,
       limit: limit,
-      where: { storeId: storeId },
+      where: {
+        storeId: storeId,
+        isDelete: null
+      },
       attributes: [
         "id",
         "product_name",
@@ -51,7 +54,6 @@ const getProductWithPagination = async (page, limit, storeId) => {
         "contentMarkdown",
         "contentHtml",
       ],
-      where: { isDelete: null },
       include: [
         { model: db.Category, attributes: ["category_name", "id"] },
         { model: db.Store, attributes: ["name", "id"] },
@@ -442,7 +444,7 @@ const getProductInStockWithPagination = async (page, limit, storeId) => {
     const { count, rows } = await db.Inventory.findAndCountAll({
       offset: offset,
       limit: limit,
-      where: { storeId: storeId },
+      where: { storeId: storeId, isDelete: null },
       attributes: [
         "id",
         "quantyly",
@@ -451,7 +453,6 @@ const getProductInStockWithPagination = async (page, limit, storeId) => {
         "quantyly_shipped",
         "quantity_sold",
       ],
-      where: { isDelete: null },
       include: [
         {
           model: db.ProductAttribute, attributes: ["id"],
@@ -744,19 +745,51 @@ const postAddToCart = async (product_attribute_value_Id, userId, provinceId, dis
   try {
     let order = await db.Order.findOne({
       where: {
-        userId: userId, storeId: storeId, order_date: {
+        userId: userId,
+        storeId: storeId,
+        order_date: {
           [Op.between]: [startOfDay, endOfDay]
         },
         status: 'pending'
       }
     });
+
     if (order) {
+      let orderItem = await db.OrderItem.findOne({
+        where: {
+          orderId: order.id,
+          product_AttributeId: product_attribute_value_Id
+        }
+      });
+
+      if (orderItem) {
+        orderItem.quantily += body.quantily;
+        await orderItem.save();
+      } else {
+        orderItem = await db.OrderItem.create({
+          orderId: order.id,
+          product_AttributeId: product_attribute_value_Id,
+          quantily: body.quantily,
+          price_per_item: body.price_per_item
+        });
+      }
+
+      let totalAmount = 0;
+      const allOrderItems = await db.OrderItem.findAll({ where: { orderId: order.id } });
+      allOrderItems.forEach(item => {
+        totalAmount += (item.quantily * item.price_per_item);
+      });
+
+      order.total_amount = totalAmount;
+      await order.save();
+
       return {
-        EM: "Order has been added to cart. Please check your shopping cart!",
-        EC: -3,
-        DT: []
+        EM: "Add to cart success!",
+        EC: 0,
+        DT: orderItem
       };
     }
+
     if (!order) {
       order = await db.Order.create({
         total_amount: 0,
@@ -768,42 +801,24 @@ const postAddToCart = async (product_attribute_value_Id, userId, provinceId, dis
         wardId: wardId,
         storeId: storeId,
       });
-    }
-    if (order.status === 'Processing') {
-      return {
-        EM: "This product has been ordered and is processing, please reorder later!",
-        EC: -2,
-        DT: [],
-      };
-    }
 
-    let orderItem = await db.OrderItem.findOne({ where: { orderId: order.id, product_AttributeId: product_attribute_value_Id } });
-    if (orderItem) {
-      orderItem.quantily = body.quantily;
-      await orderItem.save();
-    } else {
-      orderItem = await db.OrderItem.create({
+      let orderItem = await db.OrderItem.create({
         orderId: order.id,
         product_AttributeId: product_attribute_value_Id,
         quantily: body.quantily,
-        price_per_item: body.price_per_item,
+        price_per_item: body.price_per_item
       });
+
+      let totalAmount = body.quantily * body.price_per_item;
+      order.total_amount = totalAmount;
+      await order.save();
+
+      return {
+        EM: "Add to cart success!",
+        EC: 0,
+        DT: orderItem
+      };
     }
-
-    let totalAmount = 0;
-    const allOrderItems = await db.OrderItem.findAll({ where: { orderId: order.id } });
-    allOrderItems.forEach(item => {
-      totalAmount += (item.quantily * item.price_per_item);
-    });
-
-    order.total_amount = totalAmount;
-    await order.save();
-
-    return {
-      EM: "Add to cart success!",
-      EC: 0,
-      DT: orderItem
-    };
   } catch (error) {
     console.error(error);
     return {

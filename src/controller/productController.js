@@ -2,15 +2,15 @@ import productService from "../service/productService";
 
 const readFunc = async (req, res) => {
   try {
-    const storeId = req.query.storeId;
-    if (req.query.page && req.query.limit) {
+    if (req.query.page && req.query.limit && req.query.storeId) {
+      const storeId = req.query.storeId;
       let page = req.query.page;
       let limit = req.query.limit;
 
       let data = await productService.getProductWithPagination(
+        storeId,
         +page,
         +limit,
-        storeId
       );
 
       return res.status(200).json({

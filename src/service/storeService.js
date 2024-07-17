@@ -657,7 +657,10 @@ const storeStatistical = async (storeId) => {
   try {
     const topSellerProducts = await db.Inventory.findAll({
       where: {
-        storeId: storeId
+        storeId: storeId,
+        quantity_sold: {
+          [Op.ne]: null
+        }
       },
       order: [
         ['quantity_sold', 'DESC']
@@ -694,7 +697,12 @@ const storeStatistical = async (storeId) => {
     });
 
     const topViewProducts = await db.Product.findAll({
-      where: { storeId: storeId },
+      where: {
+        storeId: storeId,
+        view_count: {
+          [Op.ne]: 0
+        }
+      },
       attributes: ['product_name', 'view_count', 'id'],
       include: [{ model: db.Category, attributes: ['category_name'] }],
       order: [['view_count', 'DESC']],
