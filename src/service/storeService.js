@@ -314,6 +314,7 @@ const storeDashboard = async (storeId) => {
         storeId: storeId
       },
     });
+
     const totalViewProduct = await db.Product.findAll({
       where: {
         storeId: storeId
@@ -321,12 +322,14 @@ const storeDashboard = async (storeId) => {
       attributes: ['id', 'product_name', 'view_count'],
       order: [["id", "DESC"]],
     })
+
     const totalOrders = await db.Order.count({
       where: {
         storeId: storeId,
         status: 'confirmed'
       }
     });
+
     const totalRevenue = await db.Order.sum('total_amount', {
       include: [{
         model: db.Shipping_Unit_Order,
@@ -344,6 +347,7 @@ const storeDashboard = async (storeId) => {
         status: 'confirmed'
       }
     });
+
     const totalComments = await db.Comment.count({
       include: [
         {
@@ -352,6 +356,7 @@ const storeDashboard = async (storeId) => {
         },
       ],
     });
+
     const totalUniqueCustomers = await db.Order.count({
       distinct: true,
       col: 'userId',
@@ -360,18 +365,73 @@ const storeDashboard = async (storeId) => {
         status: 'confirmed'
       }
     });
-    const totalUsers = await db.User.findAll({
-      attributes: ['id', 'username', 'email'],
+
+    const topUserIds = await db.Order.findAll({
+      attributes: [
+        'userId',
+        [Sequelize.fn('SUM', Sequelize.col('total_amount')), 'totalSpent']
+      ],
       include: [
         {
-          model: db.Order,
-          attributes: [],
-          where: {
-            storeId: storeId
-          }
+          model: db.Shipping_Unit_Order,
+          required: true,
+          attributes: ['id'],
+          include: [
+            {
+              model: db.Shipping_Unit_Order_user,
+              required: true,
+              attributes: ['id'],
+              where: {
+                status: 'Delivered'
+              }
+            }
+          ]
         }
       ],
-      group: ['User.id', 'User.username', 'User.email']
+      where: {
+        storeId: storeId,
+        status: 'confirmed'
+      },
+      group: ['userId'],
+      order: [[Sequelize.literal('totalSpent'), 'DESC']],
+      limit: 10
+    });
+
+    const userIds = topUserIds.map(order => order.userId);
+
+    const totalUsers = await db.Order.findAll({
+      attributes: [
+        'userId',
+        [Sequelize.fn('SUM', Sequelize.col('total_amount')), 'totalSpent']
+      ],
+      where: {
+        storeId: storeId,
+        status: 'confirmed',
+        userId: {
+          [Op.in]: userIds
+        }
+      },
+      include: [
+        {
+          model: db.Shipping_Unit_Order,
+          required: true,
+          attributes: ['id'],
+          include: [
+            {
+              model: db.Shipping_Unit_Order_user,
+              required: true,
+              attributes: ['id'],
+              where: {
+                status: 'Delivered'
+              }
+            }
+          ]
+        },
+        { model: db.User, attributes: ['username', 'email', 'phonenumber'] }
+      ],
+      group: ['userId'],
+      order: [[Sequelize.literal('totalSpent'), 'DESC']],
+      limit: 10
     });
 
     const monthlyRevenueByStore = await db.Order.findAll({
@@ -445,7 +505,7 @@ const storeDashboardOrder = async (page, limit, storeId) => {
         },
         {
           model: db.User,
-          attributes: ['username', 'id'],
+          attributes: ['username', 'id', 'phonenumber'],
         },
         {
           model: db.OrderItem,
@@ -476,7 +536,8 @@ const storeDashboardOrder = async (page, limit, storeId) => {
                   ]
                 }
               ],
-            }
+            },
+            { model: db.Order, attributes: ['customerName', 'phonenumber', 'address_detail'], }
           ]
         }
       ]
@@ -594,7 +655,7 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
         },
         {
           model: db.User,
-          attributes: ['username', 'id']
+          attributes: ['username', 'id', 'phonenumber']
         },
         {
           model: db.OrderItem,
@@ -625,7 +686,8 @@ const storeDashboardRevenueByDate = async (page, limit, storeId, date) => {
                   ]
                 }
               ],
-            }
+            },
+            { model: db.Order, attributes: ['customerName', 'phonenumber', 'address_detail'] }
           ]
         }
       ]
@@ -709,14 +771,44 @@ const storeStatistical = async (storeId) => {
       limit: 20
     });
 
-    const topOrderByArea = await db.Order.findAll({
+    const topDistricts = await db.Order.findAll({
       attributes: [
         'districtId',
-        [fn('COUNT', col('districtId')), 'totalOrders']
+        [db.sequelize.fn('COUNT', db.sequelize.col('districtId')), 'totalOrders']
       ],
+      where: {
+        storeId: storeId,
+        status: 'confirmed'
+      },
+      group: ['districtId'],
+      order: [[db.sequelize.literal('totalOrders'), 'DESC']],
+      limit: 10,
+      raw: true
+    });
+
+    const districtIds = topDistricts.map(district => district.districtId);
+
+    const topOrdersByArea = await db.Order.findAll({
+      where: {
+        districtId: districtIds,
+        storeId: storeId,
+        status: 'confirmed',
+      },
       include: [
-        { model: db.Province, attributes: ['province_full_name'] },
-        { model: db.District, attributes: ['district_full_name'] },
+        {
+          model: db.Shipping_Unit_Order,
+          required: true,
+          include: [{
+            model: db.Shipping_Unit_Order_user,
+            required: true,
+            where: {
+              status: 'Delivered'
+            }
+          }]
+        },
+        { model: db.Province, attributes: ['province_full_name'], distinct: true },
+        { model: db.Ward, attributes: ['ward_full_name'], distinct: true },
+        { model: db.District, attributes: ['district_full_name'], distinct: true },
         {
           model: db.OrderItem,
           attributes: ['quantily', 'id', 'price_per_item'],
@@ -745,29 +837,57 @@ const storeStatistical = async (storeId) => {
                     { model: db.Attribute, attributes: ['id', 'name'] }
                   ]
                 }
-              ],
-            }
+              ]
+            },
+            {
+              model: db.Order, attributes: ['customerName', 'phonenumber', 'address_detail'],
+              include: [
+                { model: db.User, attributes: ['username', 'phonenumber'] }
+              ]
+            },
           ]
         }
       ],
-      where: {
-        storeId: storeId, status: 'confirmed'
-      },
-      group: ['districtId'],
-      order: [[literal('totalOrders'), 'DESC']],
-      limit: 10
+      order: [[db.sequelize.col('districtId'), 'ASC']],
+      distinct: true
     });
 
-    const totalOrdersForShippingUnits = await db.Shipping_Unit_Order.findAll({
-      attributes: [
-        'shippingUnitId',
-        [fn('COUNT', col('shippingUnitId')), 'totalOrders']
-      ],
+    const totalOutOfStock = await db.Inventory.findAll({
+      where: {
+        currentNumber: {
+          [Sequelize.Op.lt]: 10
+        }
+      }
+      , attributes: ['currentNumber'],
       include: [
-        { model: db.ShippingUnit, attributes: ['shipping_unit_name'] },
+        {
+          model: db.ProductAttribute,
+          attributes: ['id'],
+          include: [
+            {
+              model: db.Product,
+              attributes: ['product_name', 'id']
+            },
+            {
+              model: db.AttributeValue,
+              as: 'AttributeValue1',
+              attributes: ['id', 'name'],
+              include: [
+                { model: db.Attribute, attributes: ['id', 'name'] }
+              ]
+            },
+            {
+              model: db.AttributeValue,
+              as: 'AttributeValue2',
+              attributes: ['id', 'name'],
+              include: [
+                { model: db.Attribute, attributes: ['id', 'name'] }
+              ]
+            }
+          ],
+        }
       ],
-      group: ['shippingUnitId'],
-      order: [[literal('totalOrders'), 'DESC']]
+      order: [['currentNumber', 'ASC']]
     });
 
     return {
@@ -776,8 +896,8 @@ const storeStatistical = async (storeId) => {
       DT: {
         topSellerProducts: topSellerProducts,
         topViewProducts: topViewProducts,
-        topOrderByArea: topOrderByArea,
-        totalOrdersForShippingUnits: totalOrdersForShippingUnits,
+        topOrderByArea: topOrdersByArea,
+        totalOutOfStock: totalOutOfStock,
       },
     };
   } catch (error) {

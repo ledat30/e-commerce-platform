@@ -18,6 +18,12 @@ module.exports = {
       address_detail: {
         type: Sequelize.STRING,
       },
+      customerName: {
+        type: Sequelize.STRING,
+      },
+      phonenumber: {
+        type: Sequelize.STRING,
+      },
       status: {
         type: Sequelize.STRING,
       },

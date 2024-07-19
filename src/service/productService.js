@@ -949,6 +949,9 @@ const createBuyProduct = async (orderId, product_attribute_value_Id, storeId, bo
   const wardId = body.ward;
   const provinceId = body.province;
   const districtId = body.district;
+  const customerName = body.customerName;
+  const address_detail = body.address_detail;
+  const phonenumber = body.phonenumber;
 
   try {
     const order = await db.Order.findByPk(orderId, { transaction });
@@ -967,7 +970,7 @@ const createBuyProduct = async (orderId, product_attribute_value_Id, storeId, bo
 
     if (purchaseQuantity === item.quantily) {
       await order.update({
-        status: 'Processing', payment_methodID: payment_methodID, total_amount: pricePerItem * purchaseQuantity + shippingFee, provinceId: provinceId, districtId: districtId, wardId: wardId,
+        status: 'Processing', payment_methodID: payment_methodID, total_amount: pricePerItem * purchaseQuantity + shippingFee, provinceId: provinceId, districtId: districtId, wardId: wardId, customerName: customerName, phonenumber: phonenumber, address_detail: address_detail,
       }, { transaction });
       await db.Invoice.create({
         orderId: order.id,
@@ -986,6 +989,9 @@ const createBuyProduct = async (orderId, product_attribute_value_Id, storeId, bo
         provinceId: provinceId,
         districtId: districtId,
         wardId: wardId,
+        phonenumber: phonenumber,
+        address_detail: address_detail,
+        customerName: customerName,
       }, { transaction });
 
       await item.update({ quantily: purchaseQuantity, orderId: newOrder.id }, { transaction });
@@ -1067,6 +1073,9 @@ const orderByUser = async (page, limit, storeId) => {
                   ]
                 }
               ]
+            },
+            {
+              model: db.Order, attributes: ['customerName', 'phonenumber', 'address_detail']
             }
           ]
         }
