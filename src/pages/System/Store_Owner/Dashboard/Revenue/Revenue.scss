@@ -44,7 +44,7 @@
         color      : #fff;
     }
 
-    table {
+    .table {
         width          : 1070px;
         border-radius  : 3px;
         border-collapse: collapse;
@@ -86,7 +86,7 @@
         border-radius   : 5px;
 
         .summary_left {
-            padding-top: 5px;
+            padding-top: 10px;
 
             .number {
                 font-weight: 500;
@@ -102,7 +102,7 @@
             background-color: #253d46;
             width           : 50px;
             height          : 50px;
-            margin          : 5px 0;
+            margin          : 10px 0;
             text-align      : center;
             border-radius   : 3px;
             padding-top     : 11px;

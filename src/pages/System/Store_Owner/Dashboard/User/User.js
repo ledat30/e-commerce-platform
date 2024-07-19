@@ -6,6 +6,7 @@ function User({ dataSummary }) {
     const [currentLimit] = useState(6);
     const [totalPages, setTotalPages] = useState(1);
     const [users, setUsers] = useState([]);
+    console.log(users);
     const [searchInput, setSearchInput] = useState("");
 
     useEffect(() => {
@@ -16,7 +17,7 @@ function User({ dataSummary }) {
     }, [dataSummary, currentLimit]);
 
     const filteredData = users.filter((item) =>
-        item.username.toLowerCase().includes(searchInput.toLowerCase())
+        item.User.username.toLowerCase().includes(searchInput.toLowerCase())
     );
 
     const handlePageClick = async (event) => {
@@ -29,24 +30,28 @@ function User({ dataSummary }) {
         if (selectedUsers.length === 0) {
             return (
                 <tr style={{ textAlign: "center", fontWeight: 600 }}>
-                    <td colSpan="4">Not Found...</td>
+                    <td colSpan="5">Not Found...</td>
                 </tr>
             );
         }
-        return selectedUsers.map((user, index) => (
-            <tr key={user.id}>
-                <td>{startIndex + index + 1}</td>
-                <td>{user.id}</td>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-            </tr>
-        ));
+        return selectedUsers.map((user, index) => {
+            const formatPrice = (user.totalSpent * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            return (
+                <tr key={user.id}>
+                    <td>{startIndex + index + 1}</td>
+                    <td>{user.User.username}</td>
+                    <td>{user.User.phonenumber}</td>
+                    <td>{user.User.email}</td>
+                    <td>{formatPrice}</td>
+                </tr>
+            )
+        });
     };
 
     return (
         <div className="table-category table">
             <div className="header-table-category header_table">
-                <div className='table_manage'>Bảng quản lý khách hàng</div>
+                <div className='table_manage'>Bảng quản lý khách hàng tiềm năng</div>
                 <div className="box search">
                     <form className="sbox">
                         <input
@@ -63,9 +68,10 @@ function User({ dataSummary }) {
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Id</th>
-                        <th>User</th>
+                        <th>Customer name</th>
+                        <th>PhoneNumber</th>
                         <th>Email</th>
+                        <th>Purchase amount</th>
                     </tr>
                 </thead>
                 <tbody>

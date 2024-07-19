@@ -36,11 +36,17 @@ function DetailCart() {
         province: "",
         district: "",
         ward: "",
+        customerName: "",
+        phonenumber: "",
+        address_detail: "",
     };
     const validInputsDefault = {
         province: true,
         district: true,
         ward: true,
+        customerName: true,
+        phonenumber: true,
+        address_detail: true,
     };
     const [userData, setUserData] = useState(defaultUserData);
     const [validInputs, setValidInputs] = useState(validInputsDefault);
@@ -71,9 +77,15 @@ function DetailCart() {
         }
     };
 
+    const handleOnChangeInputDetail = (value, name) => {
+        let _userData = _.cloneDeep(userData);
+        _userData[name] = value;
+        setUserData(_userData);
+    }
+
     const checkValidInput = () => {
         setValidInputs(validInputsDefault);
-        let arr = ["province", "district", "ward"];
+        let arr = ["province", "district", "ward", "phonenumber", "address_detail", "customerName"];
         let check = true;
         for (let i = 0; i < arr.length; i++) {
             if (!userData[arr[i]]) {
@@ -207,7 +219,8 @@ function DetailCart() {
             const responses = await Promise.all(selectedOrderItemIds.map(orderItem =>
                 buyProduct(orderItem.product_attribute_value_Id, orderItem.orderId, orderItem.storeId, {
                     quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id, shippingFee: shippingFee,
-                    ward: ward, province: province, district: district
+                    ward: ward, province: province, district: district,
+                    phonenumber: userData.phonenumber, address_detail: userData.address_detail, customerName: userData.customerName,
                 })
             ));
 
@@ -500,11 +513,51 @@ function DetailCart() {
                                             {userData.province?.province_name || 'Chưa chọn'} , {userData.district?.district_name || 'Chưa chọn'} ,  {userData.ward?.ward_name || 'Chưa chọn'}</span>
                                     </div>
                                 </div>
+                                <div style={{ marginRight: '19px', borderBottom: '1px solid #ccc' }}>
+                                    <input type="text"
+                                        className={validInputs.phonenumber ? 'form-control mt-1' : 'form-control mt-1 is-invalid'}
+                                        placeholder="Số điện thoại"
+                                        name="phonenumber"
+                                        value={userData.phonenumber}
+                                        onChange={(e) =>
+                                            handleOnChangeInputDetail(e.target.value, "phonenumber")
+                                        }
+                                    />
+                                    <input type="text"
+                                        className={validInputs.address_detail ? 'form-control mt-1' : 'form-control mt-1 is-invalid'}
+                                        placeholder="Địa chỉ chi tiết"
+                                        name="address_detail"
+                                        value={userData.address_detail}
+                                        onChange={(e) =>
+                                            handleOnChangeInputDetail(e.target.value, "address_detail")
+                                        }
+                                    />
+                                    <input type="text"
+                                        className={validInputs.customerName ? 'form-control mt-1 mb-2' : 'form-control mt-1 mb-2 is-invalid'}
+                                        placeholder="Tên người nhận hàng"
+                                        name="customerName"
+                                        value={userData.customerName}
+                                        onChange={(e) =>
+                                            handleOnChangeInputDetail(e.target.value, "customerName")
+                                        }
+                                    />
+                                </div>
                             </>
                         ) : (
                             <div className="address">
                                 <i className="fa fa-map-marker" aria-hidden="true"></i>
                                 <span className="ps-2">{user.account.wardName} , {user.account.districtName} , {user.account.provinceName}  </span>
+                                <div style={{ marginRight: '19px' }}>
+                                    <input type="text"
+                                        className='form-control mt-1'
+                                        placeholder="Địa chỉ chi tiết"
+                                        name="address_detail"
+                                        value={userData.address_detail}
+                                        onChange={(e) =>
+                                            handleOnChangeInputDetail(e.target.value, "address_detail")
+                                        }
+                                    />
+                                </div>
                             </div>
                         )}
                         <div className="order">

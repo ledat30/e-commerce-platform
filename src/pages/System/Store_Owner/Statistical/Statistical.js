@@ -71,10 +71,10 @@ function Statistical() {
                     onClick={() => handleItemClick('truck')}
                 >
                     <div className='summary_left'>
-                        <div style={{ fontSize: '13px', paddingTop: '15px' }}>Đơn vị vận chuyển</div>
+                        <div style={{ fontSize: '13px', paddingTop: '15px' }}>Sản phẩm sắp hết</div>
                     </div>
                     <div className='summary_right'>
-                        <i className="fa fa-user" aria-hidden="true"></i>
+                        <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>
                     </div>
                 </div>
             </div>

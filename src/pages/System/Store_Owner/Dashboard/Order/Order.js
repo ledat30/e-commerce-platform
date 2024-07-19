@@ -81,7 +81,6 @@ function Order() {
     }
 
     const groupedOrders = groupOrdersByDate();
-
     return (
         <div className="table-category table">
             {expandedDate ? (
@@ -107,11 +106,10 @@ function Order() {
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>User</th>
+                                    <th>CustomerName</th>
                                     <th>Product</th>
-                                    <th>Size & Color</th>
-                                    <th>Quantity</th>
-                                    <th>Order date</th>
+                                    <th>PhoneNumber</th>
+                                    <th>Date</th>
                                     <th>Total</th>
                                     <th>Status</th>
                                 </tr>
@@ -131,10 +129,9 @@ function Order() {
                                                 return (
                                                     <tr key={idx} style={{ borderStyle: 'none' }}>
                                                         <td>{idx + 1}</td>
-                                                        <td>{item.User.username}</td>
-                                                        <td>{item.OrderItems[0]?.ProductAttribute.Product.product_name}</td>
-                                                        <td>{item.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.OrderItems[0]?.ProductAttribute.AttributeValue2.name}</td>
-                                                        <td>{item.OrderItems[0]?.quantily}</td>
+                                                        <td>{item.OrderItems[0].Order && item.OrderItems[0].Order.customerName ? item.OrderItems[0].Order.customerName : item.User.username}</td>
+                                                        <td>{item.OrderItems[0]?.ProductAttribute.Product.product_name} ({item.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.OrderItems[0]?.ProductAttribute.AttributeValue2.name} , slg: {item.OrderItems[0]?.quantily})</td>
+                                                        <td>{item.OrderItems[0].Order && item.OrderItems[0].Order.phonenumber ? item.OrderItems[0].Order.phonenumber : item.User.phonenumber}</td>
                                                         <td>{formattedDate}</td>
                                                         <td>{formattedPrice}</td>
                                                         <td>{item.Shipping_Unit_Orders[0]?.Shipping_Unit_Order_users[0]?.status || 'Being transported'}</td>

@@ -12,10 +12,31 @@ function OrderByArea({ dataStatistical }) {
 
     useEffect(() => {
         if (dataStatistical && dataStatistical.topOrderByArea) {
-            setOrderByArea(dataStatistical.topOrderByArea);
-            setTotalPages(Math.ceil(dataStatistical.topOrderByArea.length / currentLimit));
+            const uniqueAreas = aggregateByDistrictAndProvince(dataStatistical.topOrderByArea);
+            setOrderByArea(uniqueAreas);
+            setTotalPages(Math.ceil(uniqueAreas.length / currentLimit));
         }
     }, [dataStatistical, currentLimit]);
+
+    const aggregateByDistrictAndProvince = (data) => {
+        const aggregated = {};
+        data.forEach(item => {
+            const key = `${item.Ward.ward_full_name}, ${item.District.district_full_name}, ${item.Province.province_full_name}`;
+            if (!aggregated[key]) {
+                aggregated[key] = {
+                    Ward: item.Ward,
+                    districtId: item.districtId,
+                    District: item.District,
+                    Province: item.Province,
+                    totalOrders: 0,
+                    OrderItems: [],
+                };
+            }
+            aggregated[key].totalOrders++;
+            aggregated[key].OrderItems.push(...item.OrderItems);
+        });
+        return Object.values(aggregated);
+    };
 
     const filteredData = OrderByArea.filter((item) =>
         item.Province.province_full_name.toLowerCase().includes(searchInput.toLowerCase())
@@ -34,10 +55,10 @@ function OrderByArea({ dataStatistical }) {
         return selectedOrderByArea.map((area, index) => (
             <tr key={area.districtId}>
                 <td>{startIndex + index + 1}</td>
-                <td>{area.District.district_full_name} , {area.Province.province_full_name}</td>
+                <td>{area.Ward.ward_full_name} , {area.District.district_full_name} , {area.Province.province_full_name}</td>
                 <td>{area.totalOrders} orders</td>
                 <td>
-                    <button className="btn btn-primary" onClick={() => setSelectedOrders(area.OrderItems)}>Details</button>
+                    <button className="btn btn-primary" onClick={() => setSelectedOrders(area)}>Details</button>
                 </td>
             </tr>
         ));

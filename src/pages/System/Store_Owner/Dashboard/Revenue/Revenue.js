@@ -20,6 +20,8 @@ function Revenue() {
     const [listDetailOrder, setListDetailOrder] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [dataSummary, setDataSummary] = useState([]);
+    const [latestRevenue, setLatestRevenue] = useState(0);
+    const [latestMonth, setLatestMonth] = useState('');
     const [selectedMonth, setSelectedMonth] = useState(null);
     const [currentPageMonth, setCurrentPageMonth] = useState(1);
     const [totalPagesMonth, setTotalPagesMonth] = useState(0);
@@ -114,7 +116,7 @@ function Revenue() {
         setSelectedMonth(monthYear);
         setCurrentPage(1);
     }
-    
+
     const handleDetailClick = async (date) => {
         let response = await storeDashboardRevenueByDate(currentPage, currentLimit, user.account.storeId, date);
 
@@ -129,6 +131,30 @@ function Revenue() {
     const closeModal = () => setIsModalOpen(false);
 
     const formatPrice = (dataSummary.totalRevenue * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+    useEffect(() => {
+        const fetchLatestMonthData = () => {
+            if (dataSummary && Array.isArray(dataSummary.monthlyRevenueByStore)) {
+                const sortedData = [...dataSummary.monthlyRevenueByStore].sort((a, b) => new Date(b.month) - new Date(a.month));
+                if (sortedData.length > 0) {
+                    const latestData = sortedData[0];
+                    setLatestMonth(formatMonth(latestData.month));
+                    setLatestRevenue(latestData.totalRevenue);
+                }
+            } else {
+                console.warn('dataSummary or dataSummary.monthlyRevenueByStore is not correctly defined');
+            }
+        };
+
+        fetchLatestMonthData();
+    }, [dataSummary]);
+    const formatMonth = (month) => {
+        const date = new Date(month);
+        const monthNumber = date.getMonth() + 1;
+        return `tháng ${monthNumber}`;
+    };
+    const format = (latestRevenue * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
 
     return (
         <div className="table-revenue table">
@@ -152,10 +178,9 @@ function Revenue() {
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>User</th>
+                                <th>CustomerName</th>
                                 <th>Product</th>
-                                <th>Size & color</th>
-                                <th>Quantily</th>
+                                <th>PhoneNumber</th>
                                 <th>Total amount</th>
                             </tr>
                         </thead>
@@ -170,10 +195,9 @@ function Revenue() {
                                                 <td>
                                                     {(currentPage - 1) * currentLimit + index + 1}
                                                 </td>
-                                                <td>{item.User.username}</td>
-                                                <td>{item.OrderItems[0]?.ProductAttribute.Product.product_name}</td>
-                                                <td>{item.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.OrderItems[0]?.ProductAttribute.AttributeValue2.name}</td>
-                                                <td>{item.OrderItems[0]?.quantily}</td>
+                                                <td>{item.OrderItems[0].Order && item.OrderItems[0].Order.customerName ? item.OrderItems[0].Order.customerName : item.User.username}</td>
+                                                <td>{item.OrderItems[0]?.ProductAttribute.Product.product_name} ({item.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.OrderItems[0]?.ProductAttribute.AttributeValue2.name} , slg: {item.OrderItems[0]?.quantily})</td>
+                                                <td>{item.OrderItems[0].Order && item.OrderItems[0].Order.phonenumber ? item.OrderItems[0].Order.phonenumber : item.User.phonenumber}</td>
                                                 <td>{formattedPrice}</td>
                                             </tr>
                                         )
@@ -314,29 +338,45 @@ function Revenue() {
                             <div className="header-table-category header_table">
                                 <div className='table_manage'>Bảng quản lý doanh thu tháng</div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <div className='summary_item active'>
-                                        <div className='summary_left'>
-                                            <div className='number'>{formatPrice}</div>
-                                            <div className='text'>Doanh thu</div>
+                                    <div style={{ display: 'flex', marginLeft: '-8px' }}>
+                                        <div className='summary_item active'>
+                                            <div className='summary_left'>
+                                                <div className='number'>{formatPrice}</div>
+                                                <div className='text'>Tổng doanh thu</div>
+                                            </div>
+                                            <div className='summary_right'>
+                                                <i className="fa fa-money" aria-hidden="true"></i>
+                                            </div>
                                         </div>
-                                        <div className='summary_right'>
-                                            <i className="fa fa-money" aria-hidden="true"></i>
+                                        <div style={{ marginLeft: '15px' }}>
+                                            <div className='summary_item active'>
+                                                <div className='summary_left'>
+                                                    <div className='number'>{format}</div>
+                                                    <div className='text'>Doanh thu {latestMonth}</div>
+                                                </div>
+                                                <div className='summary_right'>
+                                                    <i className="fa fa-money" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="box search">
-                                        <form className="sbox">
-                                            <input
-                                                className="stext"
-                                                type=""
-                                                placeholder="Tìm kiếm ..."
-                                                value={searchInput}
-                                                onChange={(e) => setSearchInput(e.target.value)}
-                                            />
-                                        </form>
+                                    <div style={{ width: '300px', marginLeft: '-16px', marginRight: '-11px' }}></div>
+                                    <div style={{ marginTop: '20px' }}>
+                                        <div className="box search">
+                                            <form className="sbox">
+                                                <input
+                                                    className="stext"
+                                                    type=""
+                                                    placeholder="Tìm kiếm ..."
+                                                    value={searchInput}
+                                                    onChange={(e) => setSearchInput(e.target.value)}
+                                                />
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <table>
+                            <table className='table'>
                                 <thead>
                                     <tr>
                                         <th>No</th>

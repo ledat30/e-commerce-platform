@@ -80,7 +80,7 @@ function DashboardStore() {
                 >
                     <div className='summary_left'>
                         <div className='number'>{formatNumber(dataSummary.totalUniqueCustomers)}</div>
-                        <div className='text'>Người dùng</div>
+                        <div className='text'>Top khách hàng</div>
                     </div>
                     <div className='summary_right'>
                         <i className="fa fa-user" aria-hidden="true"></i>

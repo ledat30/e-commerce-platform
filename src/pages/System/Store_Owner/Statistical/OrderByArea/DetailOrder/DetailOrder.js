@@ -11,7 +11,7 @@ const DetailOrder = ({ orders, onClose }) => {
 
     useEffect(() => {
         if (orders) {
-            setOrderDetail(orders);
+            setOrderDetail(orders.OrderItems);
             setTotalPages(Math.ceil(orders.length / currentLimit));
         }
     }, [orders, currentLimit]);
@@ -35,10 +35,10 @@ const DetailOrder = ({ orders, onClose }) => {
             return (
                 <tr key={detail.id}>
                     <td>{startIndex + index + 1}</td>
-                    <td>{detail.ProductAttribute.Product.product_name}</td>
-                    <td>{detail.ProductAttribute.AttributeValue1.name} - {detail.ProductAttribute.AttributeValue2.name}</td>
+                    <td>{detail.ProductAttribute.Product.product_name} ({detail.ProductAttribute.AttributeValue1.name} - {detail.ProductAttribute.AttributeValue2.name} - slg: {detail.quantily})</td>
+                    <td>{detail.Order && detail.Order.customerName ? detail.Order.customerName : (detail.Order.User && detail.Order.User.username ? detail.Order.User.username : '')}</td>
+                    <td>{detail.Order && detail.Order.phonenumber ? detail.Order.phonenumber : detail.Order.User.phonenumber}</td>
                     <td>{formattedPrice}</td>
-                    <td>{detail.quantily}</td>
                 </tr>
             );
         });
@@ -51,9 +51,9 @@ const DetailOrder = ({ orders, onClose }) => {
     return (
         <div className="table-category table">
             <div className="header-table-category header_table">
-                <div className='table_manage'>Order Details</div>
+                <div className='table_manage'>Chi tiết đơn hàng</div>
                 <button className="btn btn-secondary btn-1" onClick={onClose}>
-                    Back
+                    Trở lại
                 </button>
                 <div className="box search">
                     <form className="sbox">
@@ -72,9 +72,9 @@ const DetailOrder = ({ orders, onClose }) => {
                     <tr>
                         <th>No</th>
                         <th>Product</th>
-                        <th>Option</th>
+                        <th>Customer name</th>
+                        <th>PhoneNumber</th>
                         <th>Price per item</th>
-                        <th>Quantity</th>
                     </tr>
                 </thead>
                 <tbody>

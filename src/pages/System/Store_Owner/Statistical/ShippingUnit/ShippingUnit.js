@@ -9,14 +9,14 @@ function ShippingUnit({ dataStatistical }) {
     const [searchInput, setSearchInput] = useState("");
 
     useEffect(() => {
-        if (dataStatistical && dataStatistical.totalOrdersForShippingUnits) {
-            setShippingUnit(dataStatistical.totalOrdersForShippingUnits);
-            setTotalPages(Math.ceil(dataStatistical.totalOrdersForShippingUnits.length / currentLimit));
+        if (dataStatistical && dataStatistical.totalOutOfStock) {
+            setShippingUnit(dataStatistical.totalOutOfStock);
+            setTotalPages(Math.ceil(dataStatistical.totalOutOfStock.length / currentLimit));
         }
     }, [dataStatistical, currentLimit]);
 
     const filteredData = ShippingUnit.filter((item) =>
-        item.ShippingUnit.shipping_unit_name.toLowerCase().includes(searchInput.toLowerCase())
+        item.ProductAttribute.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
     );
 
     const renderViews = () => {
@@ -32,8 +32,9 @@ function ShippingUnit({ dataStatistical }) {
         return selectedShippingUnit.map((shippingunit, index) => (
             <tr key={shippingunit.id}>
                 <td>{startIndex + index + 1}</td>
-                <td>{shippingunit.ShippingUnit.shipping_unit_name}</td>
-                <td>{shippingunit.totalOrders}</td>
+                <td>{shippingunit.ProductAttribute.Product.product_name}</td>
+                <td>{shippingunit.ProductAttribute.AttributeValue1.name} - {shippingunit.ProductAttribute.AttributeValue2.name}</td>
+                <td style={{ color: 'red' }}>Còn lại {shippingunit.currentNumber} sản phẩm</td>
             </tr>
         ));
     };
@@ -45,7 +46,7 @@ function ShippingUnit({ dataStatistical }) {
     return (
         <div className="table-category table">
             <div className="header-table-category header_table">
-                <div className='table_manage'>Bảng quản lý đơn đã giao cho đơn vị vận chuyển</div>
+                <div className='table_manage'>Bảng quản lý sản phẩm sắp hết hàng</div>
                 <div className="box search">
                     <form className="sbox">
                         <input
@@ -62,8 +63,9 @@ function ShippingUnit({ dataStatistical }) {
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Name shipping unit</th>
-                        <th>Total orders</th>
+                        <th>Product</th>
+                        <th>Option</th>
+                        <th>CurrentNumber</th>
                     </tr>
                 </thead>
                 <tbody>

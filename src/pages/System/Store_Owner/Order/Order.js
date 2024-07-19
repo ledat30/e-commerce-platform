@@ -16,6 +16,7 @@ function Order() {
     const [currentLimit] = useState(4);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
+    console.log(listOrders);
     const [searchInput, setSearchInput] = useState("");
     const [selectedOption, setSelectedOption] = useState(null);
     const [validInputNameUserShippingUnit, setValidInputNameUserShippingUnit] = useState(true);
@@ -192,8 +193,7 @@ function Order() {
                                 <tr>
                                     <th>No</th>
                                     <th>Product name</th>
-                                    <th>User</th>
-                                    <th>Quantity</th>
+                                    <th>CustomerName</th>
                                     <th>Total amount</th>
                                     <th>Payment method</th>
                                     <th>Order date</th>
@@ -205,10 +205,14 @@ function Order() {
                                     <>
                                         {filteredData.map((item, index) => {
                                             const orderDate = new Date(item.order_date);
-                                            const day = orderDate.getDate();
-                                            const month = orderDate.getMonth() + 1;
-                                            const year = orderDate.getFullYear();
-                                            const formattedDate = `${day}-${month}-${year}`;
+                                            const formattedDate = orderDate.toLocaleString('vi-VN', {
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                second: '2-digit'
+                                            });
                                             const price = item.total_amount;
                                             const formattedPrice = (price * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
                                             return (
@@ -216,13 +220,9 @@ function Order() {
                                                     <td>
                                                         {(currentPage - 1) * currentLimit + index + 1}
                                                     </td>
-                                                    <td style={{ width: '250px' }}>{item.OrderItems[0].ProductAttribute.Product.product_name}
+                                                    <td style={{ width: '250px' }}>{item.OrderItems[0].ProductAttribute.Product.product_name} (slg: {item.OrderItems[0].quantily})
                                                     </td>
-                                                    <td>
-                                                        {item.User.username}
-                                                    </td>
-                                                    <td>
-                                                        {item.OrderItems[0].quantily}
+                                                    <td>{item.OrderItems[0].Order && item.OrderItems[0].Order.customerName ? item.OrderItems[0].Order.customerName : item.User.username}
                                                     </td>
                                                     <td>
                                                         {formattedPrice}
