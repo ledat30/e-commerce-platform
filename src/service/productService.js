@@ -686,6 +686,9 @@ const buyNowProduct = async (product_attribute_value_Id, userId, storeId, body) 
         districtId: body.district,
         wardId: body.ward,
         storeId: storeId,
+        phonenumber: body.phonenumber,
+        customerName: body.customerName,
+        address_detail: body.address_detail,
       });
     } else {
       newOrder = order;
@@ -1326,7 +1329,7 @@ const cancelOrder = async (id) => {
         DT: null,
       };
     }
-    if (order.status !== 'pending') {
+    if (order.status !== 'Processing') {
       return {
         EM: "Đơn hàng đã được xác nhận mời bạn tải lại trang để cập nhập dữ liệu mới nhất",
         EC: -2,
