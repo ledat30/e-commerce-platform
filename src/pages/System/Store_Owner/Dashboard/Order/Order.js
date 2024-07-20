@@ -28,7 +28,7 @@ function Order() {
     }, [expandedDate, detailedCurrentPage]);
 
     const fetchAllOrders = async () => {
-        let response = await storeDashboardOrder(currentPage, currentLimit, user.account.storeId);
+        let response = await storeDashboardOrder(currentPage, 13, user.account.storeId);
 
         if (response && response.EC === 0) {
             setListOrders(response.DT);
@@ -51,9 +51,15 @@ function Order() {
         }
 
         const filteredData = listOrders.orders.filter((item) => {
-            const usernameMatch = item.User.username.toLowerCase().includes(searchInput.toLowerCase());
+            const searchInputLower = searchInput.toLowerCase();
+
+            const usernameMatch = item.User && item.User.username && item.User.username.toLowerCase().includes(searchInputLower);
+            const customerNameMatch = item.OrderItems[0].Order && item.OrderItems[0].Order.customerName && item.OrderItems[0].Order.customerName.toLowerCase().includes(searchInputLower);
             const dateMatch = searchDate ? new Date(item.order_date).toLocaleDateString() === new Date(searchDate).toLocaleDateString() : true;
-            return usernameMatch && dateMatch;
+
+            const searchMatch = usernameMatch || customerNameMatch;
+
+            return searchMatch && dateMatch;
         });
 
         const grouped = filteredData.reduce((acc, order) => {

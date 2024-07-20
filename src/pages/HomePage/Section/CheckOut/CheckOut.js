@@ -37,11 +37,17 @@ function CheckOut() {
         province: "",
         district: "",
         ward: "",
+        customerName: "",
+        phonenumber: "",
+        address_detail: "",
     };
     const validInputsDefault = {
         province: true,
         district: true,
         ward: true,
+        customerName: true,
+        phonenumber: true,
+        address_detail: true,
     };
     const [userData, setUserData] = useState(defaultUserData);
     const [validInputs, setValidInputs] = useState(validInputsDefault);
@@ -72,9 +78,15 @@ function CheckOut() {
         }
     };
 
+    const handleOnChangeInputDetail = (value, name) => {
+        let _userData = _.cloneDeep(userData);
+        _userData[name] = value;
+        setUserData(_userData);
+    }
+
     const checkValidInput = () => {
         setValidInputs(validInputsDefault);
-        let arr = ["province", "district", "ward"];
+        let arr = ["province", "district", "ward", "phonenumber", "customerName", "address_detail"];
         let check = true;
         for (let i = 0; i < arr.length; i++) {
             if (!userData[arr[i]]) {
@@ -206,13 +218,13 @@ function CheckOut() {
     };
 
     const handleBuyNow = async () => {
+        if (isRelative && !checkValidInput()) {
+            return;
+        };
         if (activeIndex === null) {
             toast.info("Please select a payment method.");
             return;
         }
-        if (isRelative && !checkValidInput()) {
-            return;
-        };
 
         const matchedProductAttribute = product.ProductAttributes.find(attr => {
             const attrValues = [attr.AttributeValue1, attr.AttributeValue2];
@@ -236,7 +248,8 @@ function CheckOut() {
                 quantily, total,
                 price_item: product.price,
                 payment_methodID: listPayMents[activeIndex].id,
-                ward: ward, province: province, district: district
+                ward: ward, province: province, district: district,
+                phonenumber: userData.phonenumber, address_detail: userData.address_detail, customerName: userData.customerName,
             }
         );
 
@@ -305,6 +318,39 @@ function CheckOut() {
                                             {userData.province?.province_name || 'Chưa chọn'} , {userData.district?.district_name || 'Chưa chọn'} ,  {userData.ward?.ward_name || 'Chưa chọn'}</span>
                                     </div>
                                 </div>
+                                <div style={{ marginRight: '19px' }}>
+                                    <div style={{ display: 'flex' }}>
+                                        <span style={{ width: '100%', marginRight: '10px' }}>
+                                            <input type="text"
+                                                className={validInputs.phonenumber ? 'form-control mt-1' : 'form-control mt-1 is-invalid'}
+                                                placeholder="Số điện thoại"
+                                                name="phonenumber"
+                                                value={userData.phonenumber}
+                                                onChange={(e) =>
+                                                    handleOnChangeInputDetail(e.target.value, "phonenumber")
+                                                }
+                                            />
+                                        </span>
+                                        <input type="text"
+                                            className={validInputs.customerName ? 'form-control mt-1 ' : 'form-control mt-1 is-invalid'}
+                                            placeholder="Tên người nhận hàng"
+                                            name="customerName"
+                                            value={userData.customerName}
+                                            onChange={(e) =>
+                                                handleOnChangeInputDetail(e.target.value, "customerName")
+                                            }
+                                        />
+                                    </div>
+                                    <input type="text"
+                                        className={validInputs.address_detail ? 'form-control mt-2 mb-2' : 'form-control mt-2 mb-2 is-invalid'}
+                                        placeholder="Địa chỉ chi tiết"
+                                        name="address_detail"
+                                        value={userData.address_detail}
+                                        onChange={(e) =>
+                                            handleOnChangeInputDetail(e.target.value, "address_detail")
+                                        }
+                                    />
+                                </div>
                             </>
                         ) : (
                             <>
@@ -316,6 +362,17 @@ function CheckOut() {
                                 </div>
                                 <div className='address'>
                                     <span className='home'>Home</span> {user.account.wardName} , {user.account.districtName} , {user.account.provinceName}
+                                </div>
+                                <div style={{ marginRight: '19px' }}>
+                                    <input type="text"
+                                        className='form-control mb-2'
+                                        placeholder="Địa chỉ chi tiết"
+                                        name="address_detail"
+                                        value={userData.address_detail}
+                                        onChange={(e) =>
+                                            handleOnChangeInputDetail(e.target.value, "address_detail")
+                                        }
+                                    />
                                 </div>
                             </>
                         )}
