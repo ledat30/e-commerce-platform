@@ -1,11 +1,21 @@
 import db from "../models";
-const { Sequelize, where } = require("sequelize");
+const { Sequelize, Op } = require("sequelize");
+const moment = require('moment');
 
 const adminDashboardSummary = async () => {
     try {
-        const totalOrders = await db.Order.count({
+        const DaysAgo = moment().subtract(2, 'days').toDate();
+        const warningUsersCount = await db.User.count({
             where: {
-                status: 'confirmed'
+                isDelete: null,
+                groupId: 4,
+                id: {
+                    [Op.notIn]: db.sequelize.literal(`(
+                        SELECT DISTINCT userId 
+                        FROM Orders 
+                        WHERE createdAt >= '${DaysAgo.toISOString()}'
+                    )`)
+                }
             }
         });
 
@@ -50,21 +60,16 @@ const adminDashboardSummary = async () => {
             order: [[db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'ASC']]
         });
 
-        const monthlyStoreRevenue = await db.Order.findAll({
+        const monthlyRevenueAdmin = await db.Order.findAll({
             attributes: [
                 [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('Order.createdAt'), '%Y-%m'), 'month'],
-                'storeId',
                 [db.sequelize.fn('sum', db.sequelize.col('Order.total_amount')), 'totalRevenue'],
-                [db.sequelize.col('Store.name'), 'storeName'],
+                [db.sequelize.literal('sum(`Order`.`total_amount`) * 0.10'), 'adminRevenue']
             ],
             where: {
                 status: 'confirmed'
             },
             include: [{
-                model: db.Store,
-                attributes: []
-            },
-            {
                 model: db.Shipping_Unit_Order,
                 required: true,
                 include: [{
@@ -74,27 +79,23 @@ const adminDashboardSummary = async () => {
                         status: 'Delivered'
                     }
                 }]
-            }
-            ],
-            group: ['month', 'storeId', 'Store.name'],
-            order: [
-                [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('Order.createdAt'), '%Y-%m'), 'ASC'],
-                ['storeId', 'ASC']
-            ]
+            }],
+            group: [db.sequelize.fn('DATE_FORMAT', db.sequelize.col('Order.createdAt'), '%Y-%m')],
+            order: [[db.sequelize.fn('DATE_FORMAT', db.sequelize.col('createdAt'), '%Y-%m'), 'ASC']]
         });
 
         return {
             EM: "Get all success!",
             EC: 0,
             DT: {
-                totalOrders: totalOrders,
+                warningUsersCount: warningUsersCount,
                 totalProducts: totalProducts,
                 totalUsers: totalUsers,
                 totalRevenue: totalRevenue,
                 totalOrderFails: totalOrderFails,
                 totalOrderSuccess: totalOrderSuccess,
                 monthlyOrders: monthlyOrders,
-                monthlyStoreRevenue: monthlyStoreRevenue
+                monthlyRevenueAdmin: monthlyRevenueAdmin,
             },
         };
     } catch (error) {
@@ -107,80 +108,76 @@ const adminDashboardSummary = async () => {
     }
 }
 
-const adminDashboardOrder = async (page, limit) => {
+const findInactiveAccounts = async (page, limit) => {
     try {
         let offset = (page - 1) * limit;
-        const { count, rows } = await db.Order.findAndCountAll({
+        const DaysAgo = moment().subtract(2, 'days').toDate();
+
+        const { count, rows } = await db.User.findAndCountAll({
+            where: {
+                isDelete: null,
+                groupId: 4,
+                id: {
+                    [Op.notIn]: Sequelize.literal(`(
+                        SELECT DISTINCT \`userId\`
+                        FROM \`Orders\`
+                        WHERE \`createdAt\` >= '${DaysAgo.toISOString()}'
+                    )`),
+                },
+            },
+            attributes: [
+                'id',
+                'username',
+                'email',
+                'phonenumber',
+                [
+                    Sequelize.literal(`(
+                        SELECT MAX(\`createdAt\`)
+                        FROM \`Orders\`
+                        WHERE \`Orders\`.\`userId\` = \`User\`.\`id\`
+                    )`),
+                    'lastOrderDate'
+                ],
+            ],
             offset: offset,
             limit: limit,
-            where: {
-                status: 'confirmed'
-            },
-            attributes: ['id', 'total_amount', 'order_date'],
-            order: [['id', 'DESC']],
-            include: [
-                {
-                    model: db.User,
-                    attributes: ['username', 'id'],
-                },
-                {
-                    model: db.Store,
-                    attributes: ['id', 'name']
-                },
-                {
-                    model: db.OrderItem,
-                    attributes: ['id', 'quantily'],
-                    include: [
-                        {
-                            model: db.ProductAttribute,
-                            attributes: ['id'],
-                            include: [
-                                {
-                                    model: db.Product,
-                                    attributes: ['product_name', 'id']
-                                },
-                                {
-                                    model: db.AttributeValue,
-                                    as: 'AttributeValue1',
-                                    attributes: ['id', 'name'],
-                                    include: [
-                                        { model: db.Attribute, attributes: ['id', 'name'] }
-                                    ]
-                                },
-                                {
-                                    model: db.AttributeValue,
-                                    as: 'AttributeValue2',
-                                    attributes: ['id', 'name'],
-                                    include: [
-                                        { model: db.Attribute, attributes: ['id', 'name'] }
-                                    ]
-                                }
-                            ],
-                        }
-                    ]
-                }
-            ]
+            order: [[Sequelize.literal('lastOrderDate IS NULL, lastOrderDate'), 'ASC']],
         });
+
+        const users = rows.map(user => {
+            const lastOrderDate = user.getDataValue('lastOrderDate');
+            const inactiveDays = lastOrderDate
+                ? Math.floor((new Date() - new Date(lastOrderDate)) / (1000 * 60 * 60 * 24))
+                : null;
+            return {
+                ...user.toJSON(),
+                inactiveDays,
+            };
+        });
+
+        users.sort((a, b) => b.inactiveDays - a.inactiveDays);
+
         let totalPages = Math.ceil(count / limit);
         let data = {
             totalPages: totalPages,
             totalRow: count,
-            orders: rows,
-        }
+            users: users,
+        };
+
         return {
             EM: 'OK',
             EC: 0,
             DT: data,
-        }
+        };
     } catch (error) {
         console.log(error);
         return {
-            EM: "Somnething wrongs with services",
+            EM: "Something went wrong with services",
             EC: -1,
             DT: [],
         };
     }
-}
+};
 
 const adminDashboardProduct = async (page, limit) => {
     try {
@@ -304,7 +301,17 @@ const adminDashboardRevenueByStore = async (page, limit) => {
                         o.storeId = Store.id AND
                         o.status = 'confirmed' AND
                         suou.status = 'Delivered'
-                )`), 'totalAmount']
+                )`), 'totalAmount'],
+                [db.Sequelize.literal(`(
+                    SELECT SUM(o.total_amount) * 0.10
+                    FROM Orders AS o
+                    JOIN Shipping_Unit_Orders AS suo ON suo.orderId = o.id
+                    JOIN Shipping_Unit_Order_users AS suou ON suou.shipping_unit_orderId = suo.id
+                    WHERE
+                        o.storeId = Store.id AND
+                        o.status = 'confirmed' AND
+                        suou.status = 'Delivered'
+                )`), 'adminProfit']
             ],
             order: [['id', 'DESC']]
         });
@@ -333,7 +340,6 @@ const adminDashboardRevenueByStore = async (page, limit) => {
         };
     }
 };
-
 
 const adminDashboardRevenueStoreByDate = async (page, limit, storeId) => {
     try {
@@ -620,7 +626,7 @@ module.exports = {
     adminDashboardSummary,
     adminDashboardRevenueByStore,
     adminDashboardRevenueStoreDetailByDate,
-    adminDashboardOrder,
+    findInactiveAccounts,
     adminDashboardRevenueStoreByDate,
     adminDashboardProduct,
     adminDashboardUser,

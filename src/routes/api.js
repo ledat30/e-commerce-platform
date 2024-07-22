@@ -33,6 +33,7 @@ const initApiRouter = (app) => {
   router.get("/user/read", userController.readFunc);
   router.put("/user/update", userController.updateFunc);
   router.delete("/user/delete", userController.deleteFunc);
+  router.delete("/user/delete-account-inactive", userController.deleteAccount);
   router.get("/search-user", userController.searchUser);
   router.get("/account", userController.getUserAccount);
   router.get("/user-group-store", userController.groupStoreFunc);
@@ -155,7 +156,7 @@ const initApiRouter = (app) => {
 
   //dashboard admin
   router.get("/admin/dashboard-summary", dashboardController.adminDashboardSummary);
-  router.get("/admin/dashboard-order", dashboardController.adminDashboardOrder);
+  router.get("/admin/dashboard-order", dashboardController.findInactiveAccounts);
   router.get("/admin/dashboard-product", dashboardController.adminDashboardProduct);
   router.get("/admin/dashboard-user", dashboardController.adminDashboardUser);
   router.get("/admin/dashboard-revenue-by-store", dashboardController.adminDashboardRevenueByStore);

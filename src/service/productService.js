@@ -1387,7 +1387,7 @@ const readAllOrderByShipper = async (page, limit, userId) => {
           include: [
             {
               model: db.Order,
-              attributes: ['id', 'total_amount', 'order_date', 'payment_methodID', 'userId', 'storeId'],
+              attributes: ['id', 'total_amount', 'order_date', 'payment_methodID', 'userId', 'storeId', 'customerName', 'phonenumber', 'address_detail'],
               include: [
                 {
                   model: db.OrderItem,
@@ -1423,7 +1423,7 @@ const readAllOrderByShipper = async (page, limit, userId) => {
                 { model: db.Ward, attributes: ['ward_name'] },
                 {
                   model: db.User,
-                  attributes: ['username']
+                  attributes: ['username', 'phonenumber']
                 },
                 { model: db.PaymentMethod, attributes: [`method_name`] },
               ]
@@ -1519,7 +1519,7 @@ const orderSuccessByShipper = async (page, limit, userId) => {
           include: [
             {
               model: db.Order,
-              attributes: ['id', 'total_amount', 'order_date', 'payment_methodID', 'userId', 'storeId'],
+              attributes: ['id', 'total_amount', 'order_date', 'payment_methodID', 'userId', 'storeId', 'customerName', 'phonenumber', 'address_detail'],
               include: [
                 {
                   model: db.OrderItem,
@@ -1555,7 +1555,7 @@ const orderSuccessByShipper = async (page, limit, userId) => {
                 { model: db.Ward, attributes: ['ward_name'] },
                 {
                   model: db.User,
-                  attributes: ['username']
+                  attributes: ['username', 'phonenumber']
                 },
                 { model: db.PaymentMethod, attributes: [`method_name`] },
               ]
@@ -1713,7 +1713,7 @@ const shipperDashboardOrder = async (page, limit, userId) => {
           include: [
             {
               model: db.Order,
-              attributes: ['id', 'total_amount', 'order_date', 'payment_methodID'],
+              attributes: ['id', 'total_amount', 'order_date', 'payment_methodID', 'customerName', 'phonenumber', 'address_detail'],
               include: [
                 {
                   model: db.PaymentMethod,
@@ -1721,7 +1721,7 @@ const shipperDashboardOrder = async (page, limit, userId) => {
                 },
                 {
                   model: db.User,
-                  attributes: ['username']
+                  attributes: ['username', 'phonenumber']
                 },
                 {
                   model: db.OrderItem,
@@ -1858,11 +1858,11 @@ const shipperDashboardDetailRevenue = async (page, limit, userId, date) => {
           include: [
             {
               model: db.Order,
-              attributes: ['total_amount', 'id'],
+              attributes: ['total_amount', 'id', 'customerName', 'phonenumber', 'address_detail'],
               include: [
                 {
                   model: db.User,
-                  attributes: ['username', 'id']
+                  attributes: ['username', 'id', 'phonenumber']
                 },
                 {
                   model: db.OrderItem,

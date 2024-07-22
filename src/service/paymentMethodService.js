@@ -43,7 +43,9 @@ const createPayment = async (data) => {
 
 const getAllMethod = async () => {
   try {
-    let payment = await db.PaymentMethod.findAll();
+    let payment = await db.PaymentMethod.findAll({
+      where: { isDelete: null },
+    });
     if (payment) {
       return {
         EM: "Get all payment success!",

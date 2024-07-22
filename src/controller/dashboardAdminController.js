@@ -18,13 +18,13 @@ const adminDashboardSummary = async (req, res) => {
     }
 }
 
-const adminDashboardOrder = async (req, res) => {
+const findInactiveAccounts = async (req, res) => {
     try {
         if (req.query.page && req.query.limit) {
             let page = req.query.page;
             let limit = req.query.limit;
 
-            let data = await dashboardAdminService.adminDashboardOrder(+page, +limit);
+            let data = await dashboardAdminService.findInactiveAccounts(+page, +limit);
 
             return res.status(200).json({
                 EM: data.EM,
@@ -188,7 +188,7 @@ module.exports = {
     adminDashboardSummary,
     adminDashboardRevenueStoreDetailByDate,
     adminDashboardRevenueStoreByDate,
-    adminDashboardOrder,
+    findInactiveAccounts,
     adminDashboardProduct,
     adminDashboardUser,
     adminDashboardRevenueByStore,

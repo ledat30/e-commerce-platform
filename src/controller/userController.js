@@ -122,6 +122,24 @@ const deleteFunc = async (req, res) => {
   }
 };
 
+const deleteAccount = async (req, res) => {
+  try {
+    let data = await userService.deleteAccount(req.query.id);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error",
+      EC: "-1",
+      DT: "",
+    });
+  }
+};
+
 const searchUser = async (req, res) => {
   try {
     const keyword = req.query.q;
@@ -253,4 +271,5 @@ module.exports = {
   groupShippingUnitFunc,
   editProfile,
   getGroupShipper,
+  deleteAccount,
 };

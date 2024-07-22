@@ -238,6 +238,7 @@ const readAllOrderByShippingUnit = async (page, limit, shipingUnitId) => {
       include: [
         {
           model: db.Order,
+          attributes: ['phonenumber', 'customerName', 'address_detail'],
           include: [
             {
               model: db.OrderItem,
@@ -273,7 +274,7 @@ const readAllOrderByShippingUnit = async (page, limit, shipingUnitId) => {
             { model: db.Ward, attributes: ['ward_name'] },
             {
               model: db.User,
-              attributes: ['username'],
+              attributes: ['username', 'phonenumber'],
             },
             { model: db.PaymentMethod, attributes: [`method_name`] },
           ]
@@ -440,7 +441,7 @@ const shippingUnitDashboardOrder = async (page, limit, shipingUnitId) => {
       include: [
         {
           model: db.Order,
-          attributes: ['id', 'total_amount', 'order_date', 'payment_methodID'],
+          attributes: ['id', 'total_amount', 'order_date', 'payment_methodID', 'customerName', 'phonenumber', 'address_detail'],
           include: [
             {
               model: db.PaymentMethod,
@@ -448,7 +449,7 @@ const shippingUnitDashboardOrder = async (page, limit, shipingUnitId) => {
             },
             {
               model: db.User,
-              attributes: ['username']
+              attributes: ['username', 'phonenumber']
             },
             {
               model: db.OrderItem,
