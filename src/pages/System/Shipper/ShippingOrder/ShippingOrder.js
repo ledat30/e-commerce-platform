@@ -12,6 +12,7 @@ function ShippingOrder() {
     const [currentLimit] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
+    console.log(listOrders);
     const [searchInput, setSearchInput] = useState("");
     const [viewStatus, setViewStatus] = useState(null);
     const [activeStatus, setActiveStatus] = useState('all');
@@ -100,9 +101,9 @@ function ShippingOrder() {
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>User</th>
                                     <th>Product</th>
                                     <th>Color & Size</th>
-                                    <th>User</th>
                                     <th>Address</th>
                                     <th>Quantity</th>
                                     <th>Total</th>
@@ -120,12 +121,12 @@ function ShippingOrder() {
                                                     <td>
                                                         {(currentPage - 1) * currentLimit + index + 1}
                                                     </td>
+                                                    <td>
+                                                        {item.Shipping_Unit_Order.Order && item.Shipping_Unit_Order.Order.customerName ? item.Shipping_Unit_Order.Order.customerName : item.Shipping_Unit_Order.Order.User.username}
+                                                    </td>
                                                     <td>{item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.Product.product_name}
                                                     </td>
                                                     <td>{item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.AttributeValue1.name} & {item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.AttributeValue2.name}
-                                                    </td>
-                                                    <td>
-                                                        {item.Shipping_Unit_Order.Order.User.username}
                                                     </td>
                                                     <td>
                                                         {item.Shipping_Unit_Order.Order.Ward.ward_name} ,   {item.Shipping_Unit_Order.Order.District.district_name} ,  {item.Shipping_Unit_Order.Order.Province.province_name} ,

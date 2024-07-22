@@ -4,6 +4,47 @@
         font-size  : 18px;
     }
 
+    .summary_item {
+        background-color: white;
+        margin          : 5px 0 5px 1px;
+        width           : 220px;
+        height          : 73px;
+        display         : flex;
+        justify-content : space-around;
+        border-radius   : 5px;
+
+        .summary_left {
+            padding-top     : 10px;
+            background-color: #7a9db1;
+            color           : #fff;
+
+            .number {
+                font-weight: 500;
+                font-size  : 20px;
+            }
+
+            .text {
+                font-size: 13px;
+            }
+        }
+
+        .summary_right {
+            background-color: #253d46;
+            width           : 50px;
+            height          : 50px;
+            margin          : 10px 0;
+            text-align      : center;
+            border-radius   : 3px;
+            padding-top     : 11px;
+            color           : white;
+        }
+    }
+
+    .summary_item.active {
+        background-color: #7a9db1;
+        color           : white;
+    }
+
     .box {
         float        : right;
         margin-right : 5px;

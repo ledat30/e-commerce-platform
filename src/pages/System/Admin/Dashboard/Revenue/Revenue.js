@@ -21,6 +21,8 @@ function Revenue() {
     const [detailTotalPages, setDetailTotalPages] = useState(0);
     const [currentDate, setCurrentDate] = useState(null);
     const [orderDetails, setOrderDetails] = useState([]);
+    const [currentMonthAdminProfit, setCurrentMonthAdminProfit] = useState(0);
+    const [totalAdminProfitAllTimes, setTotalAdminProfitAllTime] = useState(0);
 
     useEffect(() => {
         fetchAllOrders();
@@ -36,7 +38,7 @@ function Revenue() {
         if (isDetailModalOpen) {
             fetchOrderDetails(currentStoreId, currentDate);
         }
-    }, [detailPage, currentStoreId, currentDate]);
+    }, [currentStoreId, currentDate]);
 
     const fetchAllOrders = async () => {
         let response = await adminDashboardRevenueByStore(currentPage, currentLimit);
@@ -44,6 +46,28 @@ function Revenue() {
         if (response && response.EC === 0) {
             setListOrdersStore(response.DT);
             setTotalPages(response.DT.totalPages);
+
+            const currentMonth = new Date().getMonth() + 1;
+            const currentYear = new Date().getFullYear();
+
+            let totalAdminProfit = 0;
+            let totalAdminProfitAllTime = 0;
+
+            response.DT.orders.forEach(store => {
+                store.Orders.forEach(order => {
+                    const orderDate = new Date(order.order_date);
+                    const orderMonth = orderDate.getMonth() + 1;
+                    const orderYear = orderDate.getFullYear();
+
+                    if (orderMonth === currentMonth && orderYear === currentYear) {
+                        totalAdminProfit += parseFloat(order.total_amount) * 0.1;
+                    }
+
+                    totalAdminProfitAllTime += parseFloat(order.total_amount) * 0.1;
+                });
+            });
+            setCurrentMonthAdminProfit(totalAdminProfit);
+            setTotalAdminProfitAllTime(totalAdminProfitAllTime);
         }
     }
 
@@ -65,13 +89,13 @@ function Revenue() {
         }
     }
 
-    const handleDetailClick = async (storeId) => {
-        setCurrentStoreId(storeId);
-        setModalPage(1);
-        setIsModalOpen(true);
-        setSearchInputMain("");
-        await fetchOrdersByDate(storeId);
-    }
+    // const handleDetailClick = async (storeId) => {
+    //     setCurrentStoreId(storeId);
+    //     setModalPage(1);
+    //     setIsModalOpen(true);
+    //     setSearchInputMain("");
+    //     await fetchOrdersByDate(storeId);
+    // }
 
     const handleDateDetailClick = async (date) => {
         setCurrentDate(date);
@@ -107,6 +131,12 @@ function Revenue() {
     const handlePageClick = async (event) => {
         setCurrentPage(+event.selected + 1);
     };
+
+    const formattedPriceProfit = (currentMonthAdminProfit * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+    const formattedAllPriceProfit = (totalAdminProfitAllTimes * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+    const currentMonth = new Date().getMonth() + 1;
 
     return (
         <div className="table-category table">
@@ -292,16 +322,43 @@ function Revenue() {
                 <>
                     <div className="header-table-revenue header_table">
                         <div className='table_manage'>Bảng quản lý doanh thu</div>
-                        <div className="box search4">
-                            <form className="sbox">
-                                <input
-                                    className="stext"
-                                    type=""
-                                    placeholder="Tìm kiếm ..."
-                                    value={searchInputMain}
-                                    onChange={(e) => setSearchInputMain(e.target.value)}
-                                />
-                            </form>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex' }}>
+                                <div style={{ marginLeft: "-10px", marginRight: '20px' }}>
+                                    <div className='summary_item active'>
+                                        <div className='summary_left'>
+                                            <div className='number'>{formattedAllPriceProfit}</div>
+                                            <div className='text'>Tổng doanh thu</div>
+                                        </div>
+                                        <div className='summary_right'>
+                                            <i className="fa fa-money" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className='summary_item active'>
+                                    <div className='summary_left'>
+                                        <div className='number'>{formattedPriceProfit}</div>
+                                        <div className='text'>Doanh thu tháng {currentMonth}</div>
+                                    </div>
+                                    <div className='summary_right'>
+                                        <i className="fa fa-money" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{ width: '309px' }}></div>
+                            <div style={{ marginTop: '18px' }}>
+                                <div className="box search4">
+                                    <form className="sbox">
+                                        <input
+                                            className="stext"
+                                            type="Tìm kiếm"
+                                            placeholder="Tìm kiếm ..."
+                                            value={searchInputMain}
+                                            onChange={(e) => setSearchInputMain(e.target.value)}
+                                        />
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <table style={{ width: '1084px' }}>
@@ -311,7 +368,7 @@ function Revenue() {
                                 <th>Store</th>
                                 <th>Total order</th>
                                 <th>Total amount</th>
-                                <th>Action</th>
+                                <th>Profit(10%)</th>
                             </tr>
                         </thead>
                         <tbody style={{ borderBottom: 'aliceblue' }}>
@@ -319,20 +376,23 @@ function Revenue() {
                                 <>
                                     {filteredData.map((item, index) => {
                                         const price = item.totalAmount;
+                                        const profit = item.adminProfit;
                                         const formattedPrice = (price * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                                        const formattedProfit = (profit * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
                                         return (
                                             <tr key={index}>
                                                 <td>{(currentPage - 1) * currentLimit + index + 1}</td>
                                                 <td>{item.name}</td>
                                                 <td>{item.confirmedOrdersCount}</td>
                                                 <td>{formattedPrice || 0}</td>
-                                                <td>
+                                                <td>{formattedProfit || 0}</td>
+                                                {/* <td>
                                                     <button
                                                         className="btn btn-success "
                                                         onClick={() => handleDetailClick(item.id)}
                                                     >Detail
                                                     </button>
-                                                </td>
+                                                </td> */}
                                             </tr>
                                         )
                                     })}

@@ -6,7 +6,7 @@ import { shipperDashboardOrder } from '../../../../../services/productService';
 
 function Order() {
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(6);
+    const [currentLimit] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
     const { user } = useContext(UserContext);
@@ -55,8 +55,7 @@ function Order() {
                         <th>No</th>
                         <th>User</th>
                         <th>Product</th>
-                        <th>Size & Color</th>
-                        <th>Quantity</th>
+                        <th>PhoneNumber</th>
                         <th>Order date</th>
                         <th>Total</th>
                         <th>Payment method</th>
@@ -78,10 +77,9 @@ function Order() {
                                         <td>
                                             {(currentPage - 1) * currentLimit + index + 1}
                                         </td>
-                                        <td>{item.Shipping_Unit_Order.Order.User.username}</td>
-                                        <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.Product.product_name}</td>
-                                        <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue2.name}</td>
-                                        <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.quantily}</td>
+                                        <td>{item.Shipping_Unit_Order.Order && item.Shipping_Unit_Order.Order.customerName ? item.Shipping_Unit_Order.Order.customerName : item.Shipping_Unit_Order.Order.User.username}</td>
+                                        <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.Product.product_name} ({item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue2.name} , slg : {item.Shipping_Unit_Order.Order.OrderItems[0]?.quantily})</td>
+                                        <td></td>
                                         <td>{formattedDate}</td>
                                         <td>{formattedPrice}</td>
                                         <td>{item.Shipping_Unit_Order.Order.PaymentMethod.method_name}</td>

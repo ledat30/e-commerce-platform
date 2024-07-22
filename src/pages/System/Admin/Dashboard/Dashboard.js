@@ -4,7 +4,7 @@ import { adminDashboardSummary } from '../../../../services/storeService';
 import Order from './Order/Order';
 import Product from './Product/Product';
 import User from './User/User';
-import { Barchart, PieChart } from './Statistical/Statiscal';
+import { PieChart } from './Statistical/Statiscal';
 
 function DashboardAdmin() {
   const [dataSummary, setDataSummary] = useState([]);
@@ -39,8 +39,8 @@ function DashboardAdmin() {
           onClick={() => handleItemClick('orders')}
         >
           <div className='summary_left'>
-            <div className='number'>{formatNumber(dataSummary.totalOrders)}</div>
-            <div className='text'>Đơn hàng</div>
+            <div className='number'>{formatNumber(dataSummary.warningUsersCount)}</div>
+            <div className='text'>Cảnh báo tài khoản</div>
           </div>
           <div className='summary_right'>
             <i className="fa fa-shopping-cart" aria-hidden="true"></i>
@@ -87,10 +87,7 @@ function DashboardAdmin() {
         {activeItem === 'products' && <Product />}
         {activeItem === 'users' && <User />}
         {activeItem === 'statistical' && (
-          <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-            <Barchart dataSummary={dataSummary} />
-            <PieChart dataSummary={dataSummary} />
-          </div>
+          <PieChart dataSummary={dataSummary} />
         )}
       </div>
     </div>

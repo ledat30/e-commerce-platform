@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import ReactPaginate from "react-paginate";
-import { useNavigate } from "react-router-dom";
 
 function TopRevenue({ dataStatistical }) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -8,7 +7,6 @@ function TopRevenue({ dataStatistical }) {
     const [totalPages, setTotalPages] = useState(1);
     const [topRevenue, setTopRevenue] = useState([]);
     const [searchInput, setSearchInput] = useState("");
-    let navigate = useNavigate();
 
     useEffect(() => {
         if (dataStatistical && dataStatistical.topRevenueStores) {
@@ -52,23 +50,10 @@ function TopRevenue({ dataStatistical }) {
         setCurrentPage(+event.selected + 1);
     };
 
-    const handleToDetailRevenue = () => {
-        navigate(`/admin/revenue`)
-    }
-
     return (
         <div className="table-category table">
             <div className="header-table-category header_table">
                 <div className='table_manage'>Bảng quản lý doanh thu cửa hàng</div>
-                <span style={{ marginTop: '10px', marginLeft: '-210px' }}>
-                    <button
-                        title="Revenue details"
-                        className="btn btn-success refresh"
-                        onClick={() => handleToDetailRevenue()}
-                    >
-                        <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Revenue details
-                    </button>
-                </span>
                 <div className="box search">
                     <form className="sbox">
                         <input

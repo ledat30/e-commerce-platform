@@ -6,7 +6,7 @@ import { shippingUnitDashboardOrder } from '../../../../../services/shippingUnit
 
 function Order() {
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(6);
+    const [currentLimit] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
     const { user } = useContext(UserContext);
@@ -55,8 +55,7 @@ function Order() {
                         <th>No</th>
                         <th>User</th>
                         <th>Product</th>
-                        <th>Size & Color</th>
-                        <th>Quantity</th>
+                        <th>PhoneNumber</th>
                         <th>Order date</th>
                         <th>Total</th>
                         <th>Payment method</th>
@@ -78,10 +77,9 @@ function Order() {
                                         <td>
                                             {(currentPage - 1) * currentLimit + index + 1}
                                         </td>
-                                        <td>{item.Order.User.username}</td>
-                                        <td>{item.Order.OrderItems[0]?.ProductAttribute.Product.product_name}</td>
-                                        <td>{item.Order.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.Order.OrderItems[0]?.ProductAttribute.AttributeValue2.name}</td>
-                                        <td>{item.Order.OrderItems[0]?.quantily}</td>
+                                        <td>{item.Order && item.Order.customerName ? item.Order.customerName : item.Order.User.username}</td>
+                                        <td>{item.Order.OrderItems[0]?.ProductAttribute.Product.product_name} ({item.Order.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.Order.OrderItems[0]?.ProductAttribute.AttributeValue2.name} , slg: {item.Order.OrderItems[0]?.quantily})</td>
+                                        <td>{item.Order && item.Order.phonenumber ? item.Order.phonenumber : item.Order.User.phonenumber}</td>
                                         <td>{formattedDate}</td>
                                         <td>{formattedPrice}</td>
                                         <td>{item.Order.PaymentMethod.method_name}</td>

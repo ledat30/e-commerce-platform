@@ -34,9 +34,11 @@ function TopSellerProduct({ dataStatistical }) {
 
         const aggregatedProducts = Object.values(productMap);
 
-        const filteredData = aggregatedProducts.filter((item) =>
-            item.ProductAttribute.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
-        );
+        const filteredData = aggregatedProducts
+            .filter((item) =>
+                item.ProductAttribute.Product.product_name.toLowerCase().includes(searchInput.toLowerCase())
+            )
+            .sort((a, b) => b.quantity_sold - a.quantity_sold);
 
         setFilteredProducts(filteredData);
         setTotalPages(Math.ceil(filteredData.length / currentLimit));
@@ -88,6 +90,7 @@ function TopSellerProduct({ dataStatistical }) {
     const handlePageClick = async (event) => {
         setCurrentPage(+event.selected + 1);
     };
+
     return (
         <div className="table-category table">
             <div className="header-table-category header_table">
@@ -160,7 +163,7 @@ function TopSellerProduct({ dataStatistical }) {
                     </div>
                 )
             }
-        </div >
+        </div>
     );
 }
 

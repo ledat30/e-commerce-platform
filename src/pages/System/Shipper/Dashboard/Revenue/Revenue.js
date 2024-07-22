@@ -89,7 +89,7 @@ function Revenue() {
                                                 <td>
                                                     {(currentPage - 1) * currentLimit + index + 1}
                                                 </td>
-                                                <td>{item.Shipping_Unit_Order.Order.User.username}</td>
+                                                <td>{item.Shipping_Unit_Order.Order && item.Shipping_Unit_Order.Order.customerName ? item.Shipping_Unit_Order.Order.customerName : item.Shipping_Unit_Order.Order.User.username}</td>
                                                 <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.Product.product_name}</td>
                                                 <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue2.name}</td>
                                                 <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.quantily}</td>

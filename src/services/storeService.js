@@ -67,7 +67,7 @@ const adminDashboardSummary = () => {
   return axios.get(`/api/admin/dashboard-summary`);
 }
 
-const adminDashboardOrder = (page, limit) => {
+const findInactiveAccounts = (page, limit) => {
   return axios.get(`/api/admin/dashboard-order?page=${page}&limit=${limit}`);
 }
 
@@ -102,7 +102,7 @@ const storeStatistical = (storeId) => {
 export {
   adminDashboardSummary,
   adminStatistical,
-  adminDashboardOrder,
+  findInactiveAccounts,
   adminDashboardRevenueStoreByDate,
   adminDashboardRevenueStoreDetailByDate,
   adminDashboardRevenueByStore,

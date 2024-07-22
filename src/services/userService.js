@@ -38,6 +38,10 @@ const deleteUser = (user) => {
   });
 };
 
+const deleteAccountInactive = (id) => {
+  return axios.delete(`/api/user/delete-account-inactive?id=${id}`);
+};
+
 const searchUsers = (key) => {
   return axios.get(`/api/search-user?q=${key}`);
 };
@@ -85,4 +89,5 @@ export {
   groupShippingUnitFunc,
   editProfile,
   getGroupShipper,
+  deleteAccountInactive,
 };

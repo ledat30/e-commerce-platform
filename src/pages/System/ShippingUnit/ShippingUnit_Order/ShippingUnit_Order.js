@@ -194,11 +194,10 @@ function ShippingUnitOrder() {
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Product</th>
-                                    <th>Color&Size</th>
                                     <th>User</th>
-                                    <th style={{ width: '290px' }}>Address</th>
-                                    <th>Quantity</th>
+                                    <th>Product</th>
+                                    <th style={{ width: '280px' }}>Address</th>
+                                    <th>PhoneNumber</th>
                                     <th>Total</th>
                                     <th>Date</th>
                                 </tr>
@@ -219,19 +218,13 @@ function ShippingUnitOrder() {
                                                     <td>
                                                         {(currentPage - 1) * currentLimit + index + 1}
                                                     </td>
-                                                    <td>{item.Order.OrderItems[0].ProductAttribute.Product.product_name}
-                                                    </td>
-                                                    <td>{item.Order.OrderItems[0].ProductAttribute.AttributeValue1.name} , {item.Order.OrderItems[0].ProductAttribute.AttributeValue2.name}
-                                                    </td>
-                                                    <td>
-                                                        {item.Order.User.username}
+                                                    <td>{item.Order && item.Order.customerName ? item.Order.customerName : item.Order.User.username}</td>
+                                                    <td>{item.Order.OrderItems[0].ProductAttribute.Product.product_name} ({item.Order.OrderItems[0].ProductAttribute.AttributeValue1.name} , {item.Order.OrderItems[0].ProductAttribute.AttributeValue2.name} , slg: {item.Order.OrderItems[0].quantily})
                                                     </td>
                                                     <td>
                                                         {item.Order.Ward.ward_name} , {item.Order.District.district_name} , {item.Order.Province.province_name}
                                                     </td>
-                                                    <td>
-                                                        {item.Order.OrderItems[0].quantily}
-                                                    </td>
+                                                    <td>{item.Order && item.Order.phonenumber ? item.Order.phonenumber : item.Order.User.phonenumber}</td>
                                                     <td>
                                                         {formattedPrice}
                                                     </td>

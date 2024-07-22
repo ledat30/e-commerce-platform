@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Pie } from 'react-chartjs-2';
 import { Bar } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import Select from 'react-select';
@@ -7,133 +6,78 @@ import { useNavigate } from "react-router-dom";
 
 Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
-const Barchart = ({ dataSummary }) => {
-    const [listOrdersFails, setListOrdersFails] = useState([]);
-    const [listOrdersSusccess, setListOrderSuccess] = useState([]);
-
-    useEffect(() => {
-        if (dataSummary) {
-            setListOrdersFails(dataSummary.totalOrderFails || 0);
-            setListOrderSuccess(dataSummary.totalOrderSuccess || 0);
-        }
-    }, [dataSummary]);
-
-    const data = {
-        labels: ['Success', 'Fail'],
-        datasets: [
-            {
-                label: '# of Orders',
-                data: [listOrdersSusccess, listOrdersFails],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 99, 132, 1)',
-                ],
-                borderWidth: 1,
-            },
-        ],
-    };
-
-    const options1 = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            tooltip: {
-                callbacks: {
-                    label: function (tooltipItem) {
-                        return tooltipItem.label + ': ' + tooltipItem.raw + ' orders';
-                    },
-                },
-            },
-        },
-    };
-
-    return (
-        <div style={{ width: '290px', height: '405px', paddingTop: '20px' }}>
-            <Pie data={data} options={options1} width={270} height={400} />
-            <div style={{ fontSize: '15px', paddingLeft: '22px', paddingTop: '15px' }}>Biểu đồ tròn quản lý đơn thành công hoặc thất bại </div>
-        </div>
-    );
-};
-
-
 const PieChart = ({ dataSummary }) => {
     const [listOrderMonth, setListOrderMonth] = useState([]);
     const [monthlyTotals, setMonthlyTotals] = useState([]);
-    const [stores, setStores] = useState([]);
-    const [selectedStore, setSelectedStore] = useState('');
     const [selectedMonth, setSelectedMonth] = useState(null);
+    const [selectedYear, setSelectedYear] = useState(null);
     const [months, setMonths] = useState([]);
+    const [years, setYears] = useState([]);
     let navigate = useNavigate();
 
     useEffect(() => {
-        if (dataSummary && Array.isArray(dataSummary.monthlyStoreRevenue)) {
-            const storeMap = new Map();
-            dataSummary.monthlyStoreRevenue.forEach(order => {
-                if (!storeMap.has(order.storeId)) {
-                    storeMap.set(order.storeId, { value: order.storeId, label: order.storeName });
-                }
-            });
+        if (dataSummary && Array.isArray(dataSummary.monthlyRevenueAdmin)) {
+            const uniqueYears = Array.from(new Set(dataSummary.monthlyRevenueAdmin.map(item => item.month.split('-')[0])));
 
-            const uniqueStores = Array.from(storeMap.values());
-            setStores([{ value: '', label: 'All Stores' }, ...uniqueStores]);
+            const yearOptions = uniqueYears.map(year => ({ value: year, label: year }));
 
-            const uniqueMonths = [...new Set(dataSummary.monthlyStoreRevenue.map(order => order.month))].map(month => ({
-                value: month,
-                label: month
-            }));
-            setMonths(uniqueMonths);
+            setYears(yearOptions);
+            setSelectedYear(yearOptions[0]);
         } else {
-            console.warn('dataSummary is not correctly defined');
+            console.warn('dataSummary or dataSummary.monthlyRevenueAdmin is not correctly defined');
         }
     }, [dataSummary]);
 
     useEffect(() => {
-        if (dataSummary && Array.isArray(dataSummary.monthlyStoreRevenue)) {
-            let filteredOrders = dataSummary.monthlyStoreRevenue;
+        if (selectedYear && dataSummary && Array.isArray(dataSummary.monthlyRevenueAdmin)) {
+            const selectedYearValue = selectedYear.value;
 
-            if (selectedStore && selectedStore.value) {
-                filteredOrders = filteredOrders.filter(order => order.storeId === selectedStore.value);
-            }
+            const monthsOfSelectedYear = Array.from({ length: 12 }, (v, i) => {
+                const month = (i + 1).toString().padStart(2, '0');
+                return { value: `${selectedYearValue}-${month}`, label: `tháng ${i + 1}` };
+            });
 
-            if (selectedMonth && selectedMonth.value) {
-                filteredOrders = filteredOrders.filter(order => order.month === selectedMonth.value);
-            }
-
-            const orderSummaryByMonth = filteredOrders.reduce((acc, order) => {
-                const monthIndex = acc.findIndex(item => item.month === order.month);
-                if (monthIndex > -1) {
-                    acc[monthIndex].totalRevenue += order.totalRevenue;
-                } else {
-                    acc.push({ month: order.month, totalRevenue: order.totalRevenue });
-                }
+            const revenueByMonth = dataSummary.monthlyRevenueAdmin.reduce((acc, curr) => {
+                acc[curr.month] = curr.adminRevenue;
                 return acc;
-            }, []);
+            }, {});
 
-            const months = orderSummaryByMonth.map(order => order.month);
-            const totals = orderSummaryByMonth.map(order => order.totalRevenue);
-            setListOrderMonth(months);
+            const totals = monthsOfSelectedYear.map(month => revenueByMonth[month.value] || 0);
+
+            setListOrderMonth(monthsOfSelectedYear.map(month => month.value));
             setMonthlyTotals(totals);
-        } else {
-            console.warn('dataSummary is not correctly defined');
+            setMonths(monthsOfSelectedYear);
         }
-    }, [dataSummary, selectedStore, selectedMonth]);
+    }, [selectedYear, dataSummary]);
 
-    const data1 = {
-        labels: listOrderMonth,
-        datasets: [
-            {
-                label: 'Total Orders per Month',
-                data: monthlyTotals,
-                backgroundColor: 'rgba(75,192,192,0.6)',
-            },
-        ],
+    const filteredData = () => {
+        if (selectedMonth) {
+            const index = listOrderMonth.indexOf(selectedMonth.value);
+            return {
+                labels: [selectedMonth.label],
+                datasets: [
+                    {
+                        label: 'Total Revenue per Month',
+                        data: [monthlyTotals[index]],
+                        backgroundColor: 'rgba(75,192,192,0.6)',
+                    },
+                ],
+            };
+        } else {
+            return {
+                labels: listOrderMonth.map(month => {
+                    const [, monthNumber] = month.split('-');
+                    return `tháng ${parseInt(monthNumber)}`;
+                }),
+                datasets: [
+                    {
+                        label: 'Total Revenue per Month',
+                        data: monthlyTotals,
+                        backgroundColor: 'rgba(75,192,192,0.6)',
+                    },
+                ],
+            };
+        }
     };
 
     const options = {
@@ -145,28 +89,19 @@ const PieChart = ({ dataSummary }) => {
     };
 
     const handleToDetailRevenue = () => {
-        navigate(`/admin/revenue`)
-    }
+        navigate(`/admin/revenue`);
+    };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ paddingTop: '20px', display: 'flex' }}>
                 <button
                     className="btn btn-success refresh"
-                    onClick={() => handleToDetailRevenue()}
+                    onClick={handleToDetailRevenue}
                 >
-                    <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Detail revenue
+                    <i className="fa fa-pencil-square-o" aria-hidden="true"></i> Detail
                 </button>
-                <span style={{ marginLeft: '10px' }}>
-                    <Select
-                        options={stores}
-                        value={selectedStore}
-                        onChange={setSelectedStore}
-                        isClearable={true}
-                        placeholder="Select a store"
-                    />
-                </span>
-                <span style={{ marginLeft: '10px' }}>
+                <div style={{ marginLeft: '10px', width: '200px' }}>
                     <Select
                         options={months}
                         value={selectedMonth}
@@ -174,19 +109,25 @@ const PieChart = ({ dataSummary }) => {
                         isClearable={true}
                         placeholder="Select month"
                     />
-                </span>
-            </div>
-            <div style={{ width: '650px', height: '390px', paddingTop: '20px' }}>
-                <div style={{ width: '600px', height: '325px' }}>
-                    <Bar data={data1} options={options} />
                 </div>
-
+                <div style={{ marginLeft: '10px', width: '200px' }}>
+                    <Select
+                        options={years}
+                        value={selectedYear}
+                        onChange={setSelectedYear}
+                        isClearable={false}
+                        placeholder="Select year"
+                    />
+                </div>
+            </div>
+            <div style={{ width: '720px', height: '390px', paddingTop: '20px' }}>
+                <Bar data={filteredData()} options={options} width={700} height={410} />
                 <div style={{ fontSize: '15px', paddingLeft: '22px', paddingTop: '15px' }}>
-                    Biểu đồ cột tần suất đơn theo tháng
+                    Biểu đồ cột thống kê doanh thu
                 </div>
             </div>
         </div>
-    )
+    );
 };
 
-export { Barchart, PieChart };
+export { PieChart };

@@ -116,11 +116,10 @@ function OrderNeedsDelivery() {
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Product</th>
-                                    <th>Color & Size</th>
                                     <th>User</th>
+                                    <th>PhoneNumber</th>
+                                    <th>Product</th>
                                     <th>Address</th>
-                                    <th>Quantity</th>
                                     <th>Total</th>
                                     <th>Payment</th>
                                     <th>Status</th>
@@ -137,18 +136,16 @@ function OrderNeedsDelivery() {
                                                     <td>
                                                         {(currentPage - 1) * currentLimit + index + 1}
                                                     </td>
-                                                    <td>{item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.Product.product_name}
-                                                    </td>
-                                                    <td>{item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.AttributeValue1.name} & {item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.AttributeValue2.name}
+                                                    <td>
+                                                        {item.Shipping_Unit_Order.Order && item.Shipping_Unit_Order.Order.customerName ? item.Shipping_Unit_Order.Order.customerName : item.Shipping_Unit_Order.Order.User.username}
                                                     </td>
                                                     <td>
-                                                        {item.Shipping_Unit_Order.Order.User.username}
+                                                        {item.Shipping_Unit_Order.Order && item.Shipping_Unit_Order.Order.phonenumber ? item.Shipping_Unit_Order.Order.phonenumber : item.Shipping_Unit_Order.Order.User.phonenumber}
+                                                    </td>
+                                                    <td>{item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.Product.product_name} ({item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.AttributeValue1.name} & {item.Shipping_Unit_Order.Order.OrderItems[0].ProductAttribute.AttributeValue2.name} , slg:  {item.Shipping_Unit_Order.Order.OrderItems[0].quantily})
                                                     </td>
                                                     <td>
-                                                        {item.Shipping_Unit_Order.Order.Ward.ward_name} , {item.Shipping_Unit_Order.Order.District.district_name} , {item.Shipping_Unit_Order.Order.Province.province_name} ,
-                                                    </td>
-                                                    <td>
-                                                        {item.Shipping_Unit_Order.Order.OrderItems[0].quantily}
+                                                        {item.Shipping_Unit_Order.Order.address_detail} , {item.Shipping_Unit_Order.Order.Ward.ward_name} , {item.Shipping_Unit_Order.Order.District.district_name} , {item.Shipping_Unit_Order.Order.Province.province_name} ,
                                                     </td>
                                                     <td>
                                                         {formattedPrice}
