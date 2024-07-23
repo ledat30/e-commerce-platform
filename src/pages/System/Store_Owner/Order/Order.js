@@ -13,7 +13,7 @@ import { NavLink } from "react-router-dom";
 function Order() {
     const { user } = useContext(UserContext);
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(4);
+    const [currentLimit] = useState(3);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
     console.log(listOrders);
@@ -246,13 +246,22 @@ function Order() {
                                                                     </button>
                                                                 </>
                                                             )}
-                                                            <button
-                                                                title="Delete"
-                                                                className="btn btn-danger"
-                                                                onClick={() => handleDeleteOrder(item.id)}
-                                                            >
-                                                                <i className="fa fa-trash-o"></i>
-                                                            </button>
+                                                            <div style={{ display: 'flex' }}>
+                                                                <button
+                                                                    title="Edit"
+                                                                    className="btn btn-warning mx-2"
+                                                                    onClick={() => handleConfirm(item.id)}
+                                                                >
+                                                                    <i className="fa fa-check-circle-o"></i>
+                                                                </button>
+                                                                <button
+                                                                    title="Delete"
+                                                                    className="btn btn-danger"
+                                                                    onClick={() => handleDeleteOrder(item.id)}
+                                                                >
+                                                                    <i className="fa fa-trash-o"></i>
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </td>
                                                 </tr>

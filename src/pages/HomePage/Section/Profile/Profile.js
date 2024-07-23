@@ -202,10 +202,12 @@ function Profile() {
                                                                                 <>
                                                                                     <div className='order_status' key={index1}>
                                                                                         {item1.status === 'Delivered' && (
-                                                                                            <>Đã giao hàng thành công <i className="fa fa-check success" aria-hidden="true"></i></>
+                                                                                            <>Đã giao hàng thành công</>
                                                                                         )}
                                                                                         {item1.status === 'Order delivery failed' && (
-                                                                                            <>Giao hàng không thành công <i class="fa fa-times fail" aria-hidden="true"></i></>
+                                                                                            <div style={{ width: '250px' }}>Giao hàng không thành công
+                                                                                                (Lý do : {item1.reason})
+                                                                                            </div>
                                                                                         )}
                                                                                     </div>
                                                                                 </>

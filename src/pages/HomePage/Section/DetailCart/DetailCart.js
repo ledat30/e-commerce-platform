@@ -11,6 +11,7 @@ import { deleteProductCart, buyProduct } from "../../../../services/productServi
 import { getAllPaymentClient } from "../../../../services/paymentMethodService";
 import { getAllProvinceDistrictWard } from "../../../../services/attributeAndVariantService";
 import { useCart } from '../../../../context/cartContext';
+import { getGroupShipper } from '../../../../services/userService';
 import axios from 'axios';
 import { point, distance } from '@turf/turf';
 import Select from "react-select";
@@ -30,6 +31,7 @@ function DetailCart() {
     const [locations, setLocations] = useState([]);
     const [filteredDistricts, setFilteredDistricts] = useState([]);
     const [filteredWards, setFilteredWards] = useState([]);
+    const [listShippers, setListShippers] = useState([]);
     const [isRelative, setIsRelative] = useState(false);
 
     const defaultUserData = {
@@ -50,6 +52,18 @@ function DetailCart() {
     };
     const [userData, setUserData] = useState(defaultUserData);
     const [validInputs, setValidInputs] = useState(validInputsDefault);
+
+    useEffect(() => {
+        fetchAllShipper();
+    }, [])
+
+    const fetchAllShipper = async () => {
+        let response = await getGroupShipper();
+
+        if (response && response.EC === 0) {
+            setListShippers(response.DT)
+        }
+    }
 
     const handleOnChangeInput = (selected, name) => {
         let _userData = _.cloneDeep(userData);
@@ -212,14 +226,27 @@ function DetailCart() {
                 return;
             }
 
-            const ward = isRelative ? `${userData.ward.id}` : `${user.account.wardId}`;
-            const province = isRelative ? `${userData.province.id}` : `${user.account.provinceId}`;
-            const district = isRelative ? `${userData.district.id}` : `${user.account.districtId}`;
+            const selectedWardId = isRelative ? `${userData.ward.id}` : `${user.account.wardId}`;
+            const selectedDistrictId = isRelative ? `${userData.district.id}` : `${user.account.districtId}`;
+            const selectedProvinceId = isRelative ? `${userData.province.id}` : `${user.account.provinceId}`;
+
+            const shipper = listShippers.find(shipper => {
+                return shipper.Ward.id === parseInt(selectedWardId) &&
+                    shipper.District.id === parseInt(selectedDistrictId) &&
+                    shipper.Province.id === parseInt(selectedProvinceId);
+            });
+
+            if (!shipper) {
+                toast.error("Chưa hỗ trợ giao hàng khu vực này.");
+                return;
+            }
 
             const responses = await Promise.all(selectedOrderItemIds.map(orderItem =>
                 buyProduct(orderItem.product_attribute_value_Id, orderItem.orderId, orderItem.storeId, {
                     quantily: orderItem.quantily, price_per_item: orderItem.price, payment_methodID: listPayMents[activeIndex].id, shippingFee: shippingFee,
-                    ward: ward, province: province, district: district,
+                    ward: selectedWardId,
+                    province: selectedProvinceId,
+                    district: selectedDistrictId,
                     phonenumber: userData.phonenumber, address_detail: userData.address_detail, customerName: userData.customerName,
                 })
             ));

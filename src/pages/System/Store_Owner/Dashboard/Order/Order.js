@@ -28,7 +28,7 @@ function Order() {
     }, [expandedDate, detailedCurrentPage]);
 
     const fetchAllOrders = async () => {
-        let response = await storeDashboardOrder(currentPage, 13, user.account.storeId);
+        let response = await storeDashboardOrder(currentPage, 10, user.account.storeId);
 
         if (response && response.EC === 0) {
             setListOrders(response.DT);

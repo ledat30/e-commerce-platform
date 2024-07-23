@@ -12,7 +12,6 @@ function ShippingOrder() {
     const [currentLimit] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
-    console.log(listOrders);
     const [searchInput, setSearchInput] = useState("");
     const [viewStatus, setViewStatus] = useState(null);
     const [activeStatus, setActiveStatus] = useState('all');

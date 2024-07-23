@@ -9,6 +9,7 @@ import Footer from "../../Footer/Footer";
 import { getAllPaymentClient } from "../../../../services/paymentMethodService";
 import { getAllProvinceDistrictWard } from "../../../../services/attributeAndVariantService";
 import { buyNowProduct } from '../../../../services/productService';
+import { getGroupShipper } from '../../../../services/userService';
 import { point, distance } from '@turf/turf';
 import axios from 'axios';
 import { toast } from "react-toastify";
@@ -32,6 +33,7 @@ function CheckOut() {
     const [filteredDistricts, setFilteredDistricts] = useState([]);
     const [filteredWards, setFilteredWards] = useState([]);
     const [isRelative, setIsRelative] = useState(false);
+    const [listShippers, setListShippers] = useState([]);
 
     const defaultUserData = {
         province: "",
@@ -51,6 +53,18 @@ function CheckOut() {
     };
     const [userData, setUserData] = useState(defaultUserData);
     const [validInputs, setValidInputs] = useState(validInputsDefault);
+
+    useEffect(() => {
+        fetchAllShipper();
+    }, [])
+
+    const fetchAllShipper = async () => {
+        let response = await getGroupShipper();
+
+        if (response && response.EC === 0) {
+            setListShippers(response.DT)
+        }
+    }
 
     const handleOnChangeInput = (selected, name) => {
         let _userData = _.cloneDeep(userData);
@@ -236,9 +250,20 @@ function CheckOut() {
             return;
         }
 
-        const ward = isRelative ? `${userData.ward.id}` : `${user.account.wardId}`;
-        const province = isRelative ? `${userData.province.id}` : `${user.account.provinceId}`;
-        const district = isRelative ? `${userData.district.id}` : `${user.account.districtId}`;
+        const selectedWardId = isRelative ? `${userData.ward.id}` : `${user.account.wardId}`;
+        const selectedDistrictId = isRelative ? `${userData.district.id}` : `${user.account.districtId}`;
+        const selectedProvinceId = isRelative ? `${userData.province.id}` : `${user.account.provinceId}`;
+
+        const shipper = listShippers.find(shipper => {
+            return shipper.Ward.id === parseInt(selectedWardId) &&
+                shipper.District.id === parseInt(selectedDistrictId) &&
+                shipper.Province.id === parseInt(selectedProvinceId);
+        });
+
+        if (!shipper) {
+            toast.error("Chưa hỗ trợ giao hàng khu vực này.");
+            return;
+        }
 
         const response = await buyNowProduct(
             matchedProductAttribute.id,
@@ -248,7 +273,9 @@ function CheckOut() {
                 quantily, total,
                 price_item: product.price,
                 payment_methodID: listPayMents[activeIndex].id,
-                ward: ward, province: province, district: district,
+                ward: selectedWardId,
+                province: selectedProvinceId,
+                district: selectedDistrictId,
                 phonenumber: userData.phonenumber, address_detail: userData.address_detail, customerName: userData.customerName,
             }
         );

@@ -3,16 +3,19 @@ import './DetailOrder.scss';
 import ReactPaginate from "react-paginate";
 
 const DetailOrder = ({ orders, onClose }) => {
+    console.log(orders);
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(6);
+    const [currentLimit] = useState(8);
     const [totalPages, setTotalPages] = useState(1);
+    console.log(totalPages);
     const [orderDetail, setOrderDetail] = useState([]);
+    console.log(orderDetail);
     const [searchInput, setSearchInput] = useState("");
 
     useEffect(() => {
-        if (orders) {
+        if (orders && orders.OrderItems) {
             setOrderDetail(orders.OrderItems);
-            setTotalPages(Math.ceil(orders.length / currentLimit));
+            setTotalPages(Math.ceil(orders.OrderItems.length / currentLimit));
         }
     }, [orders, currentLimit]);
 

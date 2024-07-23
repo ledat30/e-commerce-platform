@@ -9,7 +9,7 @@ import Model from './Model';
 
 function Revenue() {
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(6);
+    const [currentLimit] = useState(12);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrdersByDate, setListOrdersByDate] = useState([]);
     const [monthlyOrders, setMonthlyOrders] = useState([]);

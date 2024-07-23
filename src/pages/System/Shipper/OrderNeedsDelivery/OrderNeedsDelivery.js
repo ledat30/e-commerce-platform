@@ -6,6 +6,7 @@ import { UserContext } from "../../../../context/userContext";
 import { readAllOrderByShipper, shipperConfirmOrder, orderConfirmationFailed } from '../../../../services/productService';
 import ReactPaginate from "react-paginate";
 import { NavLink } from "react-router-dom";
+import { Modal, Button, Form } from "react-bootstrap";
 
 function OrderNeedsDelivery() {
     const { user } = useContext(UserContext);
@@ -15,10 +16,19 @@ function OrderNeedsDelivery() {
     const [listOrders, setListOrders] = useState([]);
     const [searchInput, setSearchInput] = useState("");
     const [showOptions, setShowOptions] = useState({});
+    const [showModal, setShowModal] = useState(false);
+    const [reason, setReason] = useState("");
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
-    const shipperConfirmOrderFailed = async (shipping_unit_orderId) => {
+    const handleClose = () => setShowModal(false);
+    const handleShow = (orderId) => {
+        setSelectedOrder(orderId);
+        setShowModal(true);
+    };
+
+    const shipperConfirmOrderFailed = async (shipping_unit_orderId, reason) => {
         try {
-            const response = await orderConfirmationFailed(user.account.id, { shipping_unit_orderId });
+            const response = await orderConfirmationFailed(user.account.id, { shipping_unit_orderId, reason });
             if (response && response.EC === 0) {
                 toast.success(response.EM);
                 await fetchListOrder();
@@ -77,6 +87,13 @@ function OrderNeedsDelivery() {
 
     const handlePageClick = async (event) => {
         setCurrentPage(+event.selected + 1);
+    };
+
+    const handleConfirmFailure = () => {
+        if (selectedOrder) {
+            shipperConfirmOrderFailed(selectedOrder, reason);
+            handleClose();
+        }
     };
 
     return (
@@ -163,7 +180,7 @@ function OrderNeedsDelivery() {
                                                                     <span className="option1" onClick={() => confirmOrder(item.Shipping_Unit_Order.id)}>
                                                                         Đã giao
                                                                     </span>
-                                                                    <span className="option2" onClick={() => shipperConfirmOrderFailed(item.Shipping_Unit_Order.id)}>
+                                                                    <span className="option2" onClick={() => handleShow(item.Shipping_Unit_Order.id)}>
                                                                         Giao không thành công
                                                                     </span>
                                                                 </>
@@ -208,9 +225,34 @@ function OrderNeedsDelivery() {
                             renderOnZeroPageCount={null}
                         />
                     </div>
-                )
-                }
+                )}
             </div >
+            <Modal show={showModal} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Lý do giao không thành công</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group>
+                            <Form.Label>Lý do</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                value={reason}
+                                onChange={(e) => setReason(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Hủy
+                    </Button>
+                    <Button variant="primary" onClick={handleConfirmFailure}>
+                        Xác nhận
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 }
