@@ -406,9 +406,9 @@ const getGroupShipper = async () => {
       where: { groupId: 5 },
       attributes: ["id", "username"],
       include: [
-        { model: db.Province, attributes: ['province_name'] },
-        { model: db.District, attributes: ['district_name'] },
-        { model: db.Ward, attributes: ['ward_name'] }
+        { model: db.Province, attributes: ['province_name', 'id'] },
+        { model: db.District, attributes: ['district_name', 'id'] },
+        { model: db.Ward, attributes: ['ward_name', 'id'] }
       ],
       order: [["id", "DESC"]],
     });

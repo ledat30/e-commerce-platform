@@ -238,7 +238,7 @@ const readAllOrderByShippingUnit = async (page, limit, shipingUnitId) => {
       include: [
         {
           model: db.Order,
-          attributes: ['phonenumber', 'customerName', 'address_detail'],
+          attributes: ['phonenumber', 'customerName', 'address_detail', 'order_date', 'total_amount'],
           include: [
             {
               model: db.OrderItem,

@@ -1290,7 +1290,7 @@ const getreadStatusOrderWithPagination = async (page, limit, userId) => {
           include: [
             {
               model: db.Shipping_Unit_Order_user,
-              attributes: ['status']
+              attributes: ['status', 'reason']
             }
           ]
         }
@@ -1481,7 +1481,7 @@ const shipperConfirmOrder = async (userId, body) => {
 const orderConfirmationFailed = async (userId, body) => {
   try {
     await db.Shipping_Unit_Order_user.update(
-      { status: 'Order delivery failed' },
+      { status: 'Order delivery failed', reason: body.reason },
       { where: { status: "Shipper received", userId: userId, shipping_unit_orderId: body.shipping_unit_orderId }, returning: true }
     );
     return {
