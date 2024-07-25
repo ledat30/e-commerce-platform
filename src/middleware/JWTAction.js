@@ -53,6 +53,7 @@ const nonSecurePaths = [
   '/user/getAllProvinceDistrictWard',
   '/user/register',
   "/user/delete-account-inactive",
+  "/home/search-home-website",
 
   ///
   '/attribute/readByStore',

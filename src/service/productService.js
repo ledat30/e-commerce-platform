@@ -1,5 +1,5 @@
 import db from "../models";
-const { Op, Sequelize } = require("sequelize");
+const { Op, Sequelize, where } = require("sequelize");
 const { sequelize } = db;
 
 const getAllProductForStoreOwner = async () => {
@@ -395,6 +395,7 @@ const getAllProductWithPagination = async (page, limit) => {
     const { count, rows } = await db.Product.findAndCountAll({
       offset: offset,
       limit: limit,
+      where: { isDelete: null },
       attributes: [
         "id",
         "product_name",

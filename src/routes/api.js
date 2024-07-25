@@ -26,6 +26,7 @@ const initApiRouter = (app) => {
   //login
   router.post("/login", authController.handleLogin);
   router.post("/logout", authController.handleLogout);
+  router.get('/home/search-home-website', authController.searchHomePage);
 
   //user routes
   router.post("/user/create", userController.createFunc);

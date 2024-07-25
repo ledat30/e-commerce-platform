@@ -126,9 +126,55 @@ const handleUserLogin = async (rawData) => {
   }
 };
 
+const searchHomePage = async (keyword) => {
+  try {
+    const productResults = await db.Product.findAll({
+      where: {
+        isDelete: null,
+        [db.Sequelize.Op.or]: [
+          {
+            product_name: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      attributes: ['product_name', 'image', 'id'],
+    });
+    const storeResults = await db.Store.findAll({
+      where: {
+        isDelete: null,
+        [db.Sequelize.Op.or]: [
+          {
+            name: {
+              [db.Sequelize.Op.like]: `%${keyword}%`,
+            },
+          },
+        ],
+      },
+      attributes: ['name', 'image', 'id'],
+    });
+    return {
+      EM: "Ok!",
+      EC: 0,
+      DT: {
+        productResults,
+        storeResults
+      },
+    };
+  } catch (error) {
+    return {
+      EM: "Function is not performed! ",
+      EC: -1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
   hashUserPassword,
   checkEmailExist,
   checkPhoneExist,
   handleUserLogin,
+  searchHomePage,
 };
