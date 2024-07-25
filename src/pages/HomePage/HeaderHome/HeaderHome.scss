@@ -777,7 +777,6 @@
     background-color: var(--white-color);
     border-radius   : 3px;
     box-shadow      : 0 1px 5px rgb(189, 189, 189);
-    display         : none;
 }
 
 .header__search-history-heading {
@@ -793,7 +792,7 @@
 }
 
 .header__search-history-item {
-    height : 38px;
+    height : 45px;
     padding: 0 18px;
 }
 

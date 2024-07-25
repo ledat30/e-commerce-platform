@@ -6,7 +6,7 @@ import { shippingUnitDashboardOrder } from '../../../../../services/shippingUnit
 
 function Order() {
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(5);
+    const [currentLimit] = useState(4);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
     const { user } = useContext(UserContext);

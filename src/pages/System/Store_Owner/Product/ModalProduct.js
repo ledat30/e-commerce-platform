@@ -270,7 +270,6 @@ const ModalProduct = (props) => {
             selectedAttributes,
             selectedVariants
           );
-
       if (response && response.EC === 0) {
         // Fetch the updated list of products
         const updatedProductsResponse = await getAllProductsByStore({

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import React, { } from "react";
 import { UserContext } from "../../../context/userContext";
 import { useCart } from '../../../context/cartContext';
@@ -8,12 +8,80 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { deleteProductCart } from "../../../services/productService";
 import { Link } from 'react-router-dom';
+import { debounce } from "lodash";
 const { Buffer } = require("buffer");
 
 function HeaderHome() {
   const { user, logoutContext } = useContext(UserContext);
   const { cartItems, fetchCartItems } = useCart();
   let navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [productResults, setProductResults] = useState([]);
+  const [storeResults, setStoreResults] = useState([]);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [hasSearchResults, setHasSearchResults] = useState(false);
+  const searchRef = useRef(null);
+
+  const handleSearch = debounce(async () => {
+    if (searchTerm.trim() !== '') {
+      try {
+        const response = await fetch(`http://localhost:8080/api/home/search-home-website?q=${searchTerm}`);
+        const result = await response.json();
+        console.log(result);
+
+        if (result.EC === 0) {
+          setProductResults(result.DT.productResults);
+          setStoreResults(result.DT.storeResults);
+          setHasSearchResults(
+            result.DT.productResults.length > 0 ||
+            result.DT.storeResults.length > 0
+          );
+          setIsSearchVisible(true);
+        } else {
+          console.error('Error:', result.EM);
+          setProductResults([]);
+          setStoreResults([]);
+          setHasSearchResults(false);
+          setIsSearchVisible(false);
+        }
+      } catch (error) {
+        console.error('Error searching:', error);
+        setProductResults([]);
+        setStoreResults([]);
+        setHasSearchResults(false);
+        setIsSearchVisible(false);
+      }
+    } else {
+      setProductResults([]);
+      setStoreResults([]);
+      setHasSearchResults(false);
+      setIsSearchVisible(false);
+    }
+  }, 300);
+
+  useEffect(() => {
+    handleSearch(searchTerm);
+    return () => {
+      handleSearch.cancel();
+    };
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchVisible(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleInputChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
 
   const handleDeleteProduct = async (productId) => {
     try {
@@ -63,7 +131,7 @@ function HeaderHome() {
                 </li>
               </ul>
               <ul className="header__navbar-list">
-                <li className="header__navbar-item header__navbar-item--has-notify">
+                {/* <li className="header__navbar-item header__navbar-item--has-notify">
                   <a href="/" className="header__navbar-item-link">
                     <i className="header__navbar-icon fa fa-bell-o"></i>
                     Thông báo
@@ -134,7 +202,7 @@ function HeaderHome() {
                       </a>
                     </footer>
                   </div>
-                </li>
+                </li> */}
                 <li className="header__navbar-item" >
                   <Link to={'/contact'} className="header__navbar-item-link">
                     <i className="header__navbar-icon fa fa-question-circle-o"></i>{" "}
@@ -216,22 +284,64 @@ function HeaderHome() {
                     type="text"
                     className="header__search-input"
                     placeholder="Tìm kiếm sản phẩm ..."
+                    value={searchTerm}
+                    onChange={handleInputChange}
+                    onFocus={() => setIsSearchVisible(true)}
                   />
 
                   {/* search history */}
-                  <div className="header__search-history">
-                    <h3 className="header__search-history-heading">
-                      Lịch sử tìm kiếm
-                    </h3>
-                    <ul className="header__search-history-list">
-                      <li className="header__search-history-item">
-                        <a href="/">Kem dưỡng da</a>
-                      </li>
-                      <li className="header__search-history-item">
-                        <a href="/">Kem trị mụn</a>
-                      </li>
-                    </ul>
-                  </div>
+                  {isSearchVisible && (
+                    <div className="header__search-history">
+                      {hasSearchResults && searchTerm.length > 0 && (
+                        <h3 className="header__search-history-heading">
+                          Kết quả tìm kiếm
+                        </h3>
+                      )}
+                      <ul className="header__search-history-list">
+                        {productResults.map((item) => {
+                          let imageBase64 = '';
+                          imageBase64 = new Buffer.from(item.image, 'base64').toString('binary');
+                          return (
+                            <li key={item.id} className="header__search-history-item">
+                              <Link to={`/product/${item.id}`}>
+                                <div style={{ display: 'flex' }}>
+                                  <div style={{ backgroundImage: `url(${imageBase64})`, width: '50px', height: '40px', backgroundPosition: "center center", backgroundRepeat: "no-repeat", backgroundSize: 'contain', objectFit: 'cover' }}>
+                                  </div>
+                                  <span>
+                                    {item.product_name}
+                                  </span>
+                                </div>
+                              </Link>
+                            </li>
+                          )
+                        })}
+                        {storeResults.map((item) => {
+                          let image = "";
+                          image = new Buffer.from(item.image, 'base64').toString('binary');
+                          return (
+                            <li key={item.id} className="header__search-history-item">
+                              <Link to={`/product/${item.id}`}>
+                                <div style={{ display: 'flex' }}>
+                                  <div style={{ backgroundImage: `url(${image})`, width: '50px', height: '40px', backgroundPosition: "center center", backgroundRepeat: "no-repeat", backgroundSize: 'contain', objectFit: 'cover' }}>
+                                  </div>
+                                  <span style={{ paddingLeft: '5px' }}>
+                                    {item.name}
+                                  </span>
+                                </div>
+                              </Link>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                      {!hasSearchResults && searchTerm.length > 0 && (
+                        <div className="header__search-history-list">
+                          <li className="header__search-history-item">
+                            Không có kết qua tìm kiếm
+                          </li>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <button className="header__search-btn">
                   <i className="header__search-btn-icon fa fa-search"></i>

@@ -55,7 +55,7 @@ function DetailStore() {
 
     useEffect(() => {
         fetchAllProducts();
-    }, [currentPage]);
+    }, [currentPage, storeById]);
 
     const fetchAllProducts = async () => {
         let response = await getAllProductByStoreId(currentPage, currentLimit, storeById);

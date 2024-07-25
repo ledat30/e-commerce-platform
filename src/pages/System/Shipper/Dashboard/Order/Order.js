@@ -6,7 +6,7 @@ import { shipperDashboardOrder } from '../../../../../services/productService';
 
 function Order() {
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(5);
+    const [currentLimit] = useState(4);
     const [totalPages, setTotalPages] = useState(0);
     const [listOrders, setListOrders] = useState([]);
     const { user } = useContext(UserContext);
@@ -79,7 +79,7 @@ function Order() {
                                         </td>
                                         <td>{item.Shipping_Unit_Order.Order && item.Shipping_Unit_Order.Order.customerName ? item.Shipping_Unit_Order.Order.customerName : item.Shipping_Unit_Order.Order.User.username}</td>
                                         <td>{item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.Product.product_name} ({item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue1.name} , {item.Shipping_Unit_Order.Order.OrderItems[0]?.ProductAttribute.AttributeValue2.name} , slg : {item.Shipping_Unit_Order.Order.OrderItems[0]?.quantily})</td>
-                                        <td></td>
+                                        <td>{item.Shipping_Unit_Order.Order && item.Shipping_Unit_Order.Order.phonenumber ? item.Shipping_Unit_Order.Order.phonenumber : item.Shipping_Unit_Order.Order.User.phonenumber}</td>
                                         <td>{formattedDate}</td>
                                         <td>{formattedPrice}</td>
                                         <td>{item.Shipping_Unit_Order.Order.PaymentMethod.method_name}</td>

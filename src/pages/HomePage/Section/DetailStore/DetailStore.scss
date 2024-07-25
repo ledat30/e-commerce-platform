@@ -52,12 +52,14 @@
                         box-shadow      : 0 0 2px 0 rgba(0, 0, 0, .25);
                         background-color: #fff;
                         z-index         : 200;
+                        width           : auto;
 
                         .item-category {
                             padding  : 5px 15px;
                             margin   : 0;
                             font-size: 14px;
                             color    : blue;
+
                         }
 
                         .item-category.active {
@@ -204,7 +206,6 @@
                             font-size       : 12px;
                             background-color: #ff9800;
                             color           : white;
-                            margin-right    : 5px;
                             padding         : 3px 5px;
                             border-radius   : 3px;
                         }

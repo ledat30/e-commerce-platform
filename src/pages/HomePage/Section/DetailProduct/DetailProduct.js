@@ -37,6 +37,7 @@ function DetailProduct() {
   const [validInputComment, setValidInputComment] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   let navigate = useNavigate();
+  const [inventoryCount, setInventoryCount] = useState(0);
 
   const handleBuyNow = () => {
     if (!selectedSize || !selectedColor) {
@@ -117,7 +118,7 @@ function DetailProduct() {
 
   useEffect(() => {
     fetchProduct();
-  }, []);
+  }, [productId]);
 
   const fetchProduct = async () => {
     try {
@@ -199,11 +200,18 @@ function DetailProduct() {
   };
 
   const handleSizeClick = (name) => {
-    setSelectedSize(name === selectedSize ? null : name);
+    const newSize = name === selectedSize ? null : name;
+    setSelectedSize(newSize);
+    updateInventoryCount(newSize, selectedColor);
   };
-
   const handleColorClick = (name) => {
-    setSelectedColor(name === selectedColor ? null : name);
+    const newColor = name === selectedColor ? null : name;
+    setSelectedColor(newColor);
+    updateInventoryCount(selectedSize, newColor);
+  };
+  const updateInventoryCount = (size, color) => {
+    const count = getInventory(size, color);
+    setInventoryCount(count);
   };
 
   const handlePageClick = async (event) => {
@@ -344,6 +352,9 @@ function DetailProduct() {
                           );
                         })}
                       </div>
+                    </div>
+                    <div style={{ fontSize: '15px', marginTop: '15px', marginBottom: '-15px' }}>
+                      Số sản phẩm còn lại: {inventoryCount} sản phẩm
                     </div>
                     <div className="quantily">
                       <div className="cong-tru">

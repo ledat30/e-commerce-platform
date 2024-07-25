@@ -77,9 +77,13 @@ function Dashboard() {
         {activeItem === 'orders' && <Order />}
         {activeItem === 'revenue' && <Revenue />}
         {activeItem === 'statistical' && (
-          <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-            <Barchart dataSummary={dataSummary} />
-            <PieChart dataSummary={dataSummary} />
+          <div style={{ display: 'flex', justifyContent: 'space-around', marginLeft: '90px' }}>
+            <div style={{ marginTop: '50px' }}>
+              <Barchart dataSummary={dataSummary} />
+            </div>
+            <div style={{ marginLeft: '50px' }}>
+              <PieChart dataSummary={dataSummary} />
+            </div>
           </div>
         )}
       </div>
