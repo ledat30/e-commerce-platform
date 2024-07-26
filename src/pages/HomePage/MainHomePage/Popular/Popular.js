@@ -6,7 +6,7 @@ const { Buffer } = require("buffer");
 
 function Popular() {
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(6);
+    const [currentLimit] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [listSellingProduct, setListSellingProduct] = useState([]);
 

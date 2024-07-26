@@ -112,7 +112,7 @@ function Color(props) {
   };
 
   const getAttribute = async () => {
-    let response = await getAllAttributes();
+    let response = await getAllAttributes(user.account.storeId);
 
     if (response && response.EC === 0) {
       setListAttribute(response.DT);

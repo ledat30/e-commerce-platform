@@ -5,9 +5,8 @@ import ReactPaginate from "react-paginate";
 const DetailOrder = ({ orders, onClose }) => {
     console.log(orders);
     const [currentPage, setCurrentPage] = useState(1);
-    const [currentLimit] = useState(8);
+    const [currentLimit] = useState(6);
     const [totalPages, setTotalPages] = useState(1);
-    console.log(totalPages);
     const [orderDetail, setOrderDetail] = useState([]);
     console.log(orderDetail);
     const [searchInput, setSearchInput] = useState("");

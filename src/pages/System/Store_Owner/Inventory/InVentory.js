@@ -18,7 +18,7 @@ function InVentory(ropps) {
     []
   );
   const { user } = useContext(UserContext);
-  const [currentLimit] = useState(6);
+  const [currentLimit] = useState(20);
   const [isShowModelDelete, setIsShowModelDelete] = useState(false);
   const [dataModel, setDataModel] = useState({});
   const [searchInput, setSearchInput] = useState("");

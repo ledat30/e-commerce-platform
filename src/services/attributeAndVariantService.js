@@ -10,8 +10,8 @@ const getAllAttributeProduct = (page, limit, storeId) => {
     );
 };
 
-const getAllAttributes = () => {
-    return axios.get(`/api/attribute/read`);
+const getAllAttributes = (storeId) => {
+    return axios.get(`/api/attribute/read?storeId=${storeId}`);
 }
 
 const updateAttributeProduct = (data, storeId) => {

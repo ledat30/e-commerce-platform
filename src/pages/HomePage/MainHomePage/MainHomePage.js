@@ -18,7 +18,7 @@ function MainHomePage() {
   let navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentLimit] = useState(6);
+  const [currentLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [activeFilter, setActiveFilter] = useState('allProducts');
   const [sortOrder, setSortOrder] = useState('');

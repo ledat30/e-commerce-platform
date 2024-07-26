@@ -62,6 +62,7 @@ const Barchart = ({ dataSummary }) => {
 };
 
 const PieChart = ({ dataSummary }) => {
+    console.log(dataSummary);
     const [listOrderMonth, setListOrderMonth] = useState([]);
     const [monthlyTotals, setMonthlyTotals] = useState([]);
     const [selectedMonth, setSelectedMonth] = useState(null);
