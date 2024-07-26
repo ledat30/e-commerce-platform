@@ -243,7 +243,7 @@ const getAllProductByStoreId = async (page, limit, storeId) => {
     const { count, rows } = await db.Product.findAndCountAll({
       offset: offset,
       limit: limit,
-      where: { storeId: storeId },
+      where: { storeId: storeId, isDelete: null },
       attributes: [
         "id",
         "product_name",
@@ -286,7 +286,7 @@ const getCategoriesByStore = async (storeId) => {
       include: [
         {
           model: db.Product,
-          where: { storeId: storeId },
+          where: { storeId: storeId, isDelete: null },
           attributes: ['id', 'product_name', 'price', 'old_price', 'image', 'promotion'],
         }
       ],
@@ -760,6 +760,7 @@ const storeStatistical = async (storeId) => {
 
     const topViewProducts = await db.Product.findAll({
       where: {
+        isDelete: null,
         storeId: storeId,
         view_count: {
           [Op.ne]: 0
@@ -854,6 +855,7 @@ const storeStatistical = async (storeId) => {
 
     const totalOutOfStock = await db.Inventory.findAll({
       where: {
+        isDelete: null,
         currentNumber: {
           [Sequelize.Op.lt]: 10
         }

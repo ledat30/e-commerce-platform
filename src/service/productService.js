@@ -652,6 +652,7 @@ const getDetailProductById = (inputId) => {
 const getRandomProducts = async () => {
   try {
     const allProducts = await db.Product.findAll({
+      where: { isDelete: null },
       attributes: ["id", "product_name", "price", "old_price", "image"],
     });
     if (allProducts && allProducts.length > 0) {
@@ -661,7 +662,7 @@ const getRandomProducts = async () => {
         );
       });
     }
-    const randomProducts = getRandomItemsFromArray(allProducts, 5);
+    const randomProducts = getRandomItemsFromArray(allProducts, 6);
     return randomProducts;
   } catch (error) {
     throw new Error(error.message);
@@ -1596,6 +1597,9 @@ const getSellingProductsWithPagination = async (page, limit) => {
     const { count, rows } = await db.Inventory.findAndCountAll({
       offset: offset,
       limit: limit,
+      where: {
+        isDelete: null
+      },
       attributes: [
         [db.sequelize.col('ProductAttribute.Product.id'), 'id'],
         [db.sequelize.col('ProductAttribute.Product.product_name'), 'product_name'],
@@ -1603,39 +1607,47 @@ const getSellingProductsWithPagination = async (page, limit) => {
         [db.sequelize.col('ProductAttribute.Product.price'), 'price'],
         [db.sequelize.col('ProductAttribute.Product.old_price'), 'old_price'],
         [db.sequelize.col('ProductAttribute.Product.promotion'), 'promotion'],
-        [db.sequelize.fn('SUM', db.sequelize.col('quantyly_ordered')), 'total_quantity_ordered'],
+        [db.sequelize.fn('SUM', db.sequelize.col('Inventory.quantyly_ordered')), 'total_quantity_ordered']
       ],
       include: [
-        { model: db.Store, attributes: ['id', `name`] },
         {
-          model: db.ProductAttribute, attributes: [],
+          model: db.Store,
+          attributes: ['id', 'name']
+        },
+        {
+          model: db.ProductAttribute,
+          attributes: [],
           include: [
             {
-              model: db.Product, attributes: []
+              model: db.Product,
+              attributes: []
             }
           ]
-        },
+        }
       ],
       group: ['ProductAttribute.Product.id'],
-      order: [[db.sequelize.literal('total_quantity_ordered'), 'DESC']],
+      having: db.sequelize.literal('SUM(`Inventory`.`quantyly_ordered`) > 0'),
+      order: [[db.sequelize.literal('total_quantity_ordered'), 'DESC']]
     });
+
     let totalPages = Math.ceil(count.length / limit);
     let data = {
       totalPages: totalPages,
       totalRow: count.length,
-      product: rows,
+      product: rows
     };
+
     return {
       EM: "Ok",
       EC: 0,
-      DT: data,
+      DT: data
     };
   } catch (error) {
     console.log(error);
     return {
-      EM: "Somnething wrongs with services",
+      EM: "Something wrong with services",
       EC: -1,
-      DT: [],
+      DT: []
     };
   }
 }

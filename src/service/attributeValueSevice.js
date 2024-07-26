@@ -1,30 +1,30 @@
 import db from "../models/index";
 
-const checkNameVariant = async (nameVariant) => {
-    try {
-        let attribute = await db.AttributeValue.findOne({
-            where: { name: nameVariant },
-        });
-        if (attribute) {
-            return true;
-        } else {
-            return false;
-        }
-    } catch (error) {
-        console.log(error);
-    }
-};
+// const checkNameVariant = async (nameVariant) => {
+//     try {
+//         let attribute = await db.AttributeValue.findOne({
+//             where: { name: nameVariant },
+//         });
+//         if (attribute) {
+//             return true;
+//         } else {
+//             return false;
+//         }
+//     } catch (error) {
+//         console.log(error);
+//     }
+// };
 
 const createVariant = async (data, storeId) => {
     try {
-        let check = await checkNameVariant(data.name);
-        if (check === true) {
-            return {
-                EM: "The variant name is already exists",
-                EC: 1,
-                DT: "name",
-            };
-        }
+        // let check = await checkNameVariant(data.name);
+        // if (check === true) {
+        //     return {
+        //         EM: "The variant name is already exists",
+        //         EC: 1,
+        //         DT: "name",
+        //     };
+        // }
         await db.AttributeValue.create({
             name: data.name,
             attributeId: data.attributeId,
@@ -176,7 +176,7 @@ const deleteVariant = async (id) => {
 const readVariantByStore = async (storeId, attributeId) => {
     try {
         let variant = await db.AttributeValue.findAll({
-            where: { storeId: storeId, attributeId: attributeId }
+            where: { storeId: storeId, attributeId: attributeId, isDelete: null }
         });
         if (variant) {
             return {

@@ -1,30 +1,31 @@
+import { where } from "sequelize";
 import db from "../models/index";
 
-const checkNameAttribute = async (nameAttribute, storeId) => {
-    try {
-        let attribute = await db.Attribute.findOne({
-            where: { name: nameAttribute, storeId: storeId },
-        });
-        if (attribute) {
-            return true;
-        } else {
-            return false;
-        }
-    } catch (error) {
-        console.log(error);
-    }
-};
+// const checkNameAttribute = async (nameAttribute, storeId) => {
+//     try {
+//         let attribute = await db.Attribute.findOne({
+//             where: { name: nameAttribute, storeId: storeId },
+//         });
+//         if (attribute) {
+//             return true;
+//         } else {
+//             return false;
+//         }
+//     } catch (error) {
+//         console.log(error);
+//     }
+// };
 
 const createAttribute = async (data, storeId) => {
     try {
-        let check = await checkNameAttribute(data.name, storeId);
-        if (check === true) {
-            return {
-                EM: "The attibute name is already exists",
-                EC: 1,
-                DT: "name",
-            };
-        }
+        // let check = await checkNameAttribute(data.name, storeId);
+        // if (check === true) {
+        //     return {
+        //         EM: "The attibute name is already exists",
+        //         EC: 1,
+        //         DT: "name",
+        //     };
+        // }
         await db.Attribute.create({
             storeId: storeId,
             name: data.name,
@@ -45,9 +46,11 @@ const createAttribute = async (data, storeId) => {
     }
 }
 
-const getAllAttributes = async () => {
+const getAllAttributes = async (storeId) => {
     try {
-        let attributes = await db.Attribute.findAll();
+        let attributes = await db.Attribute.findAll(
+            { where: { isDelete: null, storeId: storeId } }
+        );
         if (attributes) {
             const uniqueAttributes = Array.from(
                 new Map(attributes.map(item => [item.name, item])).values()
@@ -182,7 +185,7 @@ const deleteAttribute = async (id) => {
 const readAttributeByStore = async (storeId, categoryId) => {
     try {
         let attibute = await db.Attribute.findAll({
-            where: { storeId: storeId, categoryId: categoryId },
+            where: { storeId: storeId, categoryId: categoryId, isDelete: null },
             include: [
                 { model: db.Category, attribute: ['category_name'] }
             ]

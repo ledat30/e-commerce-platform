@@ -1,5 +1,5 @@
 import db from "../models";
-const { Sequelize, Op } = require("sequelize");
+const { Sequelize, Op, where } = require("sequelize");
 const moment = require('moment');
 
 const adminDashboardSummary = async () => {
@@ -185,6 +185,7 @@ const adminDashboardProduct = async (page, limit) => {
         const { count, rows } = await db.Product.findAndCountAll({
             offset: offset,
             limit: limit,
+            where: { isDelete: null },
             attributes: ['id', 'product_name', 'price', 'view_count', 'promotion'],
             order: [['id', 'DESC']],
             include: [

@@ -37,7 +37,7 @@ const readFunc = async (req, res) => {
                 DT: data.DT,
             });
         } else {
-            let data = await productAttributeService.getAllAttributes();
+            let data = await productAttributeService.getAllAttributes(storeId);
 
             return res.status(200).json({
                 EM: data.EM,

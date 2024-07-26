@@ -213,7 +213,7 @@ const getDetailCategoryById = async (id) => {
 
       if (categoryData) {
         let productData = await db.Product.findAll({
-          where: { categoryId: id },
+          where: { categoryId: id, isDelete: null },
           attributes: [
             "product_name",
             "price",
